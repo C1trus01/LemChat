@@ -1,0 +1,1014 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="app_name">LemChat</string>
+    <string name="app_name_dank">LemChat (Test)</string>
+    <string name="send_hint">Üzenet küldése</string>
+    <string name="login">Bejelentkezés</string>
+    <string name="reload_emotes">Hangulatjelek újratöltése</string>
+    <string name="reconnect">Újracsatlakoztatás</string>
+    <string name="clear_chat">Chat törlése</string>
+    <string name="add_dialog_title">Csatorna hozzáadása</string>
+    <string name="edit_dialog_title">Csatorna átnevezése</string>
+    <string name="dialog_ok">OK</string>
+    <string name="save">Mentés</string>
+    <string name="dialog_cancel">Mégse</string>
+    <string name="dialog_dismiss">Elutasítás</string>
+    <string name="error_dialog_copy">Másolás</string>
+    <string name="error_dialog_title">Elkapott kivétel: %1$s</string>
+    <string name="add_channel">Csatorna hozzáadása</string>
+    <string name="add_channels">Csatornák hozzáadása</string>
+    <string name="manage_channels">Csatornák kezelése</string>
+    <string name="report_channel">Csatorna jelentése</string>
+    <string name="block_channel">Csatorna letiltása</string>
+    <string name="channel">Csatorna</string>
+    <string name="open_channel">Csatorna megnyitása</string>
+    <string name="remove_channel">Csatorna eltávolítása</string>
+    <string name="channel_blocked_message">Csatorna letiltva</string>
+    <string name="no_channels_added">Nincsenek csatornák hozzáadva</string>
+    <string name="no_channels_added_body">Adj hozzá egy csatornát a csevegéshez</string>
+    <string name="enable_channel_notifications">Háttérértesítések bekapcsolása: %1$s</string>
+    <string name="disable_channel_notifications">Háttérértesítések kikapcsolása: %1$s</string>
+    <string name="channel_background_notifications">Háttérértesítések</string>
+    <string name="confirm_logout_title">Kijelentkezés megerősítése</string>
+    <string name="confirm_logout_message">Biztos ki akarsz jelentkezni?</string>
+    <string name="confirm_logout_question">Kijelentkezés?</string>
+    <string name="confirm_logout_positive_button">Kijelentkezés</string>
+    <string name="upload_media">Média feltöltése</string>
+    <string name="take_picture">Kép készítése</string>
+    <string name="record_video">Videó felvétele</string>
+    <string name="choose_media">Meglévő média kiválasztása</string>
+    <string name="resume_scroll">Görgetés folytatása</string>
+    <string name="uploading_image">Fájl feltöltése</string>
+    <string name="settings">Beállítások</string>
+    <string name="external_upload_disclaimer">A külső tárhelyet a %1$s biztosítja, saját felelősségre használja.</string>
+    <string name="nuuls_upload_title">Egyéni médiafeltöltés</string>
+    <string name="snackbar_message_copied">Üzenet másolva</string>
+    <string name="snackbar_message_id_copied">Üzenet id másolva</string>
+    <string name="snackbar_link_copied">Link másolva</string>
+    <string name="snackbar_error_copied">Hibainformáció másolva</string>
+    <string name="notification_stop">Leállítás</string>
+    <string name="notification_title">LemChat</string>
+    <string name="notification_message">A LemChat a háttérben fut</string>
+    <string name="emote_menu_hint">A hangulatjel menü megnyitása</string>
+    <string name="no_recent_emotes">Nincsenek legutóbbi emoték</string>
+    <string name="login_title">Bejelentkezés a Twitch.tv-be</string>
+    <string name="hint_connected">Csevegés elkezdése</string>
+    <string name="hint_disconnected">Lecsatlakozva</string>
+    <string name="hint_not_logged_int">Nincs bejelentkezve</string>
+    <string name="hint_replying">Válasz</string>
+    <string name="hint_announcing">Bejelentés küldése</string>
+    <string name="snackbar_login">Bejelentkezve mint %1$s</string>
+    <string name="snackbar_login_failed">Nem sikerült bejelentkezni</string>
+    <string name="snackbar_image_uploaded">Másolva: %1$s</string>
+    <string name="system_message_upload_complete">Feltöltés kész: %1$s</string>
+    <string name="snackbar_upload_failed">Hiba a feltöltés során</string>
+    <string name="snackbar_upload_failed_cause">Hiba a feltöltés során: %1$s</string>
+    <string name="share_upload_label">Feltöltés</string>
+    <string name="share_upload_copied">Vágólapra másolva</string>
+    <string name="share_upload_copy">URL másolása</string>
+    <string name="snackbar_retry">Újrapróbálkozás</string>
+    <string name="snackbar_data_reloaded">Hangulatjelek újratöltve</string>
+    <string name="snackbar_data_load_failed_cause">Az adatbetöltés sikertelen: %1$s</string>
+    <string name="snackbar_data_load_failed_multiple_causes">Az adatbetöltés több hibával is sikertelen:\n%1$s</string>
+    <string name="data_loading_step_dankchat_badges">DankChat jelvények</string>
+    <string name="data_loading_step_global_badges">Globális jelvények</string>
+    <string name="data_loading_step_global_ffz_emotes">Globális FFZ emoték</string>
+    <string name="data_loading_step_global_bttv_emotes">Globális BTTV emoték</string>
+    <string name="data_loading_step_global_7tv_emotes">Globális 7TV emoték</string>
+    <string name="data_loading_step_channel_badges">Csatorna jelvények</string>
+    <string name="data_loading_step_ffz_emotes">FFZ emoték</string>
+    <string name="data_loading_step_bttv_emotes">BTTV emoték</string>
+    <string name="data_loading_step_7tv_emotes">7TV emoték</string>
+    <string name="data_loading_step_twitch_emotes">Twitch emoték</string>
+    <string name="data_loading_step_cheermotes">Cheermote-ok</string>
+    <string name="data_loading_step_follower_emotes">Követői emoték</string>
+    <string name="data_loading_step_recent_messages">Legutóbbi üzenetek</string>
+    <string name="data_loading_step_with_channels">%1$s (%2$s)</string>
+    <string name="highlight_header_first_time_chat">Első üzenet</string>
+    <string name="highlight_header_elevated_chat">Kiemelt üzenet</string>
+    <string name="highlight_header_gigantified_emote">Óriás emote</string>
+    <string name="highlight_header_animated_message">Animált üzenet</string>
+    <string name="highlight_header_reward_no_cost">Beváltva: %1$s</string>
+    <plurals name="duration_seconds">
+        <item quantity="one">%1$d másodperc</item>
+        <item quantity="other">%1$d másodperc</item>
+    </plurals>
+    <plurals name="duration_minutes">
+        <item quantity="one">%1$d perc</item>
+        <item quantity="other">%1$d perc</item>
+    </plurals>
+    <plurals name="duration_hours">
+        <item quantity="one">%1$d óra</item>
+        <item quantity="other">%1$d óra</item>
+    </plurals>
+    <plurals name="duration_days">
+        <item quantity="one">%1$d nap</item>
+        <item quantity="other">%1$d nap</item>
+    </plurals>
+    <plurals name="duration_weeks">
+        <item quantity="one">%1$d hét</item>
+        <item quantity="other">%1$d hét</item>
+    </plurals>
+    <string name="duration_join_2">%1$s %2$s</string>
+    <string name="snackbar_paste">Beillesztés</string>
+    <string name="add_channels_hint">Csatornák nevei</string>
+    <string name="add_channels_empty">Adj meg legalább egy csatornanevet</string>
+    <string name="add_channel_already_added">A csatorna már hozzá van adva</string>
+    <string name="emote_menu_tab_recent">Legutóbbi</string>
+    <string name="backspace">Törlés</string>
+    <string name="emote_menu_tab_subs">Feliratkozói</string>
+    <string name="emote_menu_tab_channel">Csatorna</string>
+    <string name="emote_menu_tab_global">Globális</string>
+    <string name="system_message_connected">Csatlakozva</string>
+    <string name="system_message_reconnected">Újracsatlakoztatva</string>
+    <string name="system_message_channel_non_existent">Ez a csatorna nem létezik</string>
+    <string name="system_message_disconnected">Lecsatlakozva</string>
+    <string name="system_message_history_unavailable_detailed">Üzenetelőzmény szolgáltatás nem elérhető (hiba:%1$s)</string>
+    <string name="system_message_history_unavailable">Üzenetelőzmény szolgáltatás nem elérhető</string>
+    <string name="system_message_history_recovering">Az üzenet előzmény szolgáltatás újraépül, így kihagyások lehetnek az előzményekben.</string>
+    <string name="system_message_history_ignored">Az üzenet előzmények nem érhetőek el mert ez a csatorna ki lett zárva a szolgáltatásból.</string>
+    <string name="system_message_no_history">Nem lát üzenetelőzményeket, mert kilépett a legutóbbi üzenetek integrációból.</string>
+    <string name="system_message_ffz_emotes_failed">Nem sikerült betölteni a FFZ hangulatjeleket (hiba %1$s)</string>
+    <string name="system_message_bttv_emotes_failed">Nem sikerült betölteni a BTTV hangulatjeleket (hiba %1$s)</string>
+    <string name="system_message_7tv_emotes_failed">Nem sikerült betölteni a 7TV hangulatjeleket (hiba %1$s)</string>
+    <string name="system_message_ffz_emotes_cached_fallback">Gyorsítótárazott FFZ emotes használata tartalékként</string>
+    <string name="system_message_bttv_emotes_cached_fallback">Gyorsítótárazott BTTV emotes használata tartalékként</string>
+    <string name="system_message_7tv_emotes_cached_fallback">Gyorsítótárazott 7TV emotes használata tartalékként</string>
+    <string name="system_message_7tv_emote_set_changed" comment="flex3rs switched the active 7TV Emote Set to &quot;flex3rs's Emotes&quot;. ">%1$s átváltotta az aktív 7TV hangulatjel készletet erre: \"%2$s\".</string>
+    <string name="system_message_7tv_emote_added" comment="flex3rs added 7TV emote asd.">%1$s hozzáadta a 7TV hangulatjelet %2$s.</string>
+    <string name="system_message_7tv_emote_renamed" comment="flex3rs renamed 7TV emote asd to ASD.">%1$s átnevezte a 7TV hangulatjelet %2$s erre %3$s.</string>
+    <string name="system_message_7tv_emote_removed" comment="flex3rs removed 7TV emote asd.">%1$s eltávolította a 7TV hangulatjelet %2$s.</string>
+    <string name="system_message_stream_live">%1$s élőben van!</string>
+    <string name="system_message_stream_live_with_title">%1$s élőben van: %2$s</string>
+    <string name="system_message_stream_offline">%1$s már nem élő</string>
+    <!-- Send errors -->
+    <string name="system_message_send_not_logged_in">Nincs bejelentkezve</string>
+    <string name="system_message_send_channel_not_resolved">Nem sikerült feloldani a csatorna azonosítót ehhez: %1$s</string>
+    <string name="system_message_send_not_delivered">Az üzenet nem lett elküldve</string>
+    <string name="system_message_send_dropped">Üzenet eldobva: %1$s (%2$s)</string>
+    <string name="system_message_send_missing_scopes">Hiányzó user:write:chat jogosultság, kérjük jelentkezz be újra</string>
+    <string name="system_message_send_not_authorized">Nincs jogosultságod üzeneteket küldeni ezen a csatornán</string>
+    <string name="system_message_send_message_too_large">Az üzenet túl nagy</string>
+    <string name="system_message_send_rate_limited">Sebességkorlát elérve, próbáld újra egy pillanat múlva</string>
+    <string name="system_message_send_failed">Küldés sikertelen: %1$s</string>
+    <!-- Pinned messages -->
+    <string name="pinned_by" comment="Pinned by flex3rs">Kitűzte: %1$s</string>
+    <string name="pinned_message_unpin">Kitűzés megszüntetése</string>
+    <string name="pinned_message_collapse">Kitűzött üzenet összecsukása</string>
+    <string name="pinned_message_show">Kitűzött üzenet megjelenítése</string>
+    <string name="system_message_pin_failed" comment="%1$s is a http status code">Nem sikerült kitűzni az üzenetet (%1$s)</string>
+    <string name="system_message_unpin_failed" comment="%1$s is a http status code">Nem sikerült megszüntetni az üzenet kitűzését (%1$s)</string>
+    <string name="system_message_pin_already_pinned">Nem sikerült kitűzni az üzenetet - már ki van tűzve egy másik üzenet</string>
+    <!-- AutoMod -->
+    <string name="automod_header" comment="AutoMod: Held a message for reason: aggressive (level 2). Allow will post it in chat.">Üzenet visszatartva az alábbi okból: %1$s. Az engedélyezés közzéteszi a chatben.</string>
+    <string name="automod_allow">Engedélyezés</string>
+    <string name="automod_deny">Elutasítás</string>
+    <string name="automod_status_approved">Jóváhagyva</string>
+    <string name="automod_status_denied">Elutasítva</string>
+    <string name="automod_ban_user">Felhasználó kitiltása</string>
+    <string name="automod_status_expired">Lejárt</string>
+    <string name="automod_user_held">Hé! Az üzenetedet a modok ellenőrzik, és még nem lett elküldve.</string>
+    <string name="automod_user_accepted">A modok elfogadták az üzenetedet.</string>
+    <string name="automod_user_denied">A modok elutasították az üzenetedet.</string>
+    <string name="automod_reason_category" comment="aggressive (level 2)">%1$s (%2$d. szint)</string>
+    <plurals name="automod_reason_blocked_terms">
+        <item quantity="one">egyezik %1$d blokkolt kifejezéssel: %2$s</item>
+        <item quantity="other">egyezik %1$d blokkolt kifejezéssel: %2$s</item>
+    </plurals>
+    <string name="automod_error_already_processed" comment="Failed to allow AutoMod message - message has already been processed.">Nem sikerült %1$s az AutoMod üzenetet - az üzenet már feldolgozásra került.</string>
+    <string name="automod_error_not_authenticated" comment="Failed to allow AutoMod message - you need to re-authenticate.">Nem sikerült %1$s az AutoMod üzenetet - újra be kell jelentkezned.</string>
+    <string name="automod_error_not_authorized" comment="Failed to allow AutoMod message - you don\'t have permission to perform that action.">Nem sikerült %1$s az AutoMod üzenetet - nincs jogosultságod ehhez a művelethez.</string>
+    <string name="automod_error_not_found" comment="Failed to allow AutoMod message - target message not found.">Nem sikerült %1$s az AutoMod üzenetet - a célüzenet nem található.</string>
+    <string name="automod_error_unknown" comment="Failed to allow AutoMod message - an unknown error occurred.">Nem sikerült %1$s az AutoMod üzenetet - ismeretlen hiba történt.</string>
+    <string name="automod_moderation_added_blocked_term" comment="flex3rs added &quot;test&quot; as a blocked term on AutoMod.">%1$s hozzáadta a(z) %2$s kifejezést blokkolt kifejezésként az AutoModhoz.</string>
+    <string name="automod_moderation_added_permitted_term" comment="flex3rs added &quot;test&quot; as a permitted term on AutoMod.">%1$s hozzáadta a(z) %2$s kifejezést engedélyezett kifejezésként az AutoModhoz.</string>
+    <string name="automod_moderation_removed_blocked_term" comment="flex3rs removed &quot;test&quot; as a blocked term on AutoMod.">%1$s eltávolította a(z) %2$s kifejezést blokkolt kifejezésként az AutoModból.</string>
+    <string name="automod_moderation_removed_permitted_term" comment="flex3rs removed &quot;test&quot; as a blocked term on AutoMod.">%1$s eltávolította a(z) %2$s kifejezést engedélyezett kifejezésként az AutoModból.</string>
+    <!-- Moderation messages — complete sentence variants for proper localization -->
+    <!-- Timeout (self, IRC — no creator info) -->
+    <string name="mod_timeout_self_irc" comment="You were timed out for 10m">Ideiglenesen ki lettél tiltva %1$s időtartamra</string>
+    <!-- Timeout (self, EventSub — has creator) -->
+    <string name="mod_timeout_self" comment="You were timed out for 10m by flex3rs">Ideiglenesen ki lettél tiltva %1$s időtartamra %2$s által</string>
+    <string name="mod_timeout_self_reason" comment="You were timed out for 10m by flex3rs: reason">Ideiglenesen ki lettél tiltva %1$s időtartamra %2$s által: %3$s</string>
+    <!-- Timeout (other, by creator) -->
+    <string name="mod_timeout_by_creator" comment="flex3rs timed out user123 for 10m">%1$s ideiglenesen kitiltotta %2$s felhasználót %3$s időtartamra</string>
+    <string name="mod_timeout_by_creator_reason" comment="flex3rs timed out user123 for 10m: reason">%1$s ideiglenesen kitiltotta %2$s felhasználót %3$s időtartamra: %4$s</string>
+    <!-- Timeout (other, IRC — no creator) -->
+    <string name="mod_timeout_no_creator" comment="user123 has been timed out for 10m">%1$s ideiglenesen ki lett tiltva %2$s időtartamra</string>
+    <!-- Ban (self) -->
+    <string name="mod_ban_self_irc" comment="You were banned">Ki lettél tiltva</string>
+    <string name="mod_ban_self" comment="You were banned by flex3rs">Ki lettél tiltva %1$s által</string>
+    <string name="mod_ban_self_reason" comment="You were banned by flex3rs: reason">Ki lettél tiltva %1$s által: %2$s</string>
+    <!-- Ban (other) -->
+    <string name="mod_ban_by_creator" comment="flex3rs banned user123">%1$s kitiltotta %2$s felhasználót</string>
+    <string name="mod_ban_by_creator_reason" comment="flex3rs banned user123: reason">%1$s kitiltotta %2$s felhasználót: %3$s</string>
+    <string name="mod_ban_no_creator" comment="user123 has been permanently banned">%1$s véglegesen ki lett tiltva</string>
+    <!-- Simple actions -->
+    <string name="mod_untimeout" comment="flex3rs untimedout user123">%1$s feloldotta %2$s ideiglenes kitiltását</string>
+    <string name="mod_unban" comment="flex3rs unbanned user123">%1$s feloldotta %2$s kitiltását</string>
+    <string name="mod_modded" comment="flex3rs modded user123">%1$s moderátorrá tette %2$s felhasználót</string>
+    <string name="mod_unmodded" comment="flex3rs unmodded user123">%1$s eltávolította %2$s moderátori jogát</string>
+    <string name="mod_vip_added" comment="flex3rs has added user123 as a VIP of this channel">%1$s hozzáadta %2$s felhasználót a csatorna VIP-jeként</string>
+    <string name="mod_vip_removed" comment="flex3rs has removed user123 as a VIP of this channel">%1$s eltávolította %2$s felhasználót a csatorna VIP-jei közül</string>
+    <string name="mod_warn" comment="flex3rs has warned user123">%1$s figyelmeztette %2$s felhasználót</string>
+    <string name="mod_warn_reason" comment="flex3rs has warned user123: reason1, reason2">%1$s figyelmeztette %2$s felhasználót: %3$s</string>
+    <string name="mod_raid" comment="flex3rs initiated a raid to user123">%1$s raidet indított %2$s felé</string>
+    <string name="mod_unraid" comment="flex3rs canceled the raid to user123">%1$s visszavonta a raidet %2$s felé</string>
+    <!-- Delete -->
+    <string name="mod_delete_by_creator" comment="flex3rs deleted message from user123">%1$s törölte %2$s üzenetét</string>
+    <string name="mod_delete_by_creator_message" comment="flex3rs deleted message from user123 saying: hello">%1$s törölte %2$s üzenetét mondván: %3$s</string>
+    <string name="mod_delete_no_creator" comment="A message from user123 was deleted">%1$s üzenete törölve lett</string>
+    <string name="mod_delete_no_creator_message" comment="A message from user123 was deleted saying: hello">%1$s üzenete törölve lett mondván: %2$s</string>
+    <!-- Clear -->
+    <string name="mod_clear_by_creator" comment="flex3rs cleared the chat">%1$s törölte a chatet</string>
+    <string name="mod_clear_no_creator">Egy moderátor törölte a chatet</string>
+    <!-- Room state -->
+    <string name="mod_emote_only_on" comment="flex3rs turned on emote-only mode">%1$s bekapcsolta a csak hangulatjel módot</string>
+    <string name="mod_emote_only_off" comment="flex3rs turned off emote-only mode">%1$s kikapcsolta a csak hangulatjel módot</string>
+    <string name="mod_followers_on" comment="flex3rs turned on followers-only mode">%1$s bekapcsolta a csak követők módot</string>
+    <string name="mod_followers_on_duration" comment="flex3rs turned on followers-only mode (1 week)">%1$s bekapcsolta a csak követők módot (%2$s)</string>
+    <string name="mod_followers_off" comment="flex3rs turned off followers-only mode">%1$s kikapcsolta a csak követők módot</string>
+    <string name="mod_unique_chat_on" comment="flex3rs turned on unique-chat mode">%1$s bekapcsolta az egyedi chat módot</string>
+    <string name="mod_unique_chat_off" comment="flex3rs turned off unique-chat mode">%1$s kikapcsolta az egyedi chat módot</string>
+    <string name="mod_slow_on" comment="flex3rs turned on slow mode">%1$s bekapcsolta a lassú módot</string>
+    <string name="mod_slow_on_duration" comment="flex3rs turned on slow mode (2 minutes 5 seconds)">%1$s bekapcsolta a lassú módot (%2$s)</string>
+    <string name="mod_slow_off" comment="flex3rs turned off slow mode">%1$s kikapcsolta a lassú módot</string>
+    <string name="mod_subscribers_on" comment="flex3rs turned on subscribers-only mode">%1$s bekapcsolta a csak feliratkozók módot</string>
+    <string name="mod_subscribers_off" comment="flex3rs turned off subscribers-only mode">%1$s kikapcsolta a csak feliratkozók módot</string>
+    <!-- Shared chat -->
+    <string name="mod_shared_timeout" comment="flex3rs timed out user123 for 10m in channel456">%1$s ideiglenesen kitiltotta %2$s felhasználót %3$s időtartamra a(z) %4$s csatornán</string>
+    <string name="mod_shared_timeout_reason" comment="flex3rs timed out user123 for 10m in channel456: reason">%1$s ideiglenesen kitiltotta %2$s felhasználót %3$s időtartamra a(z) %4$s csatornán: %5$s</string>
+    <string name="mod_shared_untimeout" comment="flex3rs untimedout user123 in channel456">%1$s feloldotta %2$s ideiglenes kitiltását a(z) %3$s csatornán</string>
+    <string name="mod_shared_ban" comment="flex3rs banned user123 in channel456">%1$s kitiltotta %2$s felhasználót a(z) %3$s csatornán</string>
+    <string name="mod_shared_ban_reason" comment="flex3rs banned user123 in channel456: reason">%1$s kitiltotta %2$s felhasználót a(z) %3$s csatornán: %4$s</string>
+    <string name="mod_shared_unban" comment="flex3rs unbanned user123 in channel456">%1$s feloldotta %2$s kitiltását a(z) %3$s csatornán</string>
+    <string name="mod_shared_delete" comment="flex3rs deleted message from user123 in channel456">%1$s törölte %2$s üzenetét a(z) %3$s csatornán</string>
+    <string name="mod_shared_delete_message" comment="flex3rs deleted message from user123 in channel456 saying: hello">%1$s törölte %2$s üzenetét a(z) %3$s csatornán mondván: %4$s</string>
+    <!-- Helper: message + count concatenation -->
+    <string name="mod_message_with_count" comment="flex3rs timed out user123 for 10m. (2 times)">%1$s%2$s</string>
+    <!-- Parenthetical count (appended after complete sentences, safe for all languages) -->
+    <plurals name="mod_count_suffix" comment=" (2 times)">
+        <item quantity="one">\u0020(%1$d alkalommal)</item>
+        <item quantity="other">\u0020(%1$d alkalommal)</item>
+    </plurals>
+    <string name="timed_out_message">&lt; Üzenet törölve &gt;</string>
+    <string name="multi_entry_header_regex">Regex</string>
+    <string name="multi_entry_add_entry">Bejegyzés hozzáadása</string>
+    <string name="login_expired">Bejelentkezés lejárt! Próbálj meg újra bejelentkezni.</string>
+    <string name="message_history_disclaimer_title">Üzenet előzmények felelősségkizárása</string>
+    <string name="message_history_disclaimer_message">A LemChat betölti az üzenet előzményeket egy harmadik féltől származó szolgáltatásból induláskor.\nAz üzenetek megszerzésére, a LemChat elküldi a csatorna neveit amik meg vannak nyitva a szolgáltatóhoz.\nA szolgáltatás ideiglenesen eltárolja az üzeneteket a csatornákhoz amiket te (és mások) látogatnak hogy biztosítsa a szolgáltatást.\n\n- Hogy ezt a funkciót ne használja, kattintson a beleegyezés visszavonására lent vagy kapcsolja ki az üzenet előzmények betöltését a beállításokban később.\n- Többet megtudhat a szolgáltatásról és kikapcsolhatja az üzenet előzményeket a saját csatornáján ha megtekinti a https://recent-messages.robotty.de/ oldalt</string>
+    <string name="dialog_optin">Beleegyezés</string>
+    <string name="dialog_optout">Beleegyezés visszavonása</string>
+    <string name="more">Több</string>
+    <string name="mentions_title">Említések / Suttogóüzenetek</string>
+    <string name="replies_title">Válasz gondolatmenet</string>
+    <string name="whispers">Suttogóüzenetek</string>
+    <string name="notification_whisper_mention">%1$s küldött neked egy suttogóüzenetet</string>
+    <string name="notification_whisper_conversation_title">Suttogóüzenet tőle: @%1$s</string>
+    <string name="mentions">Említések</string>
+    <string name="confirm_channel_removal_title">Csatorna eltávolításának megerősítése</string>
+    <string name="confirm_channel_removal_message">Biztos, hogy el akarod távolítani ezt a csatornát?</string>
+    <string name="confirm_channel_removal_message_named">Biztos, hogy el akarod távolítani a \"%1$s\" csatornát?</string>
+    <string name="confirm_channel_removal_question">Eltávolítod ezt a csatornát?</string>
+    <string name="confirm_channel_removal_question_named">Eltávolítod a(z) \"%1$s\" csatornát?</string>
+    <string name="confirm_channel_removal_positive_button">Eltávolítás</string>
+    <string name="confirm_channel_block_title">Csatorna tiltásának megerősítése</string>
+    <string name="confirm_channel_block_message_named">Biztosan le akarja tiltani a(z) \"%1$s\" csatornát?</string>
+    <string name="confirm_channel_block_question_named">Letiltod a(z) \"%1$s\" csatornát?</string>
+    <string name="user_popup_block">Letiltás</string>
+    <string name="user_popup_unblock">Feloldás</string>
+    <string name="user_popup_mention">Felhasználó megemlítése</string>
+    <string name="user_popup_whisper">Felhasználó suttogása</string>
+    <string name="user_popup_ignore_highlights">Kiemelések mellőzése</string>
+    <string name="user_popup_created">Létrehozva: %1$s</string>
+    <string name="user_popup_following_since">%1$s óta követi</string>
+    <string name="user_popup_not_following">Nem követi</string>
+    <string name="user_popup_avatar_description">Profil avatár kép</string>
+    <string name="user_popup_error">Felhasználói adatok betöltése sikertelen: %1$s</string>
+    <string name="confirm_user_block_title">Letiltás megerősítése</string>
+    <string name="confirm_user_block_message">Biztosan tiltja ezt a felhasználót?</string>
+    <string name="confirm_user_block_positive_button">Letiltás</string>
+    <string name="restart_required">Újraindítás szükséges a módosítások alkalmazásához</string>
+    <string name="restart">Újraindítás</string>
+    <string name="uploader_reset">Alapértelmezettek visszaállítása</string>
+    <string name="uploader_url">Feltöltési URL</string>
+    <string name="uploader_field">Űrlapmező</string>
+    <string name="uploader_headers">Fejlécek</string>
+    <string name="uploader_image_link">Média link minta</string>
+    <string name="uploader_deletion_link">Törlési link minta</string>
+    <string name="uploader_description">Egy egyéni hosztot állíthat be a média feltöltésére, pl imgur.com vagy s-ul.eu. LemChat ugyanazt a konfigurációt használja mint a Chatterino.\nTekintse meg ezt az útmutatót a segítségért: https://wiki.chatterino.com/Image%20Uploader/</string>
+    <string name="toggle_fullscreen">Teljes képernyőre váltás</string>
+    <string name="toggle_stream">Élő adás kapcsolása</string>
+    <string name="menu_show_stream">Közvetítés megjelenítése</string>
+    <string name="menu_hide_stream">Közvetítés elrejtése</string>
+    <string name="menu_audio_only">Csak hang</string>
+    <string name="menu_exit_audio_only">Kilépés a hang módból</string>
+    <string name="input_action_theater">Színházi mód</string>
+    <string name="menu_theater_mode">Színházi mód</string>
+    <string name="menu_exit_theater_mode">Kilépés a színházi módból</string>
+    <string name="menu_show_theater_chat">Chat megjelenítése</string>
+    <string name="menu_hide_theater_chat">Chat elrejtése</string>
+    <string name="menu_theater_chat_side_by_side">Chat megjelenítése a közvetítés mellett</string>
+    <string name="menu_theater_chat_overlay">Chat megjelenítése a közvetítés felett</string>
+    <string name="menu_fullscreen">Teljes képernyő</string>
+    <string name="menu_exit_fullscreen">Kilépés a teljes képernyőből</string>
+    <string name="menu_hide_input">Bevitel elrejtése</string>
+    <string name="menu_show_input">Bevitel megjelenítése</string>
+    <string name="preference_fullscreen_button_opacity_title">Teljes képernyős gombok átlátszósága</string>
+    <string name="preference_fullscreen_button_opacity_summary">Teljes képernyőn vagy rejtett beviteli mezőnél megjelenő gombok: %d%%</string>
+    <string name="preference_fullscreen_button_opacity_hint">Átlátszóság (1–100)</string>
+    <string name="preference_fullscreen_button_opacity_validation">1 és 100 között kell lennie</string>
+    <string name="preference_fullscreen_button_opacity_custom">Egyéni</string>
+    <string name="preference_require_fullscreen_exit_confirmation_title">Teljes képernyőből való kilépés megerősítése</string>
+    <string name="preference_require_fullscreen_exit_confirmation_summary">Második érintés szükséges a teljes képernyőből való kilépéshez</string>
+    <string name="preference_swipe_navigation_title">Csatorna csúsztatásos navigáció</string>
+    <string name="preference_swipe_navigation_summary">Csatornák váltása csúsztatással a chaten</string>
+    <string name="menu_mod_actions">Csatorna moderálás</string>
+    <plurals name="input_actions_max">
+        <item quantity="one">Maximum %1$d művelet</item>
+        <item quantity="other">Maximum %1$d művelet</item>
+    </plurals>
+    <string name="input_actions_none">Nincs látható művelet</string>
+    <string name="input_action_search">Üzenetek keresése</string>
+    <string name="input_action_last_message">Utolsó üzenet</string>
+    <string name="input_action_recent_messages">Legutóbbi üzenetek</string>
+    <string name="input_action_stream">Közvetítés váltása</string>
+    <string name="input_action_mod_actions">Csatorna moderálás</string>
+    <string name="input_action_fullscreen">Teljes képernyő</string>
+    <string name="input_action_hide_input">Bevitel elrejtése</string>
+    <string name="input_action_debug">Hibakeresés</string>
+    <string name="input_action_configure">Műveletek beállítása</string>
+    <string name="input_action_hide_all">Összes művelet elrejtése</string>
+    <string name="room_state_emote_only">Csak emote</string>
+    <string name="room_state_subscriber_only">Csak feliratkozók</string>
+    <string name="room_state_slow_mode">Lassú mód</string>
+    <string name="room_state_slow_mode_duration">Lassú mód (%1$s)</string>
+    <string name="room_state_unique_chat">Egyedi chat (R9K)</string>
+    <string name="room_state_follower_only">Csak követők</string>
+    <string name="room_state_follower_only_duration">Csak követők (%1$s)</string>
+    <string name="room_state_preset_custom">Egyéni</string>
+    <string name="room_state_follower_any">Bármely</string>
+    <string name="room_state_duration_seconds">%1$ds</string>
+    <string name="room_state_duration_minutes">%1$dm</string>
+    <string name="room_state_duration_hours">%1$dh</string>
+    <string name="room_state_duration_days">%1$dd</string>
+    <string name="room_state_duration_weeks">%1$dw</string>
+    <string name="room_state_duration_months">%1$dmo</string>
+    <string name="mod_actions_room_state_section">Szoba állapota</string>
+    <string name="mod_actions_section">Moderátori műveletek</string>
+    <string name="mod_actions_broadcaster_section">Közvetítő</string>
+    <string name="mod_actions_shield_mode">Pajzs mód</string>
+    <string name="mod_actions_clear_chat">Chat törlése</string>
+    <string name="mod_actions_confirm_clear_chat">Törli az összes üzenetet ebben a csatornában?</string>
+    <string name="mod_actions_confirm_shield_mode_title">Aktiválja a pajzs módot?</string>
+    <string name="mod_actions_confirm_shield_mode_body">Ez alkalmazza a csatorna előre beállított biztonsági beállításait, amelyek tartalmazhatnak csevegési korlátozásokat, AutoMod beállításokat és ellenőrzési követelményeket.</string>
+    <string name="mod_actions_shield_mode_activate">Aktiválás</string>
+    <string name="mod_actions_announce">Bejelentés</string>
+    <string name="mod_actions_announce_header">Bejelentés</string>
+    <string name="mod_actions_shoutout">Shoutout</string>
+    <string name="mod_actions_commercial">Reklám</string>
+    <string name="mod_actions_raid">Raid</string>
+    <string name="mod_actions_cancel_raid">Raid megszakítása</string>
+    <string name="mod_actions_stream_marker">Közvetítés jelölő</string>
+    <string name="mod_actions_username_hint">Felhasználónév</string>
+    <string name="mod_actions_channel_hint">Csatorna</string>
+    <string name="account">Fiók</string>
+    <string name="relogin">Bejelentkezés újra</string>
+    <string name="logout">Kijelentkezés</string>
+    <string name="user_popup_timeout">Ideiglenes kitiltás</string>
+    <string name="user_popup_delete">Üzenet törlése</string>
+    <string name="user_popup_ban">Kitiltás</string>
+    <string name="user_popup_unban">Kitiltás feloldása</string>
+    <string name="change_roomstate">Chat módok</string>
+    <string name="confirm_user_ban_title">Kitiltás megerősítése</string>
+    <string name="confirm_user_ban_message">Biztosan kitiltja ezt a felhasználót?</string>
+    <string name="confirm_user_ban_question">Kitiltod ezt a felhasználót?</string>
+    <string name="confirm_user_ban_positive_button">Kitiltás</string>
+    <string name="confirm_user_timeout_title">Ideiglenes kitiltás megerősítése</string>
+    <string name="confirm_user_timeout_positive_button">Ideiglenes kitiltás</string>
+    <string name="confirm_user_delete_title">Üzenet törlésének megerősítése</string>
+    <string name="confirm_user_delete_message">Biztosan törölni akarja ezt az üzenetet?</string>
+    <string name="confirm_user_delete_question">Törlöd ezt az üzenetet?</string>
+    <string name="confirm_user_delete_positive_button">Törlés</string>
+    <string name="confirm_pin_title">Kitűzés időtartama</string>
+    <string name="confirm_pin_positive_button">Kitűzés</string>
+    <string name="confirm_clear_chat_question">Chat törlése?</string>
+    <string name="confirm_user_roomstate_title">Chat módok frissítése</string>
+    <string name="roomstate_emote">Csak hangulatjeles chat</string>
+    <string name="roomstate_subs">Chat kizárólag előfizetők részére</string>
+    <string name="roomstate_slow">Lassú mód</string>
+    <string name="roomstate_r9k">R9K mód</string>
+    <string name="roomstate_follow">Kizárólag követőknek szóló chat</string>
+    <string name="seconds">Másodperc</string>
+    <string name="minutes">Perc</string>
+    <string name="add_command">Parancs hozzáadása</string>
+    <string name="remove_command">Parancs eltávolítása</string>
+    <string name="command_trigger_hint">Feltétel</string>
+    <string name="command_trigger_reserved">Ez a feltétel egy beépített parancs által van lefoglalva</string>
+    <string name="command_trigger_duplicate">Ezt a feltételt már egy másik parancs használja</string>
+    <string name="command__hint">Parancs</string>
+    <string name="commands_title">Egyéni parancsok</string>
+    <string name="user_popup_report">Jelentés</string>
+    <string name="tts_ignore_list_add_user">Felhasználó hozzáadása</string>
+    <string name="tts_ignore_list_remove_user">Felhasználó eltávolítása</string>
+    <string name="tts_ignore_list_user_hint">Felhasználó</string>
+    <string name="recent_upload_deletion_link">Törlési link:\n%1$s</string>
+    <string name="recent_uploads_clear">Feltöltések törlése</string>
+    <string name="host">Hoszt</string>
+    <string name="reset">Visszaállítás</string>
+    <string name="oauth_token">OAuth token</string>
+    <string name="verify_login">Ellenőrzés &amp; mentés</string>
+    <string name="custom_login_hint">Csak azok a Kliens ID-k működnek amik támogatják a Twitch Helix API-t</string>
+    <string name="custom_login_show_scopes">Szükséges jogosultságok megjelenítése</string>
+    <string name="custom_login_required_scopes">Szükséges jogosultságok</string>
+    <string name="custom_login_missing_scopes_title">Hiányzó jogosultságok</string>
+    <string name="custom_login_missing_scopes_text">Néhány, a LemChat által igényelt jogosultság hiányzik a tokenből, és egyes funkciók nem a várt módon fognak működni. Folytatja ezzel a tokennel?\nHiányzik: %1$s</string>
+    <string name="custom_login_missing_scopes_continue">Tovább</string>
+    <string name="custom_login_error_missing_scopes">Hiányzó jogosultságok: %1$s</string>
+    <string name="custom_login_error_fallback">Hiba: %1$s</string>
+    <string name="custom_login_error_empty_token">A token nem lehet üres</string>
+    <string name="custom_login_error_invalid_token">A token érvénytelen</string>
+    <string name="badge_tooltip_moderator">Moderátor</string>
+    <string name="badge_tooltip_lead_moderator">Vezető moderátor</string>
+    <string name="badge_tooltip_predictions">Előrejelzett \"%1$s\"</string>
+    <string name="badge_tooltip_sub_tier">Szint %1$s</string>
+    <string name="preference_timestamp_title">Időbélyegek mutatása</string>
+    <string name="preference_mention_format_title">Említés formátuma</string>
+    <string name="preference_roomstate_title">Mutassa a chat módok információit</string>
+    <string name="preference_roomstate_summary">Információt jelenít meg a jelenlegi chat módokrol mint a csak feliratkozói mód</string>
+    <string name="preference_always_show_pinned_message_title">Mindig mutassa a kitűzött üzenetet</string>
+    <string name="preference_always_show_pinned_message_summary">Kikapcsolja a kitűzött üzenet sávjának automatikus összecsukását</string>
+    <string name="preference_always_show_pinned_message_moderator_note">Előfordulhat, hogy a Twitch csak a moderátoroknak jeleníti meg a kitűzött üzeneteket</string>
+    <string name="preference_show_stream_title_in_live_message_title">Mutassa a közvetítés címét az élő adásról szóló üzenetekben</string>
+    <string name="preference_compact_channel_info_title">Tömör csatornainformáció</string>
+    <string name="preference_compact_channel_info_summary">A chat módokat és az élő adás információit egyetlen sorban jeleníti meg</string>
+    <string name="preference_streaminfo_title">Az élő adás információinak mutatása</string>
+    <string name="preference_streaminfo_summary">Megjeleníti az élő státuszt és a nézőszámot</string>
+    <string name="preference_notification_title">Mutassa az említési értesítéseket</string>
+    <string name="preference_notification_summary">Értesítéseket hoz létre amikor meg van említve amíg az alkalmazás a háttérben fut</string>
+    <string name="preference_notification_header">Értesítések</string>
+    <string name="preference_chat_header">Chat</string>
+    <string name="preference_general_header">Általános</string>
+    <string name="preference_suggestions_header">Javaslatok</string>
+    <string name="preference_messages_header">Üzenetek</string>
+    <string name="preference_message_tap_action_title">Üzenetre koppintás művelete</string>
+    <string name="preference_message_tap_action_do_nothing">Ne tegyen semmit</string>
+    <string name="preference_message_tap_action_open_user_card">Felhasználói kártya megnyitása</string>
+    <string name="preference_message_tap_action_open_message_options">Üzenetbeállítások megnyitása</string>
+    <string name="preference_users_header">Felhasználók</string>
+    <string name="preference_emotes_badges_header">Emoték és jelvények</string>
+    <string name="preference_suggestion_mode_title">Javaslat mód</string>
+    <string name="preference_suggestion_mode_automatic">Egyezések javaslása gépelés közben</string>
+    <string name="preference_suggestion_mode_prefix_only">Javaslat csak trigger karakter után</string>
+    <string name="preference_about_header">Névjegy</string>
+    <string name="preference_appearance_header">Kinézet</string>
+    <string name="preference_show_input_title">Bemenet mutatása</string>
+    <string name="preference_show_input_summary">Megjeleníti a bemeneti területet az üzenetek küldésére</string>
+    <string name="preference_follow_system_title">Rendszer alapértelmezett követése</string>
+    <string name="preference_true_dark_theme_title">AMOLED sötét mód</string>
+    <string name="preference_true_dark_theme_summary">Tiszta fekete háttér OLED kijelzőkhöz</string>
+    <string name="preference_accent_color_title">Kiemelőszín</string>
+    <string name="preference_accent_color_summary_default">Rendszer háttérkép követése</string>
+    <string name="accent_color_blue">Kék</string>
+    <string name="accent_color_teal">Kékeszöld</string>
+    <string name="accent_color_green">Zöld</string>
+    <string name="accent_color_lime">Lime</string>
+    <string name="accent_color_yellow">Sárga</string>
+    <string name="accent_color_orange">Narancssárga</string>
+    <string name="accent_color_red">Piros</string>
+    <string name="accent_color_pink">Rózsaszín</string>
+    <string name="accent_color_purple">Lila</string>
+    <string name="accent_color_indigo">Indigó</string>
+    <string name="accent_color_brown">Barna</string>
+    <string name="accent_color_grey">Szürke</string>
+    <string name="preference_palette_style_title">Színstílus</string>
+    <string name="palette_style_system_default">Rendszer alapértelmezett</string>
+    <string name="palette_style_system_default_desc">A rendszer alapértelmezett színpalettájának használata</string>
+    <string name="palette_style_tonal_spot">Tonal Spot</string>
+    <string name="palette_style_tonal_spot_desc">Nyugodt és visszafogott színek</string>
+    <string name="palette_style_neutral">Neutral</string>
+    <string name="palette_style_neutral_desc">Szinte egyszínű, finom árnyalat</string>
+    <string name="palette_style_vibrant">Vibrant</string>
+    <string name="palette_style_vibrant_desc">Merész és telített színek</string>
+    <string name="palette_style_expressive">Expressive</string>
+    <string name="palette_style_expressive_desc">Játékos színek eltolt árnyalatokkal</string>
+    <string name="palette_style_rainbow">Rainbow</string>
+    <string name="palette_style_rainbow_desc">Széles színspektrum</string>
+    <string name="palette_style_fruit_salad">Fruit Salad</string>
+    <string name="palette_style_fruit_salad_desc">Játékos, többszínű paletta</string>
+    <string name="palette_style_monochrome">Monochrome</string>
+    <string name="palette_style_monochrome_desc">Csak fekete, fehér és szürke</string>
+    <string name="palette_style_fidelity">Fidelity</string>
+    <string name="palette_style_fidelity_desc">Hű marad a kiemelőszínhez</string>
+    <string name="palette_style_content">Content</string>
+    <string name="palette_style_content_desc">Kiemelőszín analóg harmadlagos színnel</string>
+    <string name="palette_style_more">További stílusok</string>
+    <string name="preference_display_group_title">Megjelenés</string>
+    <string name="preference_components_group_title">Komponensek</string>
+    <string name="preference_show_timed_out_messages_title">Ideiglenesen kitiltott üzenetek mutatása</string>
+    <string name="preference_show_whispers_inline_title">Suttogóüzenetek mutatása a chatben</string>
+    <string name="preference_show_whispers_inline_summary">Megjeleníti az elküldött és fogadott suttogóüzeneteket minden megnyitott csatornán</string>
+    <string name="preference_show_twitch_gifs_title">Twitch GIF-ek megjelenítése</string>
+    <string name="preference_animate_gifs_title">Animált gif-ek</string>
+    <string name="preference_line_separator_title">Üzenetek elkülönítése vonalakkal</string>
+    <string name="preference_keep_screen_on_title">Képernyő ébren tartása</string>
+    <string name="preference_font_size_title">Betűméret</string>
+    <string name="preference_font_size_summary_very_small">Nagyon kicsi</string>
+    <string name="preference_font_size_summary_small">Kicsi</string>
+    <string name="preference_font_size_summary_large">Nagy</string>
+    <string name="preference_font_size_summary_very_large">Nagyon nagy</string>
+    <string name="preference_suggestions_title">Javaslatok</string>
+    <string name="preference_suggestions_summary">Válaszd ki, milyen javaslatokat mutasson gépelés közben</string>
+    <string name="preference_suggestions_emotes">Emoték</string>
+    <string name="preference_suggestions_emotes_desc">Aktiválás a : karakterrel</string>
+    <string name="preference_suggestions_users">Felhasználók</string>
+    <string name="preference_suggestions_users_desc">Aktiválás a @ karakterrel</string>
+    <string name="preference_suggestions_commands">Twitch parancsok</string>
+    <string name="preference_suggestions_commands_desc">Aktiválás a / karakterrel</string>
+    <string name="preference_suggestions_supibot">Supibot parancsok</string>
+    <string name="preference_suggestions_supibot_desc">Aktiválás a $ karakterrel</string>
+    <string name="preference_load_message_history_title">Üzenet előzmények betöltése induláskor</string>
+    <string name="preference_load_messages_on_reconnect_title">Üzenet előzmények betöltése újracsatlakozáskor</string>
+    <string name="preference_load_messages_on_reconnect_summary">Megpróbálja lekérni a kapcsolatkimaradás során nem fogadott üzeneteket</string>
+    <string name="preference_message_history_header">Üzenet előzmény</string>
+    <string name="preference_message_history_dashboard_title">Irányítópult megnyitása</string>
+    <string name="preference_message_history_dashboard_summary">Tudjon meg többet a szolgáltatásról és kapcsolja ki az üzenet előzményeket a saját csatornáján</string>
+    <string name="preference_channel_data_header">Csatorna adatok</string>
+    <string name="preference_developer_header">Fejlesztői beállítások</string>
+    <string name="preference_log_viewer_title">Naplómegjelenítő</string>
+    <string name="preference_log_viewer_summary">Alkalmazásnaplók megtekintése</string>
+    <string name="preference_debug_mode_title">Hibakeresési mód</string>
+    <string name="preference_debug_mode_summary">Hibakeresési elemzési művelet megjelenítése a beviteli sávban és összeomlási jelentések helyi gyűjtése</string>
+    <string name="preference_timestamp_format_title">Időformátum</string>
+    <string name="preference_tts_title">TTS engedélyezése</string>
+    <string name="preference_tts_summary">Üzeneteket olvas fel az aktív csatornáról</string>
+    <string name="preference_tts_queue_title">Üzenet várólista mód</string>
+    <string name="preference_tts_queue_add">Lejátszik minden üzenetet egy várólista használatával</string>
+    <string name="preference_tts_queue_flush">Csak a legújabb üzenet lejátszása</string>
+    <string name="preference_tts_message_format_message">Csak üzenetet olvas fel</string>
+    <string name="preference_tts_message_format_combined">Felolvassa a felhasználót és az üzenetet</string>
+    <string name="preference_tts_message_format_title">Üzenet formátum mód</string>
+    <string name="preference_tts_message_ignore_url_message">URL-ek mellőzése a TTS-ben</string>
+    <string name="preference_tts_message_ignore_url_title">URL-ek figyelmen kívül hagyása</string>
+    <string name="preference_tts_message_ignore_emote_message">Hangulatjelek és emojik mellőzése a TTS-ben</string>
+    <string name="preference_tts_message_ignore_emote_title">Hangulatjelek figyelmen kívül hagyása</string>
+    <string name="preference_tts_message_ignore_command_message">A parancselőtaggal (!, $, %, +, -, ~) kezdődő üzenetek mellőzése</string>
+    <string name="preference_tts_message_ignore_command_title">Parancsok figyelmen kívül hagyása</string>
+    <string name="preference_tts_volume_title">Hangerő</string>
+    <string name="preference_tts_audio_ducking_title">Hangerő csökkentés</string>
+    <string name="preference_tts_audio_ducking_summary">Más alkalmazások hangerejének csökkentése TTS lejátszás közben</string>
+    <string name="preference_tts_header">TTS</string>
+    <string name="preference_checkered_lines_title">Kockás vonalak</string>
+    <string name="preference_checkered_lines_summary">Minden vonal szétválasztása különböző háttér fényerősséggel</string>
+    <string name="preference_supibot_suggestions_title">Supibot parancs javaslatok</string>
+    <string name="preference_scrollback_length_title">Üzenetek visszagörgetési hossza</string>
+    <string name="preference_show_username_title">Felhasználónevek megjelenítése</string>
+    <string name="preference_visible_badges_title">Látható jelvények</string>
+    <string name="preference_dankchat_account_title">DankChat fiók</string>
+    <string name="dankchat_badge_automatic">Automatikus</string>
+    <string name="dankchat_badge_automatic_summary">Jelenleg: %1$s</string>
+    <string name="dankchat_badge_none">Nincs jelvény</string>
+    <string name="dankchat_badge_empty">Még nincs DankChat jelvényed.</string>
+    <string name="dankchat_badge_logged_out">Jelentkezz be, hogy kiválaszthasd a DankChat jelvényedet</string>
+    <string name="dankchat_badge_unsupported">A bejelentkezésed itt nem használható. Válaszd ki a jelvényedet a dank.chat oldalon.</string>
+    <string name="dankchat_badge_load_failed">Nem sikerült betölteni a DankChat jelvényeidet</string>
+    <string name="dankchat_badge_save_failed">Nem sikerült menteni a jelvényválasztásodat</string>
+    <string name="dankchat_account_manage_title">Fiók kezelése a dank.chat oldalon</string>
+    <string name="dankchat_account_manage_summary">Töltsd le az adataidat, vagy töröld a fiókodat</string>
+    <string name="preference_prefer_emote_suggestions_title">Hangulatjel javaslatok előnyben részesítése</string>
+    <string name="preference_prefer_emote_suggestions_summary">Hangulatjel javaslatok előnyben részesítése felhasználók felett</string>
+    <string name="preference_user_long_click_title">Felhasználó hosszú kattintás viselkedése</string>
+    <string name="preference_user_long_click_summary_on">Rendes kattintás felugró ablakot nyit meg, hosszú kattintás megemlít</string>
+    <string name="preference_user_long_click_summary_off">Rendes kattintás megemlít, hosszú kattintás felugró ablakot nyit meg</string>
+    <string name="preference_colorize_nicknames_title">Beceneveinek színezése</string>
+    <string name="preference_colorize_nicknames_summary">Véletlenszerű szín hozzárendelése a beállított szín nélküli felhasználókhoz</string>
+    <string name="preference_bold_username_mentions_title">Felhasználónevek félkövérrel</string>
+    <string name="preference_bold_username_mentions_summary">Említett felhasználónevek kiemelése</string>
+    <string name="preference_color_username_mentions_title">Felhasználónevek színezése</string>
+    <string name="preference_color_username_mentions_summary">A felhasználó Twitch-színének használata az említett felhasználóneveknél, ha elérhető</string>
+    <string name="preference_tts_force_english_title">Angol nyelv kényszerítése</string>
+    <string name="preference_tts_force_english_summary">A TTS hang kényszerítése angolra a rendszer alapértelmezett helyett</string>
+    <string name="preference_visible_emotes_title">Látható harmadik féltől származó hangulatjelek</string>
+    <string name="preference_about_tos">Twitch szolgáltatási feltételei &amp; felhasználói szabályzata:</string>
+    <string name="preference_show_chip_actions_title">Chip akciók megjelenítése</string>
+    <string name="preference_show_chip_actions_summary">Megjeleníti a teljes képernyő, a streamek és a csevegési módok beállításához szükséges chipeket</string>
+    <string name="preference_show_character_counter_title">Karakterszámláló megjelenítése</string>
+    <string name="preference_show_character_counter_summary">Megjeleníti a kódpontok számát a beviteli mezőben</string>
+    <string name="preference_show_send_wait_timer_title">Lassú mód és ideiglenes kitiltás visszaszámlálásának megjelenítése</string>
+    <string name="preference_show_send_wait_timer_summary">Megmutatja, mennyi idő múlva küldhetsz újra</string>
+    <string name="preference_show_clear_input_button_title">Beviteli mező törlése gomb megjelenítése</string>
+    <string name="preference_show_send_button_title">Küldés gomb megjelenítése</string>
+    <string name="preference_input_group_title">Bevitel</string>
+    <string name="preference_uploader_header">Média feltöltő</string>
+    <string name="preference_uploader_configure_title">Feltöltő konfigurálása</string>
+    <string name="preference_uploader_recent_uploads_title">Legutóbbi feltöltések</string>
+    <string name="preference_tts_user_ignore_list_title">Letiltott felhasználók listája</string>
+    <string name="preference_tts_user_ignore_list_summary">Figyelmen kívül hagyandó felhasználók/fiókok listája</string>
+    <string name="preference_tools_header">Eszközök</string>
+    <string name="preference_theme_title">Téma</string>
+    <string name="preference_dark_theme_entry_title">Sötét téma</string>
+    <string name="preference_light_theme_entry_title">Világos téma</string>
+    <string name="preference_unlisted_emotes_title">Nem listázott hangulatjelek engedélyezése</string>
+    <string name="preference_unlisted_emotes_summary">Szűrés kikapcsolása a nem jóváhagyott vagy nem listázott hangulatjelekre</string>
+    <string name="preference_rm_host_title">Egyéni legutóbbi üzenetek hoszt</string>
+    <string name="preference_developer_category_general">Általános</string>
+    <string name="preference_developer_category_auth">Hitelesítés</string>
+    <string name="preference_eventsub_title">Twitch EventSub engedélyezése</string>
+    <string name="preference_eventsub_summary">EventSub használata valós idejű eseményekhez az elavult PubSub helyett</string>
+    <string name="preference_eventsub_debug_title">EventSub hibakeresési kimenet engedélyezése</string>
+    <string name="preference_eventsub_debug_summary">EventSubhoz kapcsolódó hibakeresési adatokat jelenít meg rendszerüzenetként</string>
+    <string name="preference_revoke_token_title">Token visszavonása és újraindítás</string>
+    <string name="preference_revoke_token_summary">Érvényteleníti a jelenlegi tokent és újraindítja az alkalmazást</string>
+    <string name="preference_fetch_streams_title">Élő adás információinak lekérése</string>
+    <string name="preference_fetch_streams_summary">Rendszeresen lekéri a megnyitott csatornák élő adás információit. Szükséges a beágyazott élő adás elindításához.</string>
+    <string name="preference_auto_disable_input_title">Bemenet kikapcsolása ha nincs csatlakoztatva a chatre</string>
+    <string name="preference_repeated_sending_title">Ismételt küldés engedélyezése</string>
+    <string name="preference_repeated_sending_summary">Engedélyezi a folyamatos üzenetküldést amíg a küldés gomb le van nyomva</string>
+    <string name="preference_emote_animation_clock_title">Szinkronizált emote-animációk</string>
+    <string name="preference_emote_animation_clock_summary">Együtt lépteti az animált emotékat, hogy ritkábban rajzolódjon újra a képernyő</string>
+    <string name="oauth_expired_title">Bejelentkezés lejárt!</string>
+    <string name="oauth_expired_message">A bejelentkezési kulcsa lejárt! Kérjük lépjen be újra.</string>
+    <string name="oauth_expired_login_again">Bejelentkezés újra</string>
+    <string name="oauth_verify_failed">Nem sikerült a bejelentkezési kulcs hitelesítése, ellenőrizze a kapcsolatát.</string>
+    <string name="preference_stream_live_messages_title">Élő állapotüzenetek megjelenítése</string>
+    <string name="preference_stream_live_messages_summary">Üzenetet ad a chathez, amikor egy csatorna élő adásba kezd vagy befejezi azt</string>
+    <string name="preference_stream_extensions_title">Élő adás bővítményeinek megjelenítése</string>
+    <string name="preference_stream_extensions_summary">Megjeleníti a bővítményeket az élő adás lejátszója felett</string>
+    <string name="preference_retain_webview_title">Élő adás újratöltésének megakadályozása</string>
+    <string name="preference_retain_webview_summary">Engedélyezi a kísérleti megakadályozását az élő adásnak miután az orientáció megváltozik vagy újranyitja a LemChat-et.</string>
+    <string name="preference_show_changelogs">Változtatások mutatása a frissítés után</string>
+    <string name="preference_whats_new_header">Újdonságok</string>
+    <string name="preference_custom_login_title">Egyéni bejelentkezés</string>
+    <string name="preference_bypass_command_handling_title">Twitch parancsfeldolgozás megkerülése</string>
+    <string name="preference_bypass_command_handling_summary">Letiltja a Twitch parancsok elfogását és a chatbe küldi helyette</string>
+    <string name="preference_chat_send_protocol_category">Chat küldési protokoll</string>
+    <string name="preference_helix_sending_title">Helix API használata küldéshez</string>
+    <string name="preference_helix_sending_summary">Chat üzenetek küldése Twitch Helix API-n keresztül IRC helyett</string>
+    <string name="preference_7tv_live_updates_title">7TV élő hangulatjel frissítések</string>
+    <string name="preference_streams_header">Élő adások</string>
+    <string name="preference_pip_title">Kép a képben mód engedélyezése</string>
+    <string name="preference_pip_summary">Engedélyezze az élő adások lejátszását amíg az alkalmazás a háttérben van</string>
+    <string name="preference_battery_header">Akkumulátor</string>
+    <string name="preference_battery_part_busy_title">Forgalmas csatornák szüneteltetése</string>
+    <string name="preference_battery_part_busy_summary">Ideiglenesen elhagyja a forgalmas csatornákat, amíg az alkalmazás a háttérben van</string>
+    <string name="preference_battery_busy_threshold_title">Üzenetgyakoriság küszöbértéke</string>
+    <string name="preference_battery_busy_threshold_summary">%1$s felett a csatornák szünetelnek</string>
+    <string name="battery_busy_threshold_entry_100">Percenként 100 üzenet</string>
+    <string name="battery_busy_threshold_entry_200">Percenként 200 üzenet</string>
+    <string name="battery_busy_threshold_entry_400">Percenként 400 üzenet</string>
+    <string name="preference_battery_delay_title">Késleltetés a háttérben</string>
+    <string name="preference_battery_delay_summary">A szüneteltetés %1$s háttérben töltött idő után lép életbe</string>
+    <string name="battery_delay_entry_five_minutes">5 perc</string>
+    <string name="battery_delay_entry_ten_minutes">10 perc</string>
+    <string name="battery_delay_entry_thirty_minutes">30 perc</string>
+    <string name="preference_battery_pause_events_title">Eseményszolgáltatások szüneteltetése</string>
+    <string name="preference_battery_pause_events_summary">A háttérben lecsatlakozik a csatornapont- és moderálási eseményekről</string>
+    <string name="preference_battery_pause_7tv_title">Élő hangulatjel frissítések szüneteltetése</string>
+    <string name="preference_battery_pause_7tv_summary">A háttérben lecsatlakozik a 7TV élő hangulatjel frissítésekről</string>
+    <string name="battery_saver_channel_paused">A chat szüneteltetve az akkumulátor kímélése érdekében</string>
+    <string name="reset_media_uploader_dialog_title">A média feltöltő alaphelyzetbe állítása</string>
+    <string name="reset_media_uploader_dialog_message">Biztosan alaphelyzetbe állítja a média feltöltő beállításait?</string>
+    <string name="reset_media_uploader_dialog_positive">Visszaállítás</string>
+    <string name="clear_recent_uploads_dialog_title">Legutóbbi feltöltések törlése</string>
+    <string name="clear_recent_uploads_dialog_message">Biztosan törölni akarja a feltöltési előzményeket? A feltöltött fájlok nem lesznek törölve.</string>
+    <string name="clear">Törlés</string>
+    <string name="pattern">Minta</string>
+    <string name="case_sensitive">Kis- és nagybetűk megkülönböztetése</string>
+    <string name="highlights">Kiemelések</string>
+    <string name="enabled">Engedélyezve</string>
+    <string name="create_notification">Értesítés</string>
+    <string name="preference_highlights_summary">Üzenet kiemelések szerkesztése</string>
+    <string name="preference_highlights_ignores_header">Kiemelések és mellőzések</string>
+    <string name="username">Felhasználónév</string>
+    <string name="block">Letiltás</string>
+    <string name="replacement">Csere</string>
+    <string name="ignores">Mellőzött</string>
+    <string name="preference_ignores_summary">Üzenet mellőzések szerkesztése</string>
+    <string name="tab_messages">Üzenetek</string>
+    <string name="tab_users">Felhasználók</string>
+    <string name="tab_blacklisted_users">Feketelistás felhasználók</string>
+    <string name="tab_twitch">Twitch</string>
+    <string name="tab_badges">Jelvények</string>
+    <string name="undo">Visszavonás</string>
+    <string name="item_removed">Tárgy eltávolítva</string>
+    <string name="unblocked_user">Feloldotta %1$s felhasználót</string>
+    <string name="unblocked_user_failed">Nem sikerült feloldani %1$s felhasználót</string>
+    <string name="badge">Jelvény</string>
+    <string name="blocked_user_failed">Nem sikerült letiltani %1$s felhasználót</string>
+    <string name="highlights_entry_username">Felhasználóneved</string>
+    <string name="highlights_ignores_entry_subscriptions">Feliratkozások és Események</string>
+    <string name="highlights_ignores_entry_announcements">Bejelentések</string>
+    <string name="highlights_ignores_entry_watch_streaks">Nézési sorozatok</string>
+    <string name="highlights_ignores_entry_first_messages">Első üzenet</string>
+    <string name="highlights_ignores_entry_elevated_messages">Kiemelt üzenetek</string>
+    <string name="highlights_ignores_entry_redemptions">Kiemelések kiváltása csatorna pontokkal</string>
+    <string name="highlights_ignores_entry_replies">Válaszok</string>
+    <string name="highlights_ignores_entry_inline_whispers">Suttogóüzenetek a chatben</string>
+    <string name="highlights_ignores_entry_custom">Egyéni</string>
+    <string name="highlights_messages_title">Értesítéseket hoz létre és kiemel üzeneteket egy bizonyos minta szerint</string>
+    <string name="highlights_users_title">Értesítéseket hoz létre és kiemel üzeneteket bizonyos felhasználóktól.</string>
+    <string name="highlights_blacklisted_users_title">Kikapcsolja az értesítéseket és kiemeléseket bizonyos felhasználóktól (pl. botok-tól).</string>
+    <string name="highlights_badges_title">Értesítések létrehozása és üzenetek kiemelése jelvények alapján.</string>
+    <string name="ignores_messages_title">Üzenetek figyelmen kívül hagyása bizonyos minta szerint.</string>
+    <string name="ignores_users_title">Üzenetek figyelmen kívül hagyása bizonyos felhasználóktól.</string>
+    <string name="ignores_twitch_title">Letiltott Twitch-felhasználók kezelése.</string>
+    <string name="preference_notification_whisper_title">Értesítések létrehozása suttogóüzenetekre</string>
+    <string name="preference_notification_profile_pictures_title">Profilképek megjelenítése</string>
+    <string name="preference_notification_profile_pictures_summary">Csatornák és felhasználók profilképeinek használata a LemChat ikon helyett</string>
+    <string name="login_outdated_title">Bejelentkezés elavult!</string>
+    <string name="login_outdated_message">A bejelentkezésed elavult, és nincs hozzáférésed bizonyos funkciókhoz. Kérjük, jelentkezz be újra.</string>
+    <string name="custom_user_display_title">Saját felhasználói testreszabás</string>
+    <string name="remove_custom_user_display">Saját felhasználói testreszabás eltávolítása</string>
+    <string name="user_display_alias_input">Álnév</string>
+    <string name="user_display_custom_color_enable">Egyedi szín</string>
+    <string name="user_display_custom_alias_enable">Saját álnév</string>
+    <string name="pick_custom_user_color_title">Egyéni felhasználói szín kiválasztása</string>
+    <string name="custom_user_display_summary">Egyéni név és szín hozzáadása a felhasználóknak</string>
+    <string name="reply_to">Válaszol neki</string>
+    <string name="message_copy">Üzenet másolása</string>
+    <string name="message_copy_full">Teljes üzenet másolása</string>
+    <string name="message_reply">Válasz az üzenetre</string>
+    <string name="message_reply_original">Válasz az eredeti üzenetre</string>
+    <string name="message_view_thread">Gondolatmenet megtekintése</string>
+    <string name="message_copy_id">Üzenet id másolása</string>
+    <string name="message_copy_link">Másolás: %s</string>
+    <string name="message_more_actions">Több…</string>
+    <string name="message_jump_to">Ugrás az üzenethez</string>
+    <string name="message_pin">Üzenet kitűzése</string>
+    <string name="message_warn">Figyelmeztetés</string>
+    <string name="message_warn_reason">Indok</string>
+    <string name="message_warn_confirm">Figyelmeztetés</string>
+    <string name="message_not_in_history">Az üzenet már nincs a csevegési előzményekben</string>
+    <string name="message_history">Üzenetelőzmények</string>
+    <string name="global_history_title">Globális előzmények</string>
+    <string name="message_history_title">Előzmények: %1$s</string>
+    <string name="view_history">Előzmények megtekintése</string>
+    <string name="history_empty">Nincs a jelenlegi szűrőknek megfelelő üzenet</string>
+    <string name="search_messages_hint">Üzenetek keresése…</string>
+    <string name="log_viewer_title">Naplók</string>
+    <string name="log_viewer_share">Naplók megosztása</string>
+    <string name="log_viewer_open">Naplók megtekintése</string>
+    <string name="preference_log_viewer_empty">Nincsenek elérhető naplófájlok</string>
+    <string name="log_viewer_search_hint">Keresés a naplókban</string>
+    <plurals name="log_viewer_selected_count">
+        <item quantity="one">%1$d kiválasztva</item>
+        <item quantity="other">%1$d kiválasztva</item>
+    </plurals>
+    <string name="log_viewer_copy_selection">Kiválasztott naplók másolása</string>
+    <string name="log_viewer_clear_selection">Kijelölés törlése</string>
+    <string name="crash_report_title">Összeomlás észlelve</string>
+    <string name="crash_report_message">Az alkalmazás összeomlott az utolsó munkamenet során.</string>
+    <string name="crash_report_thread">Szál: %1$s</string>
+    <string name="crash_report_copy">Másolás</string>
+    <string name="crash_report_send">Jelentés chaten</string>
+    <string name="crash_report_send_description">Csatlakozik a #flex3rs csatornához és előkészíti az összeomlás összefoglalóját küldésre</string>
+    <string name="crash_report_email">Jelentés e-mailben</string>
+    <string name="crash_report_email_description">Részletes összeomlási jelentés küldése e-mailben</string>
+    <string name="crash_email_confirm_title">Összeomlási jelentés küldése e-mailben</string>
+    <string name="crash_email_confirm_message">A következő adatok lesznek a jelentésben:</string>
+    <string name="crash_email_confirm_stacktrace">Veremnyom</string>
+    <string name="crash_email_confirm_include_logs">Aktuális naplófájl csatolása</string>
+    <string name="preference_crash_viewer_title">Összeomlási jelentések</string>
+    <string name="preference_crash_viewer_summary">Legutóbbi összeomlási jelentések megtekintése</string>
+    <string name="preference_crash_viewer_empty">Nem található összeomlási jelentés</string>
+    <string name="crash_viewer_title">Összeomlási jelentés</string>
+    <string name="crash_viewer_share">Összeomlási jelentés megosztása</string>
+    <string name="crash_viewer_delete">Törlés</string>
+    <string name="crash_viewer_clear_all">Összes törlése</string>
+    <string name="crash_viewer_delete_confirm">Törli ezt az összeomlási jelentést?</string>
+    <string name="crash_viewer_clear_all_confirm">Törli az összes összeomlási jelentést?</string>
+    <string name="scroll_to_bottom">Görgetés az aljára</string>
+    <string name="search_filter_by_username">Szűrés felhasználónév szerint</string>
+    <string name="search_filter_has_link">Linkeket tartalmazó üzenetek</string>
+    <string name="search_filter_has_emote">Emote-okat tartalmazó üzenetek</string>
+    <string name="search_filter_by_badge">Szűrés jelvénynév szerint</string>
+    <string name="search_filter_user">Felhasználó</string>
+    <string name="search_filter_badge">Jelvény</string>
+    <string name="reply_header">Válaszol neki @%1$s</string>
+    <string name="whisper_header">Suttogás @%1$s felhasználónak</string>
+    <string name="hint_whispering">Suttogás küldése</string>
+    <string name="whisper_new">Új suttogás</string>
+    <string name="whisper_new_dialog_title">Suttogás küldése</string>
+    <string name="whisper_new_dialog_hint">Felhasználónév</string>
+    <string name="whisper_new_dialog_start">Küldés</string>
+    <string name="reply_thread_not_found">Gondolatmenet nem található</string>
+    <string name="message_not_found">Üzenet nem található</string>
+    <string name="emote_sheet_use">Hangulatjel használata</string>
+    <string name="emote_sheet_copy">Másolás</string>
+    <string name="emote_sheet_open_link">Hangulatjel link megnyitása</string>
+    <string name="emote_sheet_image_description">Hangulatjel képe</string>
+    <string name="emote_sheet_twitch_emote">Twitch hangulatjel</string>
+    <string name="emote_sheet_ffz_channel_emote">A csatorna FFZ hangulatjelei</string>
+    <string name="emote_sheet_ffz_global_emote">Globális FFZ hangulatjel</string>
+    <string name="emote_sheet_bttv_channel_emote">A csatorna BTTV hangulatjelei</string>
+    <string name="emote_sheet_bttv_shared_emote">Megosztott BTTV hangulatjel</string>
+    <string name="emote_sheet_bttv_global_emote">Globális BTTV hangulatjel</string>
+    <string name="emote_sheet_seventv_channel_emote">A csatorna 7TV hangulatjelei</string>
+    <string name="emote_sheet_seventv_global_emote">Globális 7TV hangulatjel</string>
+    <string name="emote_sheet_alias_of">A %1$s álneve</string>
+    <string name="emote_sheet_created_by">Létrehozta %1$s</string>
+    <string name="emote_sheet_zero_width_emote">(Zéró szélességű)</string>
+    <string name="emote_copied">Hangulatjel másolva</string>
+    <string name="changelog_sheet_title">A LemChat frissítve lett!</string>
+    <string name="changelog_sheet_subtitle">Újdonságok a v%1$s verzióban:</string>
+    <string name="confirm_login_cancel_title">A bejelentkezés megszakításának megerősítése</string>
+    <string name="confirm_login_cancel_message">Biztosan megszakítja a bejelentkezési folyamatot?</string>
+    <string name="confirm_login_cancel_positive_button">Bejelentkezés megszakítása</string>
+    <string name="login_menu_zoom_out">Kicsinyítés</string>
+    <string name="login_menu_zoom_in">Nagyítás</string>
+    <string name="back">Vissza</string>
+    <string name="shared_chat">Megosztott chat</string>
+    <plurals name="viewers_and_uptime">
+        <item quantity="one">Élő %1$d nézővel %2$s ideje</item>
+        <item quantity="other">Élő %1$d nézővel %2$s ideje</item>
+    </plurals>
+    <plurals name="months">
+        <item quantity="one">%d hónap</item>
+        <item quantity="other">%d hónap</item>
+    </plurals>
+    <string name="open_source_licenses">Nyílt forráskódú licencek</string>
+    <plurals name="viewers_and_uptime_with_cateogry" comment="Live with 1 viewer in Just Chatting for 1h 1m&#13;&#10;Live with 10 viewers in Just Chatting for 1h 1m">
+        <item quantity="one">Élőben %1$d nézővel a %2$s %3$s időre</item>
+        <item quantity="other">Élőben %1$d nézővel a %2$s %3$s időre</item>
+    </plurals>
+    <string name="preference_streaminfo_category_title">Stream kategória mutatása</string>
+    <string name="preference_streaminfo_category_summary">Stream kategória megjelenítése</string>
+    <string name="toggle_input">Beviteli mező kapcsolása</string>
+    <string name="badge_broadcaster">Közvetítő</string>
+    <string name="badge_admin">Admin</string>
+    <string name="badge_staff">Személyzet</string>
+    <string name="badge_moderator">Moderátor</string>
+    <string name="badge_lead_moderator">Vezető moderátor</string>
+    <string name="badge_verified">Hitelesített</string>
+    <string name="badge_vip">VIP</string>
+    <string name="badge_founder">Alapító</string>
+    <string name="badge_subscriber">Feliratkozó</string>
+    <string name="pick_highlight_color_title">Egyéni kiemelési szín kiválasztása</string>
+    <string name="reset_default_highlight_color">Alapértelmezett</string>
+    <string name="choose_highlight_color">Szín kiválasztása</string>
+    <string name="color_picker_brightness">Fényerő</string>
+    <string name="color_picker_opacity">Átlátszatlanság</string>
+    <string name="toggle_app_bar">Alkalmazássáv kapcsolása</string>
+    <string name="error_with_message">Hiba: %s</string>
+    <string name="something_went_wrong">Valami hiba történt</string>
+    <!-- Onboarding -->
+    <string name="onboarding_welcome_title">LemChat</string>
+    <string name="onboarding_welcome_body">Állítsunk be mindent.</string>
+    <string name="onboarding_get_started">Kezdjük</string>
+    <string name="onboarding_login_title">Bejelentkezés Twitch-csel</string>
+    <string name="onboarding_login_body">Jelentkezz be üzenetek küldéséhez, emoték használatához, suttogások fogadásához és az összes funkció feloldásához.</string>
+    <string name="onboarding_login_disclaimer">Több Twitch-engedély megadására lesz szükség egyszerre, így nem kell újra engedélyezned a különböző funkciók használatakor. A LemChat csak akkor végez moderálási és közvetítési műveleteket, amikor te kéred.</string>
+    <string name="onboarding_login_button">Bejelentkezés Twitch-csel</string>
+    <string name="onboarding_login_success">Sikeres bejelentkezés</string>
+    <string name="onboarding_skip">Kihagyás</string>
+    <string name="onboarding_continue">Tovább</string>
+    <string name="onboarding_history_title">Üzenetelőzmények</string>
+    <string name="onboarding_history_body">A LemChat induláskor betölti a korábbi üzeneteket egy harmadik féltől származó szolgáltatásból. Az üzenetek lekéréséhez a LemChat elküldi a megnyitott csatornák neveit ennek a szolgáltatásnak. A szolgáltatás ideiglenesen tárolja a meglátogatott csatornák üzeneteit.\n\nEzt később módosíthatod a beállításokban, vagy többet tudhatsz meg a https://recent-messages.robotty.de/ oldalon.</string>
+    <string name="onboarding_history_enable">Engedélyezés</string>
+    <string name="onboarding_history_disable">Letiltás</string>
+    <string name="onboarding_notifications_title">Értesítések</string>
+    <string name="onboarding_notifications_body">A LemChat értesíthet, ha valaki megemlít a chatben, miközben az alkalmazás a háttérben fut.</string>
+    <string name="onboarding_notifications_allow">Értesítések engedélyezése</string>
+    <string name="onboarding_notifications_rationale">Értesítések nélkül nem fogod tudni, ha valaki megemlít a chatben, miközben az alkalmazás a háttérben fut.</string>
+    <string name="onboarding_notifications_open_settings">Értesítési beállítások megnyitása</string>
+    <!-- Feature Tour -->
+    <string name="tour_input_actions">Testreszabható műveletek a keresés, közvetítések és egyebek gyors eléréséhez</string>
+    <string name="tour_overflow_menu">Koppintson ide további műveletekért és a műveletsáv beállításához</string>
+    <string name="tour_configure_actions">Itt testreszabhatja, mely műveletek jelenjenek meg a műveletsávban</string>
+    <string name="tour_swipe_gesture">Húzzon lefelé a beviteli mezőn a gyors elrejtéshez</string>
+    <string name="tour_recovery_fab">Koppintson ide a beviteli mező visszaállításához</string>
+    <string name="tour_next">Következő</string>
+    <string name="tour_got_it">Értem</string>
+    <string name="tour_skip">Bemutató kihagyása</string>
+    <string name="tour_add_more_channels_hint">Itt adhat hozzá további csatornákat</string>
+    <!-- Command responses -->
+    <string name="cmd_error_not_logged_in">Be kell jelentkezned a(z) %1$s parancs használatához</string>
+    <string name="cmd_error_no_user_matching">Nem található ilyen nevű felhasználó.</string>
+    <string name="cmd_error_unknown">Ismeretlen hiba történt.</string>
+    <string name="cmd_error_no_permission">Nincs jogosultságod ehhez a művelethez.</string>
+    <string name="cmd_error_missing_scopes">Hiányzó jogosultság. Jelentkezz be újra a fiókoddal, és próbáld újra.</string>
+    <string name="cmd_error_not_logged_in_credentials">Hiányzó bejelentkezési adatok. Jelentkezz be újra a fiókoddal, és próbáld újra.</string>
+    <string name="cmd_error_unknown_command">A(z) %1$s nem ismert parancs</string>
+    <string name="cmd_block_usage">Használat: /block &lt;felhasználó&gt;</string>
+    <string name="cmd_block_success">Sikeresen letiltottad %1$s felhasználót</string>
+    <string name="cmd_block_not_found">%1$s felhasználót nem sikerült letiltani, nem található ilyen nevű felhasználó!</string>
+    <string name="cmd_block_error">%1$s felhasználót nem sikerült letiltani, ismeretlen hiba történt!</string>
+    <string name="cmd_unblock_usage">Használat: /unblock &lt;felhasználó&gt;</string>
+    <string name="cmd_unblock_success">Sikeresen feloldottad %1$s felhasználó tiltását</string>
+    <string name="cmd_unblock_not_found">%1$s felhasználó tiltását nem sikerült feloldani, nem található ilyen nevű felhasználó!</string>
+    <string name="cmd_unblock_error">%1$s felhasználó tiltását nem sikerült feloldani, ismeretlen hiba történt!</string>
+    <string name="cmd_uptime_not_live">A csatorna nem élő.</string>
+    <string name="cmd_uptime_response">Adásidő: %1$s</string>
+    <string name="cmd_help_response">Ebben a szobában elérhető parancsok: %1$s</string>
+    <string name="cmd_usage_whisper">Használat: %1$s &lt;felhasználónév&gt; &lt;üzenet&gt;.</string>
+    <string name="cmd_whisper_sent">Suttogás elküldve.</string>
+    <string name="cmd_fail_whisper">Nem sikerült elküldeni a suttogást - %1$s</string>
+    <string name="cmd_usage_announce">Használat: %1$s &lt;üzenet&gt; - Hívd fel a figyelmet az üzenetedre kiemelésssel.</string>
+    <string name="cmd_fail_announce">Nem sikerült elküldeni a bejelentést - %1$s</string>
+    <string name="cmd_no_moderators">Ennek a csatornának nincsenek moderátorai.</string>
+    <string name="cmd_moderators_list">A csatorna moderátorai: %1$s.</string>
+    <string name="cmd_fail_list_moderators">Nem sikerült listázni a moderátorokat - %1$s</string>
+    <string name="cmd_usage_mod">Használat: %1$s &lt;felhasználónév&gt; - Moderátori jogot ad egy felhasználónak.</string>
+    <string name="cmd_success_mod_added">Hozzáadtad %1$s-t a csatorna moderátoraként.</string>
+    <string name="cmd_fail_mod_add">Nem sikerült hozzáadni a csatorna moderátort - %1$s</string>
+    <string name="cmd_usage_unmod">Használat: %1$s &lt;felhasználónév&gt; - Elveszi a moderátori jogot egy felhasználótól.</string>
+    <string name="cmd_success_mod_removed">Eltávolítottad %1$s-t a csatorna moderátorai közül.</string>
+    <string name="cmd_fail_mod_remove">Nem sikerült eltávolítani a csatorna moderátort - %1$s</string>
+    <string name="cmd_no_vips">Ennek a csatornának nincsenek VIP-jei.</string>
+    <string name="cmd_vips_list">A csatorna VIP-jei: %1$s.</string>
+    <string name="cmd_fail_list_vips">Nem sikerült listázni a VIP-eket - %1$s</string>
+    <string name="cmd_usage_vip">Használat: %1$s &lt;felhasználónév&gt; - VIP státuszt ad egy felhasználónak.</string>
+    <string name="cmd_success_vip_added">Hozzáadtad %1$s-t a csatorna VIP-jeként.</string>
+    <string name="cmd_fail_vip_add">Nem sikerült hozzáadni a VIP-et - %1$s</string>
+    <string name="cmd_usage_unvip">Használat: %1$s &lt;felhasználónév&gt; - Elveszi a VIP státuszt egy felhasználótól.</string>
+    <string name="cmd_success_vip_removed">Eltávolítottad %1$s-t a csatorna VIP-jei közül.</string>
+    <string name="cmd_fail_vip_remove">Nem sikerült eltávolítani a VIP-et - %1$s</string>
+    <string name="cmd_usage_ban">Használat: %1$s &lt;felhasználónév&gt; [indok] - Véglegesen letiltja a felhasználót a csevegésből. Az indok opcionális, és megjelenik a célfelhasználónak és a többi moderátornak. Használd a /unban parancsot a tiltás feloldásához.</string>
+    <string name="cmd_ban_cannot_self">Nem sikerült kitiltani a felhasználót - Nem tilthatod ki saját magadat.</string>
+    <string name="cmd_ban_cannot_broadcaster">Nem sikerült kitiltani a felhasználót - Nem tilthatod ki a műsorvezetőt.</string>
+    <string name="cmd_fail_ban">Nem sikerült kitiltani a felhasználót - %1$s</string>
+    <string name="cmd_usage_unban">Használat: %1$s &lt;felhasználónév&gt; - Feloldja a felhasználó tiltását.</string>
+    <string name="cmd_fail_unban">Nem sikerült feloldani a felhasználó tiltását - %1$s</string>
+    <string name="cmd_usage_warn">Használat: %1$s &lt;felhasználónév&gt; &lt;indok&gt; - Figyelmezteti a felhasználót. Az indok kötelező, és megjelenik a célfelhasználónak és a többi moderátornak.</string>
+    <string name="cmd_fail_warn">Nem sikerült figyelmeztetni a felhasználót - %1$s</string>
+    <string name="cmd_usage_timeout">Használat: %1$s &lt;felhasználónév&gt; [időtartam][időegység] [indok] - Ideiglenesen letiltja a felhasználót a csevegésből. Az időtartam (opcionális, alapértelmezett: 10 perc) pozitív egész szám legyen; az időegység (opcionális, alapértelmezett: s) s, m, h, d, w egyike legyen; a maximális időtartam 2 hét. Az indok opcionális, és megjelenik a célfelhasználónak és a többi moderátornak.</string>
+    <string name="cmd_timeout_cannot_self">Nem sikerült kitiltani a felhasználót - Nem adhatsz saját magadnak időkorlátot.</string>
+    <string name="cmd_timeout_cannot_broadcaster">Nem sikerült kitiltani a felhasználót - Nem adhatsz a műsorvezetőnek időkorlátot.</string>
+    <string name="cmd_fail_timeout">Nem sikerült időkorlátot adni a felhasználónak - %1$s</string>
+    <string name="cmd_fail_clear">Nem sikerült törölni a csevegési üzeneteket - %1$s</string>
+    <string name="cmd_usage_delete">Használat: /delete &lt;msg-id&gt; - Törli a megadott üzenetet.</string>
+    <string name="cmd_delete_invalid_id">Érvénytelen msg-id: \"%1$s\".</string>
+    <string name="cmd_fail_delete">Nem sikerült törölni a csevegési üzeneteket - %1$s</string>
+    <string name="cmd_usage_color">Használat: /color &lt;szín&gt; - A szín a Twitch által támogatott színek egyike (%1$s) vagy hex kód (#000000) legyen, ha rendelkezel Turbo vagy Prime előfizetéssel.</string>
+    <string name="cmd_success_color">A színed megváltozott erre: %1$s</string>
+    <string name="cmd_fail_color">Nem sikerült megváltoztatni a színt erre: %1$s - %2$s</string>
+    <string name="cmd_success_marker">Sikeresen hozzáadva egy adásjelölő itt: %1$s%2$s.</string>
+    <string name="cmd_fail_marker">Nem sikerült létrehozni az adásjelölőt - %1$s</string>
+    <string name="cmd_usage_commercial">Használat: /commercial &lt;hossz&gt; - Reklámot indít a megadott időtartammal az aktuális csatornán. Érvényes hosszok: 30, 60, 90, 120, 150 és 180 másodperc.</string>
+    <plurals name="cmd_success_commercial">
+        <item quantity="one">%1$d másodperces reklámszünet indul. Ne feledd, hogy még mindig élőben vagy, és nem minden néző kap reklámot. Újabb reklámot %2$d másodperc múlva indíthatsz.</item>
+        <item quantity="other">%1$d másodperces reklámszünet indul. Ne feledd, hogy még mindig élőben vagy, és nem minden néző kap reklámot. Újabb reklámot %2$d másodperc múlva indíthatsz.</item>
+    </plurals>
+    <string name="cmd_fail_commercial">Nem sikerült elindítani a reklámot - %1$s</string>
+    <string name="cmd_usage_raid">Használat: /raid &lt;felhasználónév&gt; - Raid egy felhasználóra. Csak a műsorvezető indíthat raidet.</string>
+    <string name="cmd_raid_invalid_username">Érvénytelen felhasználónév: %1$s</string>
+    <string name="cmd_success_raid">Raid indítva %1$s felé.</string>
+    <string name="cmd_fail_raid">Nem sikerült elindítani a raidet - %1$s</string>
+    <string name="cmd_success_unraid">Visszavontad a raidet.</string>
+    <string name="cmd_fail_unraid">Nem sikerült visszavonni a raidet - %1$s</string>
+    <string name="cmd_usage_followers">Használat: %1$s [időtartam] - Bekapcsolja a csak követők módot (csak követők cseveghetnek). Az időtartam (opcionális, alapértelmezett: 0 perc) pozitív szám legyen időegységgel (m, h, d, w); a maximális időtartam 3 hónap.</string>
+    <string name="cmd_room_already_followers">Ez a szoba már %1$s csak követők módban van.</string>
+    <string name="cmd_fail_chat_settings">Nem sikerült frissíteni a csevegési beállításokat - %1$s</string>
+    <string name="cmd_room_not_followers">Ez a szoba nincs csak követők módban.</string>
+    <string name="cmd_room_already_emote_only">Ez a szoba már csak emote módban van.</string>
+    <string name="cmd_room_not_emote_only">Ez a szoba nincs csak emote módban.</string>
+    <string name="cmd_room_already_subscribers">Ez a szoba már csak feliratkozók módban van.</string>
+    <string name="cmd_room_not_subscribers">Ez a szoba nincs csak feliratkozók módban.</string>
+    <string name="cmd_room_already_unique_chat">Ez a szoba már egyedi csevegés módban van.</string>
+    <string name="cmd_room_not_unique_chat">Ez a szoba nincs egyedi csevegés módban.</string>
+    <string name="cmd_usage_slow">Használat: %1$s [időtartam] - Bekapcsolja a lassú módot (korlátozza az üzenetküldés gyakoriságát). Az időtartam (opcionális, alapértelmezett: 30) pozitív szám legyen másodpercben; maximum 120.</string>
+    <string name="cmd_room_already_slow">Ez a szoba már %1$d másodperces lassú módban van.</string>
+    <string name="cmd_room_not_slow">Ez a szoba nincs lassú módban.</string>
+    <string name="cmd_usage_shoutout">Használat: %1$s &lt;felhasználónév&gt; - Shoutoutot küld a megadott Twitch felhasználónak.</string>
+    <string name="cmd_success_shoutout">Shoutout elküldve %1$s számára</string>
+    <string name="cmd_fail_shoutout">Nem sikerült elküldeni a shoutoutot - %1$s</string>
+    <string name="cmd_usage_set_title">Használat: %1$s &lt;közvetítés címe&gt;</string>
+    <string name="cmd_success_set_title">Cím módosítva: %1$s</string>
+    <string name="cmd_fail_set_title">Nem sikerült módosítani a címet - %1$s</string>
+    <string name="cmd_usage_set_game">Használat: %1$s &lt;közvetítés játéka&gt;</string>
+    <string name="cmd_game_not_found">A játék nem található.</string>
+    <string name="cmd_success_set_game">Játék módosítva: %1$s</string>
+    <string name="cmd_fail_search_game">Nem sikerült megkeresni a játékot - %1$s</string>
+    <string name="cmd_fail_set_game">Nem sikerült módosítani a játékot - %1$s</string>
+    <string name="cmd_shield_activated">A pajzs mód aktiválva lett.</string>
+    <string name="cmd_shield_deactivated">A pajzs mód deaktiválva lett.</string>
+    <string name="cmd_fail_shield">Nem sikerült frissíteni a pajzs módot - %1$s</string>
+    <string name="cmd_error_whisper_self">Nem suttoghatsz saját magadnak.</string>
+    <string name="cmd_error_no_verified_phone">A Twitch korlátozásai miatt suttogások küldéséhez hitelesített telefonszámra van szükség. Telefonszámot a Twitch beállításokban adhatsz hozzá. https://www.twitch.tv/settings/security</string>
+    <string name="cmd_error_recipient_blocked">A címzett nem fogad suttogásokat idegenektől vagy közvetlenül tőled.</string>
+    <string name="cmd_error_rate_limited">A Twitch korlátozza a sebességedet. Próbáld újra néhány másodperc múlva.</string>
+    <string name="cmd_error_whisper_rate_limited">Naponta legfeljebb 40 egyedi címzettnek suttoghatsz. A napi limiten belül másodpercenként legfeljebb 3, percenként legfeljebb 100 suttogást küldhetsz.</string>
+    <string name="cmd_error_broadcaster_required">A Twitch korlátozásai miatt ezt a parancsot csak a műsorvezető használhatja. Kérjük, használd helyette a Twitch weboldalt.</string>
+    <string name="cmd_error_already_modded">%1$s már moderátora ennek a csatornának.</string>
+    <string name="cmd_error_target_is_vip">%1$s jelenleg VIP, használd a /unvip parancsot, és próbáld újra.</string>
+    <string name="cmd_error_not_modded">%1$s nem moderátora ennek a csatornának.</string>
+    <string name="cmd_error_not_banned">%1$s nincs kitiltva ebből a csatornából.</string>
+    <string name="cmd_error_already_banned">%1$s már ki van tiltva ebből a csatornából.</string>
+    <string name="cmd_error_cannot_perform">Nem tudod %1$s %2$s.</string>
+    <string name="cmd_error_conflicting_ban">Ütköző kitiltási művelet történt ennél a felhasználónál. Kérjük, próbáld újra.</string>
+    <string name="cmd_error_conflicting_warn">Ütköző figyelmeztetési művelet történt ennél a felhasználónál. Kérjük, próbáld újra.</string>
+    <string name="cmd_error_invalid_color">A szín a Twitch által támogatott színek egyike (%1$s) vagy hex kód (#000000) legyen, ha rendelkezel Turbo vagy Prime előfizetéssel.</string>
+    <string name="cmd_error_commercial_not_streaming">Reklámok futtatásához élőben kell közvetítened.</string>
+    <string name="cmd_error_commercial_rate_limited">Meg kell várnod a hűtési időszak lejártát, mielőtt újabb reklámot futtathatnál.</string>
+    <string name="cmd_error_missing_length">A parancsnak tartalmaznia kell a kívánt reklámszünet hosszát, amelynek nagyobbnak kell lennie nullánál.</string>
+    <string name="cmd_error_no_raid_pending">Nincs aktív raided.</string>
+    <string name="cmd_error_raid_self">Egy csatorna nem raidelhet saját magát.</string>
+    <string name="cmd_error_shoutout_self">A műsorvezető nem adhat shoutoutot saját magának.</string>
+    <string name="cmd_error_shoutout_not_streaming">A műsorvezető nem közvetít élőben, vagy nincs egy vagy több nézője.</string>
+    <string name="cmd_error_out_of_range">Az időtartam az érvényes tartományon kívül esik: %1$s.</string>
+    <string name="cmd_error_message_already_processed">Az üzenet már feldolgozásra került.</string>
+    <string name="cmd_error_message_not_found">A célüzenet nem található.</string>
+    <string name="cmd_error_message_too_large">Az üzeneted túl hosszú volt.</string>
+    <string name="cmd_error_chat_rate_limited">Sebességkorlát alatt állsz. Próbáld újra egy pillanat múlva.</string>
+    <string name="cmd_error_target_default">A célfelhasználó</string>
+</resources>

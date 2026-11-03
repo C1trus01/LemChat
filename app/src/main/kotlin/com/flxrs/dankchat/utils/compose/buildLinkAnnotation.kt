@@ -1,0 +1,44 @@
+package com.flxrs.dankchat.utils.compose
+
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.LinkInteractionListener
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.style.TextDecoration
+
+@Composable
+@ReadOnlyComposable
+fun textLinkStyles(): TextLinkStyles = TextLinkStyles(
+    style =
+        SpanStyle(
+            color = MaterialTheme.colorScheme.primary,
+            textDecoration = TextDecoration.Underline,
+        ),
+    pressedStyle =
+        SpanStyle(
+            color = MaterialTheme.colorScheme.primary,
+            textDecoration = TextDecoration.Underline,
+            background = MaterialTheme.colorScheme.primary.copy(alpha = ContentAlpha.medium),
+        ),
+)
+
+@Composable
+@ReadOnlyComposable
+fun buildLinkAnnotation(url: String): LinkAnnotation = LinkAnnotation.Url(
+    url = url,
+    styles = textLinkStyles(),
+)
+
+@Composable
+@ReadOnlyComposable
+fun buildClickableAnnotation(
+    text: String,
+    onClick: LinkInteractionListener,
+): LinkAnnotation = LinkAnnotation.Clickable(
+    tag = text,
+    styles = textLinkStyles(),
+    linkInteractionListener = onClick,
+)

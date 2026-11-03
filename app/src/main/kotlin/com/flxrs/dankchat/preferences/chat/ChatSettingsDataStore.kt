@@ -1,0 +1,278 @@
+package com.flxrs.dankchat.preferences.chat
+
+import android.content.Context
+import androidx.datastore.core.DataMigration
+import com.flxrs.dankchat.R
+import com.flxrs.dankchat.di.DispatchersProvider
+import com.flxrs.dankchat.utils.datastore.PreferenceKeys
+import com.flxrs.dankchat.utils.datastore.booleanOrDefault
+import com.flxrs.dankchat.utils.datastore.booleanOrNull
+import com.flxrs.dankchat.utils.datastore.createDataStore
+import com.flxrs.dankchat.utils.datastore.dankChatPreferencesMigration
+import com.flxrs.dankchat.utils.datastore.intOrNull
+import com.flxrs.dankchat.utils.datastore.mappedStringSetOrDefault
+import com.flxrs.dankchat.utils.datastore.safeData
+import com.flxrs.dankchat.utils.datastore.stringOrDefault
+import com.flxrs.dankchat.utils.datastore.stringSetOrNull
+import com.flxrs.dankchat.utils.extensions.decodeOrNull
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.Json
+import org.koin.core.annotation.Single
+import kotlin.time.Duration.Companion.seconds
+
+@Single
+class ChatSettingsDataStore(
+    context: Context,
+    dispatchersProvider: DispatchersProvider,
+) {
+    private enum class ChatPreferenceKeys(
+        override val id: Int,
+    ) : PreferenceKeys {
+        Suggestions(R.string.preference_suggestions_key),
+        SupibotSuggestions(R.string.preference_supibot_suggestions_key),
+        CustomCommands(R.string.preference_commands_key),
+        AnimateGifs(R.string.preference_animate_gifs_key),
+        ScrollbackLength(R.string.preference_scrollback_length_key),
+        ShowUsernames(R.string.preference_show_username_key),
+        UserLongClickBehavior(R.string.preference_user_long_click_key),
+        ShowTimedOutMessages(R.string.preference_show_timed_out_messages_key),
+        ShowTimestamps(R.string.preference_timestamp_key),
+        TimestampFormat(R.string.preference_timestamp_format_key),
+        VisibleBadges(R.string.preference_visible_badges_key),
+        VisibleEmotes(R.string.preference_visible_emotes_key),
+        UnlistedEmotes(R.string.preference_unlisted_emotes_key),
+        LiveUpdates(R.string.preference_7tv_live_updates_key),
+        LoadMessageHistory(R.string.preference_load_message_history_key),
+        LoadMessageHistoryOnReconnect(R.string.preference_load_messages_on_reconnect__key),
+        ShowRoomState(R.string.preference_roomstate_key),
+    }
+
+    private val initialMigration =
+        dankChatPreferencesMigration<ChatPreferenceKeys, ChatSettings>(context) { acc, key, value ->
+            when (key) {
+                @Suppress("DEPRECATION")
+                ChatPreferenceKeys.Suggestions,
+                -> {
+                    acc.copy(suggestions = value.booleanOrDefault(acc.suggestions))
+                }
+
+                @Suppress("DEPRECATION")
+                ChatPreferenceKeys.SupibotSuggestions,
+                -> {
+                    @Suppress("DEPRECATION")
+                    acc.copy(supibotSuggestions = value.booleanOrDefault(acc.supibotSuggestions))
+                }
+
+                ChatPreferenceKeys.CustomCommands -> {
+                    val commands =
+                        value.stringSetOrNull()?.mapNotNull {
+                            Json.decodeOrNull<CustomCommand>(it)
+                        } ?: acc.customCommands
+                    acc.copy(customCommands = commands)
+                }
+
+                ChatPreferenceKeys.AnimateGifs -> {
+                    acc.copy(animateGifs = value.booleanOrDefault(acc.animateGifs))
+                }
+
+                ChatPreferenceKeys.ScrollbackLength -> {
+                    acc.copy(scrollbackLength = value.intOrNull()?.let { it * 50 } ?: acc.scrollbackLength)
+                }
+
+                ChatPreferenceKeys.ShowUsernames -> {
+                    acc.copy(showUsernames = value.booleanOrDefault(acc.showUsernames))
+                }
+
+                ChatPreferenceKeys.UserLongClickBehavior -> {
+                    acc.copy(
+                        userLongClickBehavior =
+                            value.booleanOrNull()?.let {
+                                if (it) UserLongClickBehavior.MentionsUser else UserLongClickBehavior.OpensPopup
+                            } ?: acc.userLongClickBehavior,
+                    )
+                }
+
+                ChatPreferenceKeys.ShowTimedOutMessages -> {
+                    acc.copy(showTimedOutMessages = value.booleanOrDefault(acc.showTimedOutMessages))
+                }
+
+                ChatPreferenceKeys.ShowTimestamps -> {
+                    acc.copy(showTimestamps = value.booleanOrDefault(acc.showTimestamps))
+                }
+
+                ChatPreferenceKeys.TimestampFormat -> {
+                    acc.copy(timestampFormat = value.stringOrDefault(acc.timestampFormat))
+                }
+
+                ChatPreferenceKeys.VisibleBadges -> {
+                    acc.copy(
+                        visibleBadges =
+                            value
+                                .mappedStringSetOrDefault(
+                                    original = context.resources.getStringArray(R.array.badges_entry_values),
+                                    enumEntries = VisibleBadges.entries,
+                                    default = acc.visibleBadges,
+                                ).plus(VisibleBadges.SharedChat)
+                                .distinct(),
+                        sharedChatMigration = true,
+                    )
+                }
+
+                ChatPreferenceKeys.VisibleEmotes -> {
+                    acc.copy(
+                        visibleEmotes =
+                            value.mappedStringSetOrDefault(
+                                original = context.resources.getStringArray(R.array.emotes_entry_values),
+                                enumEntries = VisibleThirdPartyEmotes.entries,
+                                default = acc.visibleEmotes,
+                            ),
+                    )
+                }
+
+                ChatPreferenceKeys.UnlistedEmotes -> {
+                    acc.copy(allowUnlistedSevenTvEmotes = value.booleanOrDefault(acc.allowUnlistedSevenTvEmotes))
+                }
+
+                ChatPreferenceKeys.LiveUpdates -> {
+                    acc.copy(sevenTVLiveEmoteUpdates = value.booleanOrDefault(acc.sevenTVLiveEmoteUpdates))
+                }
+
+                ChatPreferenceKeys.LoadMessageHistory -> {
+                    acc.copy(loadMessageHistory = value.booleanOrDefault(acc.loadMessageHistory))
+                }
+
+                ChatPreferenceKeys.LoadMessageHistoryOnReconnect -> {
+                    acc.copy(loadMessageHistoryOnReconnect = value.booleanOrDefault(acc.loadMessageHistoryOnReconnect))
+                }
+
+                ChatPreferenceKeys.ShowRoomState -> {
+                    acc.copy(showChatModes = value.booleanOrDefault(acc.showChatModes))
+                }
+            }
+        }
+    private val scrollbackResetMigration =
+        object : DataMigration<ChatSettings> {
+            override suspend fun shouldMigrate(currentData: ChatSettings): Boolean = currentData.scrollbackLength <= 20
+
+            override suspend fun migrate(currentData: ChatSettings): ChatSettings = currentData.copy(scrollbackLength = currentData.scrollbackLength * 50)
+
+            override suspend fun cleanUp() = Unit
+        }
+
+    private val sharedChatMigration =
+        object : DataMigration<ChatSettings> {
+            override suspend fun shouldMigrate(currentData: ChatSettings): Boolean = !currentData.sharedChatMigration
+
+            override suspend fun migrate(currentData: ChatSettings): ChatSettings = currentData.copy(
+                visibleBadges = currentData.visibleBadges.plus(VisibleBadges.SharedChat).distinct(),
+                sharedChatMigration = true,
+            )
+
+            override suspend fun cleanUp() = Unit
+        }
+
+    private val thirdPartyBadgesMigration =
+        object : DataMigration<ChatSettings> {
+            override suspend fun shouldMigrate(currentData: ChatSettings): Boolean = !currentData.thirdPartyBadgesMigration
+
+            override suspend fun migrate(currentData: ChatSettings): ChatSettings = currentData.copy(
+                visibleBadges = currentData.visibleBadges.plus(listOf(VisibleBadges.SevenTV, VisibleBadges.FFZ, VisibleBadges.BTTV)).distinct(),
+                thirdPartyBadgesMigration = true,
+            )
+
+            override suspend fun cleanUp() = Unit
+        }
+
+    @Suppress("DEPRECATION")
+    private val suggestionTypeMigration =
+        object : DataMigration<ChatSettings> {
+            override suspend fun shouldMigrate(currentData: ChatSettings): Boolean = !currentData.suggestionsMigrated
+
+            override suspend fun migrate(currentData: ChatSettings): ChatSettings {
+                val types = buildList {
+                    if (currentData.suggestions) {
+                        add(SuggestionType.Emotes)
+                        add(SuggestionType.Users)
+                        add(SuggestionType.Commands)
+                    }
+                    if (currentData.supibotSuggestions) {
+                        add(SuggestionType.SupibotCommands)
+                    }
+                }
+                return currentData.copy(
+                    suggestionTypes = types,
+                    suggestionsMigrated = true,
+                )
+            }
+
+            override suspend fun cleanUp() = Unit
+        }
+
+    private val dataStore =
+        createDataStore(
+            fileName = "chat",
+            context = context,
+            defaultValue = ChatSettings(),
+            serializer = ChatSettings.serializer(),
+            scope = CoroutineScope(dispatchersProvider.io + SupervisorJob()),
+            migrations = listOf(initialMigration, scrollbackResetMigration, sharedChatMigration, thirdPartyBadgesMigration, suggestionTypeMigration),
+        )
+
+    val settings = dataStore.safeData(ChatSettings())
+    val currentSettings =
+        settings.stateIn(
+            scope = CoroutineScope(dispatchersProvider.io),
+            started = SharingStarted.Eagerly,
+            initialValue = runBlocking { settings.first() },
+        )
+
+    val commands =
+        settings
+            .map { it.customCommands }
+            .distinctUntilChanged()
+    val suggestionTypes =
+        settings
+            .map { it.suggestionTypes }
+            .distinctUntilChanged()
+    val suggestionMode =
+        settings
+            .map { it.suggestionMode }
+            .distinctUntilChanged()
+    val showChatModes =
+        settings
+            .map { it.showChatModes }
+            .distinctUntilChanged()
+    val userLongClickBehavior =
+        settings
+            .map { it.userLongClickBehavior }
+            .distinctUntilChanged()
+    val messageTapAction =
+        settings
+            .map { it.messageTapAction }
+            .distinctUntilChanged()
+
+    val debouncedScrollBack =
+        settings
+            .map { it.scrollbackLength }
+            .distinctUntilChanged()
+            .debounce(1.seconds)
+    val debouncedSevenTvLiveEmoteUpdates =
+        settings
+            .map { it.sevenTVLiveEmoteUpdates }
+            .distinctUntilChanged()
+            .debounce(2.seconds)
+
+    fun current() = currentSettings.value
+
+    suspend fun update(transform: suspend (ChatSettings) -> ChatSettings) {
+        runCatching { dataStore.updateData(transform) }
+    }
+}

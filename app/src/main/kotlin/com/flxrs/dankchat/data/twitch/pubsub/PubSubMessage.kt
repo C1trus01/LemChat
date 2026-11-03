@@ -1,0 +1,27 @@
+package com.flxrs.dankchat.data.twitch.pubsub
+
+import com.flxrs.dankchat.data.UserId
+import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.data.twitch.pubsub.dto.moderation.ModerationActionData
+import com.flxrs.dankchat.data.twitch.pubsub.dto.redemption.PointRedemptionData
+import kotlin.time.Instant
+
+sealed interface PubSubMessage {
+    data class PointRedemption(
+        val timestamp: Instant,
+        val channelName: UserName,
+        val channelId: UserId,
+        val data: PointRedemptionData,
+    ) : PubSubMessage
+
+    data class ModeratorAction(
+        val timestamp: Instant,
+        val channelId: UserId,
+        val data: ModerationActionData,
+    ) : PubSubMessage
+
+    data class PinnedChatUpdate(
+        val channelName: UserName,
+        val removed: Boolean,
+    ) : PubSubMessage
+}

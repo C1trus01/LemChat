@@ -43,9 +43,7 @@ The app connects directly to the services it needs: Twitch, 7TV, FrankerFaceZ, B
 
 ## Credits
 
-LemChat is based on [DankChat](https://github.com/flex3r/dankchat) by [@flex3rs](https://github.com/flex3r) and contributors, used under the [MIT License](LICENSE). Please report LemChat problems [here](https://github.com/C1trus01/LemChat/issues), not to the DankChat developers.
-
-This repository holds releases and information about the app. The source code isn't published at the moment.
+LemChat is based on [DankChat](https://github.com/flex3r/dankchat) by [@flex3rs](https://github.com/flex3r) and contributors, used under the [MIT License](LICENSE). Please report LemChat problems [here](https://github.com/C1trus01/LemChat/issues).
 
 LemChat is an unofficial app, and isn't affiliated with or endorsed by Twitch, 7TV, FrankerFaceZ, BetterTTV or DankChat.
 
@@ -83,8 +81,6 @@ LemChat — отдельное приложение, его можно пост�
 
 ### Авторы
 
-LemChat основан на [DankChat](https://github.com/flex3r/dankchat) от [@flex3rs](https://github.com/flex3r) и других участников, используется по [лицензии MIT](LICENSE). О проблемах в LemChat пиши [сюда](https://github.com/C1trus01/LemChat/issues), а не разработчикам DankChat.
-
-В этом репозитории лежат готовые версии и информация о приложении. Исходный код пока не опубликован.
+LemChat основан на [DankChat](https://github.com/flex3r/dankchat) от [@flex3rs](https://github.com/flex3r) и других участников, используется по [лицензии MIT](LICENSE). О проблемах в LemChat пиши [сюда](https://github.com/C1trus01/LemChat/issues).
 
 LemChat — неофициальное приложение, оно не связано с Twitch, 7TV, FrankerFaceZ, BetterTTV и DankChat и не одобрено ими.

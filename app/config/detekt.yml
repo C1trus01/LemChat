@@ -1,0 +1,73 @@
+# Detekt configuration — builds upon the default config.
+# Only overrides are listed here; everything else uses defaults.
+# See https://detekt.dev/docs/rules/overview for all rules.
+
+complexity:
+  LongMethod:
+    active: false
+  LongParameterList:
+    active: false
+  TooManyFunctions:
+    active: false
+  CyclomaticComplexMethod:
+    active: false
+  NestedBlockDepth:
+    active: false
+  LargeClass:
+    active: false
+  ComplexCondition:
+    allowedConditions: 4
+
+naming:
+  FunctionNaming:
+    ignoreAnnotated: ['Composable']
+  TopLevelPropertyNaming:
+    constantPattern: '[A-Z][A-Za-z0-9_]*'
+  MatchingDeclarationName:
+    active: false
+
+performance:
+  SpreadOperator:
+    active: false
+
+style:
+  MagicNumber:
+    active: false
+  UnusedImport:
+    active: true
+  MaxLineLength:
+    maxLineLength: 210
+    excludeCommentStatements: true
+    excludeRawStrings: true
+  ReturnCount:
+    max: 8
+  ForbiddenComment:
+    active: false
+  DestructuringDeclarationWithTooManyEntries:
+    maxDestructuringEntries: 5
+  LoopWithTooManyJumpStatements:
+    maxJumpCount: 3
+
+potential-bugs:
+  IgnoredReturnValue:
+    active: false
+
+exceptions:
+  TooGenericExceptionCaught:
+    active: false
+
+Compose:
+  ModifierMissing:
+    active: false
+  UnnecessaryLaunchedEffect:
+    allowedCallReceiverTypes:
+      - androidx.compose.ui.focus.FocusRequester
+  LambdaParameterInRestartableEffect:
+    active: false
+  CompositionLocalAllowlist:
+    allowedCompositionLocals:
+      - LocalEmoteAnimationCoordinator
+      - LocalAdaptiveColors
+      - LocalContentAlpha
+      - LocalInlineMenuItemRegistry
+      - LocalChatPageVisible

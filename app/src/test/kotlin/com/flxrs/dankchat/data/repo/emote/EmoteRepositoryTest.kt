@@ -1,0 +1,483 @@
+package com.flxrs.dankchat.data.repo.emote
+
+import com.flxrs.dankchat.data.api.helix.HelixApiClient
+import com.flxrs.dankchat.data.irc.IrcMessage
+import com.flxrs.dankchat.data.repo.channel.ChannelRepository
+import com.flxrs.dankchat.data.toUserName
+import com.flxrs.dankchat.data.twitch.badge.Badge
+import com.flxrs.dankchat.data.twitch.badge.BadgeSet
+import com.flxrs.dankchat.data.twitch.badge.BadgeVersion
+import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
+import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmoteType
+import com.flxrs.dankchat.data.twitch.message.EmoteWithPositions
+import com.flxrs.dankchat.data.twitch.message.Message
+import com.flxrs.dankchat.data.twitch.message.PrivMessage
+import com.flxrs.dankchat.data.twitch.message.TwitchGif
+import com.flxrs.dankchat.di.DispatchersProvider
+import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
+import io.mockk.impl.annotations.InjectMockKs
+import io.mockk.impl.annotations.MockK
+import io.mockk.junit5.MockKExtension
+import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.Json
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import kotlin.test.assertEquals
+import kotlin.test.assertIs
+
+@ExtendWith(MockKExtension::class)
+internal class EmoteRepositoryTest {
+    @MockK
+    lateinit var helixApiClient: HelixApiClient
+
+    @MockK
+    lateinit var chatSettings: ChatSettingsDataStore
+
+    @MockK
+    lateinit var channelRepository: ChannelRepository
+
+    @MockK
+    lateinit var dispatchersProvider: DispatchersProvider
+
+    @InjectMockKs
+    lateinit var emoteRepository: EmoteRepository
+
+    // --- parseTwitchEmotes tests ---
+
+    @Test
+    fun `emote positions are correct for regular message without emoji`() {
+        // "hello Kappa world" — Kappa at position 6..10
+        val message = "hello Kappa world"
+        val emotes = listOf(EmoteWithPositions(id = "25", positions = listOf(6..10)))
+        val result = emoteRepository.parseTwitchEmotes(
+            emotesWithPositions = emotes,
+            message = message,
+            supplementaryCodePointPositions = emptyList(),
+            appendedSpaces = emptyList(),
+            removedSpaces = emptyList(),
+            replyMentionOffset = 0,
+        )
+        assertEquals(expected = "Kappa", actual = result.single().code)
+        assertEquals(expected = 6..11, actual = result.single().position)
+    }
+
+    @Test
+    fun `emotes with out of bounds positions are skipped`() {
+        val message = "hello Kappa"
+        val emotes = listOf(EmoteWithPositions(id = "25", positions = listOf(999..1005)))
+        val result = emoteRepository.parseTwitchEmotes(
+            emotesWithPositions = emotes,
+            message = message,
+            supplementaryCodePointPositions = emptyList(),
+            appendedSpaces = emptyList(),
+            removedSpaces = emptyList(),
+            replyMentionOffset = 0,
+        )
+        assertEquals(expected = emptyList(), actual = result)
+    }
+
+    @Test
+    fun `emotes with inverted positions are skipped`() {
+        val message = "hello Kappa"
+        val emotes = listOf(EmoteWithPositions(id = "25", positions = listOf(5..2)))
+        val result = emoteRepository.parseTwitchEmotes(
+            emotesWithPositions = emotes,
+            message = message,
+            supplementaryCodePointPositions = emptyList(),
+            appendedSpaces = emptyList(),
+            removedSpaces = emptyList(),
+            replyMentionOffset = 0,
+        )
+        assertEquals(expected = emptyList(), actual = result)
+    }
+
+    @Test
+    fun `emote positions are correct with removed duplicate whitespace before an emoji`() {
+        // Original: "a   😂 Kappa" — Kappa at codepoints 6..10; whitespace dedup removes
+        // codepoints 2 and 3 and shifts the emoji to codepoint 2 of "a 😂 Kappa"
+        val message = "a 😂 Kappa"
+        val emotes = listOf(EmoteWithPositions(id = "25", positions = listOf(6..10)))
+        val result = emoteRepository.parseTwitchEmotes(
+            emotesWithPositions = emotes,
+            message = message,
+            supplementaryCodePointPositions = listOf(2),
+            appendedSpaces = emptyList(),
+            removedSpaces = listOf(2, 3),
+            replyMentionOffset = 0,
+        )
+        assertEquals(expected = "Kappa", actual = result.single().code)
+        assertEquals(expected = 5..10, actual = result.single().position)
+    }
+
+    @Test
+    fun `emote positions are correct for reply message without emoji`() {
+        // Original: "@someuser hello Kappa world" — Kappa at Twitch position 16..20
+        // Stripped: "hello Kappa world" — replyMentionOffset = 10 ("@someuser " = 10 chars)
+        val message = "hello Kappa world"
+        val replyOffset = 10
+        val emotes = listOf(EmoteWithPositions(id = "25", positions = listOf(16..20)))
+        val result = emoteRepository.parseTwitchEmotes(
+            emotesWithPositions = emotes,
+            message = message,
+            supplementaryCodePointPositions = emptyList(),
+            appendedSpaces = emptyList(),
+            removedSpaces = emptyList(),
+            replyMentionOffset = replyOffset,
+        )
+        assertEquals(expected = "Kappa", actual = result.single().code)
+        assertEquals(expected = 6..11, actual = result.single().position)
+    }
+
+    @Test
+    fun `emote positions are correct with flag emoji before emote`() {
+        // "nice play 🇩🇪 Kappa" — 🇩🇪 = U+1F1E9 U+1F1EA (two supplementary codepoints)
+        // Twitch codepoint positions: n=0..y=8, ' '=9, 🇩=10, 🇪=11, ' '=12, K=13..a=17
+        // supplementaryCodePointPositions: [10, 11]
+        // unicodeExtra = 2 → fixedStart = 13 + 2 = 15
+        // Kotlin string: "nice play " = 0..9, 🇩 = 10-11, 🇪 = 12-13, ' ' = 14, K = 15
+        val message = "nice play 🇩🇪 Kappa"
+        val supplementary = listOf(10, 11)
+        val emotes = listOf(EmoteWithPositions(id = "25", positions = listOf(13..17)))
+        val result = emoteRepository.parseTwitchEmotes(
+            emotesWithPositions = emotes,
+            message = message,
+            supplementaryCodePointPositions = supplementary,
+            appendedSpaces = emptyList(),
+            removedSpaces = emptyList(),
+            replyMentionOffset = 0,
+        )
+        assertEquals(expected = "Kappa", actual = result.single().code)
+        assertEquals(expected = 15..20, actual = result.single().position)
+    }
+
+    @Test
+    fun `emote positions are correct with skin tone emoji before emote`() {
+        // "GG 👍🏽 Kappa" — 👍🏽 = U+1F44D U+1F3FD (two supplementary codepoints)
+        // Twitch codepoints: G=0, G=1, ' '=2, 👍=3, 🏽=4, ' '=5, K=6..a=10
+        // supplementaryCodePointPositions: [3, 4]
+        // unicodeExtra = 2 → fixedStart = 6 + 2 = 8
+        // Kotlin string: G=0, G=1, ' '=2, 👍=3-4, 🏽=5-6, ' '=7, K=8
+        val message = "GG 👍🏽 Kappa"
+        val supplementary = listOf(3, 4)
+        val emotes = listOf(EmoteWithPositions(id = "25", positions = listOf(6..10)))
+        val result = emoteRepository.parseTwitchEmotes(
+            emotesWithPositions = emotes,
+            message = message,
+            supplementaryCodePointPositions = supplementary,
+            appendedSpaces = emptyList(),
+            removedSpaces = emptyList(),
+            replyMentionOffset = 0,
+        )
+        assertEquals(expected = "Kappa", actual = result.single().code)
+        assertEquals(expected = 8..13, actual = result.single().position)
+    }
+
+    @Test
+    fun `reply with flag emoji before emote adjusts positions correctly`() {
+        // Original: "@treejadey nice play 🇩🇪 Kappa"
+        // "@treejadey " = 12 codepoints, stripped: "nice play 🇩🇪 Kappa"
+        // Twitch Kappa position: 25..29 (13 + 12), replyMentionOffset = 12
+        // adjustedFirst = 25 - 12 = 13, unicodeExtra = countLessThan([10, 11], 13) = 2
+        // fixedStart = 13 + 2 = 15 → Kotlin index 15 = 'K' ✓
+        val message = "nice play 🇩🇪 Kappa"
+        val replyOffset = 12
+        val supplementary = listOf(10, 11)
+        val emotes = listOf(EmoteWithPositions(id = "25", positions = listOf(25..29)))
+        val result = emoteRepository.parseTwitchEmotes(
+            emotesWithPositions = emotes,
+            message = message,
+            supplementaryCodePointPositions = supplementary,
+            appendedSpaces = emptyList(),
+            removedSpaces = emptyList(),
+            replyMentionOffset = replyOffset,
+        )
+        assertEquals(expected = "Kappa", actual = result.single().code)
+        assertEquals(expected = 15..20, actual = result.single().position)
+    }
+
+    @Test
+    fun `reply with skin tone emoji before emote adjusts positions correctly`() {
+        // Original: "@flex3rs GG 👍🏽 Kappa"
+        // "@flex3rs " = 9 codepoints, stripped: "GG 👍🏽 Kappa"
+        // Twitch Kappa position: 15..19 (6 + 9), replyMentionOffset = 9
+        // adjustedFirst = 15 - 9 = 6, unicodeExtra = countLessThan([3, 4], 6) = 2
+        // fixedStart = 6 + 2 = 8 → Kotlin index 8 = 'K' ✓
+        val message = "GG 👍🏽 Kappa"
+        val replyOffset = 9
+        val supplementary = listOf(3, 4)
+        val emotes = listOf(EmoteWithPositions(id = "25", positions = listOf(15..19)))
+        val result = emoteRepository.parseTwitchEmotes(
+            emotesWithPositions = emotes,
+            message = message,
+            supplementaryCodePointPositions = supplementary,
+            appendedSpaces = emptyList(),
+            removedSpaces = emptyList(),
+            replyMentionOffset = replyOffset,
+        )
+        assertEquals(expected = "Kappa", actual = result.single().code)
+        assertEquals(expected = 8..13, actual = result.single().position)
+    }
+
+    @Test
+    fun `emote positions are correct with emoji after emote`() {
+        // "Kappa 🇩🇪 nice" — emoji is after emote, should not affect emote position
+        // Twitch codepoints: K=0..a=4, ' '=5, 🇩=6, 🇪=7, ' '=8, n=9..e=12
+        // Kappa at 0..4, supplementary at [6, 7] — both after emote
+        // unicodeExtra = countLessThan([6, 7], 0) = 0
+        val message = "Kappa 🇩🇪 nice"
+        val supplementary = listOf(6, 7)
+        val emotes = listOf(EmoteWithPositions(id = "25", positions = listOf(0..4)))
+        val result = emoteRepository.parseTwitchEmotes(
+            emotesWithPositions = emotes,
+            message = message,
+            supplementaryCodePointPositions = supplementary,
+            appendedSpaces = emptyList(),
+            removedSpaces = emptyList(),
+            replyMentionOffset = 0,
+        )
+        assertEquals(expected = "Kappa", actual = result.single().code)
+        assertEquals(expected = 0..5, actual = result.single().position)
+    }
+
+    @Test
+    fun `emote positions are correct with collapsed spaces before and an emoji space after the emote`() = runBlocking {
+        // Collapsing the 9 double spaces moves Kappa from 27 to 18, the space inserted before "x" at 26 lies in between
+        val message = gifMessage(text = "a  b  c  d  e  f  g  h  i  Kappa \uD83C\uDF53x", gifs = "", emotes = "25:27-31")
+
+        val parsed = assertIs<PrivMessage>(emoteRepository.parseEmotesAndBadges(message))
+
+        val emote = parsed.emotes.single()
+        assertEquals(expected = "a b c d e f g h i Kappa \uD83C\uDF53 x", actual = parsed.message)
+        assertEquals(expected = 18..23, actual = emote.position)
+        assertEquals(expected = "Kappa", actual = emote.code)
+    }
+
+    @Test
+    fun `emote positions are correct after a collapsed double space in a real message`() = runBlocking {
+        val message = assertIs<PrivMessage>(Message.parse(IrcMessage.parse(REAL_DOUBLE_SPACE_MESSAGE)) { null })
+
+        val parsed = assertIs<PrivMessage>(emoteRepository.parseEmotesAndBadges(message))
+
+        assertEquals(expected = 31, actual = parsed.emotes.size)
+        parsed.emotes.forEach { emote ->
+            assertEquals(expected = "forsenE", actual = parsed.message.substring(emote.position.first, emote.position.last))
+        }
+    }
+
+    @Test
+    fun `reply with emote between emojis`() {
+        // Original: "@user 👍🏽 Kappa ⚡" — "@user " = 6, stripped: "👍🏽 Kappa ⚡"
+        // Twitch codepoints (full): 👍=6, 🏽=7, ' '=8, K=9..a=13, ' '=14, ⚡=15
+        // Kappa at 9..13, replyMentionOffset = 6
+        // Stripped supplementary: 👍 at 0, 🏽 at 1, ⚡ at 8
+        // adjustedFirst = 9 - 6 = 3, unicodeExtra = countLessThan([0, 1, 8], 3) = 2
+        // fixedStart = 3 + 2 = 5
+        // Kotlin string "👍🏽 Kappa ⚡": 👍=0-1, 🏽=2-3, ' '=4, K=5
+        val message = "👍🏽 Kappa ⚡"
+        val replyOffset = 6
+        val supplementary = listOf(0, 1, 8)
+        val emotes = listOf(EmoteWithPositions(id = "25", positions = listOf(9..13)))
+        val result = emoteRepository.parseTwitchEmotes(
+            emotesWithPositions = emotes,
+            message = message,
+            supplementaryCodePointPositions = supplementary,
+            appendedSpaces = emptyList(),
+            removedSpaces = emptyList(),
+            replyMentionOffset = replyOffset,
+        )
+        assertEquals(expected = "Kappa", actual = result.single().code)
+        assertEquals(expected = 5..10, actual = result.single().position)
+    }
+
+    @Test
+    fun `overlay emotes are not moved if regular text is in-between`() {
+        val message = "FeelsDankMan asd cvHazmat RainTime"
+        val emotes =
+            listOf(
+                ChatMessageEmote(position = 0..12, url = "asd", id = "1", code = "FeelsDankMan", scale = 1, type = ChatMessageEmoteType.TwitchEmote),
+                ChatMessageEmote(position = 17..25, url = "asd", id = "1", code = "cvHazmat", scale = 1, type = ChatMessageEmoteType.TwitchEmote, isOverlayEmote = true),
+                ChatMessageEmote(position = 26..34, url = "asd", id = "1", code = "cvHazmat", scale = 1, type = ChatMessageEmoteType.TwitchEmote, isOverlayEmote = true),
+            )
+        val (resultMessage, resultEmotes) = emoteRepository.adjustOverlayEmotes(message, emotes)
+
+        assertEquals(expected = message, actual = resultMessage)
+        assertEquals(expected = emotes, actual = resultEmotes)
+    }
+
+    @Test
+    fun `overlay emotes are moved if no regular text is in-between`() {
+        val message = "FeelsDankMan cvHazmat RainTime"
+        val emotes =
+            listOf(
+                ChatMessageEmote(position = 0..12, url = "asd", id = "1", code = "FeelsDankMan", scale = 1, type = ChatMessageEmoteType.TwitchEmote),
+                ChatMessageEmote(position = 13..21, url = "asd", id = "1", code = "cvHazmat", scale = 1, type = ChatMessageEmoteType.TwitchEmote, isOverlayEmote = true),
+                ChatMessageEmote(position = 22..30, url = "asd", id = "1", code = "cvHazmat", scale = 1, type = ChatMessageEmoteType.TwitchEmote, isOverlayEmote = true),
+            )
+        val expectedMessage = "FeelsDankMan " // KKona
+        val expectedEmotes =
+            listOf(
+                ChatMessageEmote(position = 0..12, url = "asd", id = "1", code = "FeelsDankMan", scale = 1, type = ChatMessageEmoteType.TwitchEmote),
+                ChatMessageEmote(position = 0..12, url = "asd", id = "1", code = "cvHazmat", scale = 1, type = ChatMessageEmoteType.TwitchEmote, isOverlayEmote = true),
+                ChatMessageEmote(position = 0..12, url = "asd", id = "1", code = "cvHazmat", scale = 1, type = ChatMessageEmoteType.TwitchEmote, isOverlayEmote = true),
+            )
+
+        val (resultMessage, resultEmotes) = emoteRepository.adjustOverlayEmotes(message, emotes)
+
+        assertEquals(expected = expectedMessage, actual = resultMessage)
+        assertEquals(expected = expectedEmotes, actual = resultEmotes)
+    }
+
+    // --- badge parsing tests ---
+
+    @Test
+    fun `campaign badges resolve from channel badge sets without a global counterpart`() = runBlocking {
+        val campaignSetId = "campaign-38949074-1e80f2d1-4993-45e4-8c07-14699b3f4f02-mw"
+        emoteRepository.setChannelBadges(
+            channel = "icdb".toUserName(),
+            badges =
+                mapOf(
+                    campaignSetId to
+                        BadgeSet(
+                            id = campaignSetId,
+                            versions =
+                                mapOf(
+                                    "1" to BadgeVersion(id = "1", title = "FeelsDankMan", imageUrlLow = "1x", imageUrlMedium = "2x", imageUrlHigh = "4x"),
+                                ),
+                        ),
+                ),
+        )
+
+        val raw =
+            "@badge-info=;badges=moderator/1,$campaignSetId/1;color=#F1C40F;display-name=sunred_;emotes=;first-msg=0;flags=;id=4e0f1b81-0c65-42cf-b52b-21386d288e8a;mod=1;returning-chatter=0;room-id=38949074;subscriber=0;tmi-sent-ts=1786793453714;turbo=0;user-id=99308836;user-type=mod :sunred_!sunred_@sunred_.tmi.twitch.tv PRIVMSG #icdb :-tags"
+        val message = assertIs<PrivMessage>(Message.parse(IrcMessage.parse(raw)) { null })
+
+        val parsed = assertIs<PrivMessage>(emoteRepository.parseEmotesAndBadges(message))
+
+        val campaignBadge = assertIs<Badge.ChannelBadge>(parsed.badges.single())
+        assertEquals(expected = "FeelsDankMan", actual = campaignBadge.title)
+        assertEquals(expected = "4x", actual = campaignBadge.url)
+    }
+
+    @Test
+    fun `dankchat badge resolves from the badges response`() = runBlocking {
+        emoteRepository.setDankChatBadges(Json.decodeFromString(DANKCHAT_BADGES_JSON))
+
+        val parsed = assertIs<PrivMessage>(emoteRepository.parseEmotesAndBadges(messageFromUser(userId = "73697410")))
+
+        val badge = assertIs<Badge.DankChatBadge>(parsed.badges.single())
+        assertEquals(expected = "DankChat Developer", actual = badge.title)
+        assertEquals(expected = "https://api.dank.chat/badges/gold.png", actual = badge.url)
+    }
+
+    @Test
+    fun `users without a known dankchat badge get none`() = runBlocking {
+        emoteRepository.setDankChatBadges(Json.decodeFromString(DANKCHAT_BADGES_JSON))
+
+        val unknownBadge = assertIs<PrivMessage>(emoteRepository.parseEmotesAndBadges(messageFromUser(userId = "222")))
+        val unlisted = assertIs<PrivMessage>(emoteRepository.parseEmotesAndBadges(messageFromUser(userId = "333")))
+
+        assertEquals(expected = emptyList(), actual = unknownBadge.badges)
+        assertEquals(expected = emptyList(), actual = unlisted.badges)
+    }
+
+    @Test
+    fun `gif positions survive message normalisation and emote reparsing`() = runBlocking {
+        val message = gifMessage(text = "a  [GIF]", gifs = "3-7|gif-id|https://example.com/a.gif")
+
+        val parsed = assertIs<PrivMessage>(emoteRepository.parseEmotesAndBadges(message))
+        val reparsed = assertIs<PrivMessage>(emoteRepository.parseEmotesAndBadges(parsed))
+
+        assertEquals("a [GIF]", parsed.message)
+        assertEquals(TwitchGif("gif-id", "https://example.com/a.gif", "[GIF]", 2..6), parsed.gifs.single())
+        assertEquals(parsed.gifs, reparsed.gifs)
+    }
+
+    @Test
+    fun `gif positions account for emoji before and inside the gif text`() = runBlocking {
+        val message = gifMessage(text = "\uD83D\uDE00 [Y A Y \uD83D\uDE00 GIF]", gifs = "2-14|gif-id|https://example.com/a.gif")
+
+        val parsed = assertIs<PrivMessage>(emoteRepository.parseEmotesAndBadges(message))
+
+        val gif = parsed.gifs.single()
+        assertEquals(3..16, gif.position)
+        assertEquals("[Y A Y \uD83D\uDE00 GIF]", gif.altText)
+    }
+
+    @Test
+    fun `gif positions account for spaces appended after emoji and collapsed whitespace inside the gif text`() = runBlocking {
+        val appended = assertIs<PrivMessage>(emoteRepository.parseEmotesAndBadges(gifMessage(text = "\uD83D\uDE00[GIF]", gifs = "1-5|a|https://example.com/a.gif")))
+        val collapsed = assertIs<PrivMessage>(emoteRepository.parseEmotesAndBadges(gifMessage(text = "[A  B] x", gifs = "0-5|b|https://example.com/b.gif")))
+
+        assertEquals("\uD83D\uDE00 [GIF]", appended.message)
+        assertEquals(3..7, appended.gifs.single().position)
+        assertEquals("[A B] x", collapsed.message)
+        assertEquals("[A B]", collapsed.gifs.single().altText)
+    }
+
+    @Test
+    fun `gif positions account for the stripped reply mention`() = runBlocking {
+        val message = gifMessage(text = "@Pajlada [GIF]", gifs = "9-13|gif-id|https://example.com/a.gif")
+        val stripped = message.copy(message = "[GIF]", originalMessage = "[GIF]", replyMentionOffset = 9, emoteData = message.emoteData.copy(message = "[GIF]"))
+
+        val parsed = assertIs<PrivMessage>(emoteRepository.parseEmotesAndBadges(stripped))
+
+        assertEquals(0..4, parsed.gifs.single().position)
+    }
+
+    @Test
+    fun `emotes inside a gif text and overlapping gifs are dropped`() = runBlocking {
+        val message = gifMessage(text = "[Kappa] x", gifs = "0-6|first|https://example.com/a.gif,2-8|second|https://example.com/b.gif", emotes = "25:1-5")
+
+        val parsed = assertIs<PrivMessage>(emoteRepository.parseEmotesAndBadges(message))
+
+        assertEquals(emptyList(), parsed.emotes)
+        assertEquals("first", parsed.gifs.single().id)
+    }
+
+    @Test
+    fun `overlay emotes before a gif shift its position`() {
+        val message = "FeelsDankMan cvHazmat [GIF]"
+        val emotes =
+            listOf(
+                ChatMessageEmote(position = 0..12, url = "asd", id = "1", code = "FeelsDankMan", scale = 1, type = ChatMessageEmoteType.TwitchEmote),
+                ChatMessageEmote(position = 13..21, url = "asd", id = "1", code = "cvHazmat", scale = 1, type = ChatMessageEmoteType.TwitchEmote, isOverlayEmote = true),
+            )
+
+        val result = emoteRepository.adjustOverlayEmotes(message, emotes, gifPositions = listOf(22..27))
+
+        assertEquals("FeelsDankMan [GIF]", result.message)
+        assertEquals(listOf(13..18), result.gifPositions)
+    }
+
+    private fun gifMessage(
+        text: String,
+        gifs: String,
+        emotes: String = "",
+    ): PrivMessage {
+        val raw =
+            "@badge-info=;badges=;color=#F1C40F;display-name=Forsen;emotes=$emotes;gifs=$gifs;id=gif-message;room-id=1;user-id=2 :forsen!forsen@forsen.tmi.twitch.tv PRIVMSG #forsen :$text"
+        return assertIs<PrivMessage>(Message.parse(IrcMessage.parse(raw)) { null })
+    }
+
+    private fun messageFromUser(userId: String): PrivMessage {
+        val raw =
+            "@badge-info=;badges=;color=#00BCD4;display-name=Chatter;emotes=;id=badge-message;room-id=1;user-id=$userId :chatter!chatter@chatter.tmi.twitch.tv PRIVMSG #forsen :hi chat"
+        return assertIs<PrivMessage>(Message.parse(IrcMessage.parse(raw)) { null })
+    }
+
+    companion object {
+        // Captured from #forsen via recent-messages, Twitch kept the double space after ">dart"
+        private val REAL_DOUBLE_SPACE_MESSAGE =
+            "@room-id=22484632;flags;historical=1;user-type;badges=subscriber/6,bloom-badge/4;id=c821bbf9-0ee3-4a6b-bfcd-13cf2fa08ece;" +
+                "emotes=521050:7-13,15-21,23-29,31-37,39-45,47-53,55-61,63-69,71-77,79-85,87-93,95-101,103-109,111-117,119-125,127-133," +
+                "135-141,143-149,151-157,159-165,167-173,175-181,183-189,191-197,199-205,207-213,215-221,223-229,231-237,239-245,247-253;" +
+                "turbo=0;first-msg=0;display-name=imfakeris1_;badge-info=subscriber/7;mod=0;user-id=1364989612;subscriber=1;" +
+                "tmi-sent-ts=1792923272791;returning-chatter=0;rm-received-ts=1792923272954;color=#FF69B4 " +
+                ":imfakeris1_!imfakeris1_@imfakeris1_.tmi.twitch.tv PRIVMSG #forsen :>dart  " + "forsenE ".repeat(30) + "forsenE"
+
+        private const val DANKCHAT_BADGES_JSON =
+            """{"badges":[{"id":"developer","title":"DankChat Developer","url":"https://api.dank.chat/badges/gold.png"},""" +
+                """{"id":"supporter","title":"DankChat Supporter","url":"https://api.dank.chat/badges/dank.png"}],""" +
+                """"users":{"111":"supporter","222":"removed","73697410":"developer"}}"""
+    }
+}

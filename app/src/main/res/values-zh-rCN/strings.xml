@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="something_went_wrong">出了点问题</string>
+    <string name="input_action_hide_all">隐藏所有操作</string>
+    <string name="input_actions_none">无可见操作</string>
+</resources>

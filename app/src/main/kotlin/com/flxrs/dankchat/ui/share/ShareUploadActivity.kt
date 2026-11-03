@@ -1,0 +1,213 @@
+package com.flxrs.dankchat.ui.share
+
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.Error
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.flxrs.dankchat.R
+import com.flxrs.dankchat.preferences.language.AppLanguage
+import com.flxrs.dankchat.ui.theme.DankChatTheme
+import com.flxrs.dankchat.utils.resolve
+import org.koin.androidx.viewmodel.ext.android.viewModel
+
+class ShareUploadActivity : ComponentActivity() {
+    private val viewModel: ShareUploadViewModel by viewModel()
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(AppLanguage.wrap(newBase))
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        setContent {
+            val state by viewModel.state.collectAsStateWithLifecycle()
+            DankChatTheme {
+                ShareUploadDialog(
+                    state = state,
+                    onRetry = viewModel::upload,
+                    onDismiss = { finish() },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ShareUploadDialog(
+    state: ShareUploadState,
+    onRetry: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    Surface(
+        shape = MaterialTheme.shapes.extraLarge,
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        tonalElevation = 6.dp,
+        modifier = Modifier.widthIn(min = 280.dp, max = 400.dp),
+    ) {
+        Column(
+            modifier = Modifier.padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.upload_media),
+                style = MaterialTheme.typography.headlineSmall,
+            )
+
+            AnimatedContent(
+                targetState = state,
+                transitionSpec = { fadeIn() togetherWith fadeOut() },
+                label = "uploadState",
+            ) { currentState ->
+                when (currentState) {
+                    is ShareUploadState.Loading -> LoadingContent()
+                    is ShareUploadState.Success -> SuccessContent(url = currentState.url)
+                    is ShareUploadState.Error -> ErrorContent(message = currentState.message.resolve())
+                }
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                when (state) {
+                    is ShareUploadState.Error -> {
+                        TextButton(onClick = onDismiss) {
+                            Text(stringResource(R.string.dialog_dismiss))
+                        }
+                        TextButton(onClick = onRetry) {
+                            Text(stringResource(R.string.snackbar_retry))
+                        }
+                    }
+
+                    is ShareUploadState.Success -> {
+                        TextButton(onClick = onDismiss) {
+                            Text(stringResource(R.string.dialog_ok))
+                        }
+                    }
+
+                    is ShareUploadState.Loading -> {
+                        TextButton(onClick = onDismiss) {
+                            Text(stringResource(R.string.dialog_cancel))
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun LoadingContent() {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        CircularProgressIndicator(modifier = Modifier.size(24.dp))
+        Text(
+            text = stringResource(R.string.uploading_image),
+            style = MaterialTheme.typography.bodyMedium,
+        )
+    }
+}
+
+@Composable
+private fun SuccessContent(url: String) {
+    val context = LocalContext.current
+    val clipboardManager = remember { context.getSystemService(ClipboardManager::class.java) }
+
+    SideEffect(url) {
+        clipboardManager.setPrimaryClip(ClipData.newPlainText("dankchat_media_url", url))
+    }
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Icon(
+            imageVector = Icons.Default.CheckCircle,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(24.dp),
+        )
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = url,
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                text = stringResource(R.string.share_upload_copied),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        IconButton(onClick = {
+            clipboardManager.setPrimaryClip(ClipData.newPlainText("dankchat_media_url", url))
+        }) {
+            Icon(
+                imageVector = Icons.Default.ContentCopy,
+                contentDescription = stringResource(R.string.share_upload_copy),
+            )
+        }
+    }
+}
+
+@Composable
+private fun ErrorContent(message: String) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Icon(
+            imageVector = Icons.Default.Error,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.error,
+            modifier = Modifier.size(24.dp),
+        )
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.error,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+}

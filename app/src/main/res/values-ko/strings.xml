@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="something_went_wrong">문제가 발생했습니다</string>
+    <string name="input_action_hide_all">모든 작업 숨기기</string>
+    <string name="input_actions_none">표시된 작업 없음</string>
+</resources>

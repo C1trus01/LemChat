@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="something_went_wrong">Ceva nu a mers bine</string>
+    <string name="input_action_hide_all">Ascunde toate acțiunile</string>
+    <string name="input_actions_none">Nicio acțiune vizibilă</string>
+</resources>
