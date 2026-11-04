@@ -1,12 +1,15 @@
 package com.flxrs.dankchat.preferences.components
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.RadioButton
@@ -48,46 +51,48 @@ fun <T> PreferenceListDialog(
             sheetState = sheetState,
             containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
         ) {
-            values.forEachIndexed { idx, value ->
-                val interactionSource = remember { MutableInteractionSource() }
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .selectable(
-                                selected = selected == value,
-                                onClick = {
-                                    onChange(value)
-                                    scope.launch {
-                                        sheetState.hide()
-                                        dismiss()
-                                    }
-                                },
-                                interactionSource = interactionSource,
-                                indication = ripple(),
-                            ).padding(horizontal = 16.dp),
-                ) {
-                    RadioButton(
-                        selected = selected == value,
-                        onClick = {
-                            onChange(value)
-                            scope.launch {
-                                sheetState.hide()
-                                dismiss()
-                            }
-                        },
-                        interactionSource = interactionSource,
-                    )
-                    Text(
-                        text = entries[idx],
-                        modifier = Modifier.padding(start = 16.dp),
-                        style = MaterialTheme.typography.bodyLarge,
-                        lineHeight = 18.sp,
-                    )
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                values.forEachIndexed { idx, value ->
+                    val interactionSource = remember { MutableInteractionSource() }
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .selectable(
+                                    selected = selected == value,
+                                    onClick = {
+                                        onChange(value)
+                                        scope.launch {
+                                            sheetState.hide()
+                                            dismiss()
+                                        }
+                                    },
+                                    interactionSource = interactionSource,
+                                    indication = ripple(),
+                                ).padding(horizontal = 16.dp),
+                    ) {
+                        RadioButton(
+                            selected = selected == value,
+                            onClick = {
+                                onChange(value)
+                                scope.launch {
+                                    sheetState.hide()
+                                    dismiss()
+                                }
+                            },
+                            interactionSource = interactionSource,
+                        )
+                        Text(
+                            text = entries[idx],
+                            modifier = Modifier.padding(start = 16.dp),
+                            style = MaterialTheme.typography.bodyLarge,
+                            lineHeight = 18.sp,
+                        )
+                    }
                 }
+                Spacer(Modifier.height(32.dp))
             }
-            Spacer(Modifier.height(32.dp))
         }
     }
 }

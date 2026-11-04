@@ -34,7 +34,8 @@ data class MessageHighlightEntity(
                 }
             when {
                 isRegex -> pattern.toRegex(options)
-                else -> """(?<!\w)${Regex.escape(pattern)}(?!\w)""".toRegex(options)
+                // Keyboards add a space after a suggested word, a saved entry may still have it
+                else -> """(?<!\w)${Regex.escape(pattern.trim())}(?!\w)""".toRegex(options)
             }
         }.getOrElse {
             logger.error(it) { "Failed to create regex for pattern $pattern" }

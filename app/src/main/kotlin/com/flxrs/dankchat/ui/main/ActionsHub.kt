@@ -99,6 +99,9 @@ data class HubUiState(
     val hasPinnedMessage: Boolean = false,
     val isPinnedMessageShown: Boolean = false,
 ) {
+    /** Channels have their own button in the top bar, only without it they stay in the hub. */
+    val isTopBarHidden: Boolean get() = isFullscreen || isTheaterMode
+
     /** The tile of an action, or null while the action does not exist in the current state. */
     fun tileFor(action: HubAction): HubTile? = when (action) {
         HubAction.Stream -> HubTile(
@@ -339,7 +342,7 @@ private fun HubMainPage(
             ).forEach { (titleRes, actions) ->
                 HubSection(
                     title = stringResource(titleRes),
-                    tiles = actions.mapNotNull(state::tileFor),
+                    tiles = actions.filter { it != HubAction.Channel || state.isTopBarHidden }.mapNotNull(state::tileFor),
                     columns = columns,
                     isPinMode = isPinMode,
                     pinnedAction = pinnedAction,

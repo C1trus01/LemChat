@@ -7,7 +7,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -55,44 +57,46 @@ fun <T> PreferenceMultiListDialog(
             sheetState = sheetState,
             containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
         ) {
-            entries.forEachIndexed { idx, entry ->
-                val interactionSource = remember { MutableInteractionSource() }
-                val itemSelected = selected[idx]
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .selectable(
-                                selected = itemSelected,
-                                onClick = { selected = selected.replacingAt(idx, !itemSelected) },
-                                interactionSource = interactionSource,
-                                indication = ripple(),
-                            ).padding(horizontal = 16.dp),
-                ) {
-                    Checkbox(
-                        checked = itemSelected,
-                        onCheckedChange = { selected = selected.replacingAt(idx, it) },
-                        interactionSource = interactionSource,
-                    )
-                    Column(modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp)) {
-                        Text(
-                            text = entry,
-                            style = MaterialTheme.typography.bodyLarge,
-                            lineHeight = 18.sp,
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                entries.forEachIndexed { idx, entry ->
+                    val interactionSource = remember { MutableInteractionSource() }
+                    val itemSelected = selected[idx]
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .selectable(
+                                    selected = itemSelected,
+                                    onClick = { selected = selected.replacingAt(idx, !itemSelected) },
+                                    interactionSource = interactionSource,
+                                    indication = ripple(),
+                                ).padding(horizontal = 16.dp),
+                    ) {
+                        Checkbox(
+                            checked = itemSelected,
+                            onCheckedChange = { selected = selected.replacingAt(idx, it) },
+                            interactionSource = interactionSource,
                         )
-                        val description = descriptions?.getOrNull(idx)
-                        if (description != null) {
+                        Column(modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp)) {
                             Text(
-                                text = description,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                text = entry,
+                                style = MaterialTheme.typography.bodyLarge,
+                                lineHeight = 18.sp,
                             )
+                            val description = descriptions?.getOrNull(idx)
+                            if (description != null) {
+                                Text(
+                                    text = description,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
                         }
                     }
                 }
+                Spacer(Modifier.height(32.dp))
             }
-            Spacer(Modifier.height(32.dp))
         }
     }
 }

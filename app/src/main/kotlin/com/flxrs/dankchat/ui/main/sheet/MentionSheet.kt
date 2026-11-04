@@ -11,7 +11,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -37,7 +36,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
@@ -55,7 +53,6 @@ import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -178,74 +175,51 @@ fun MentionSheet(
             sheetBackgroundColor = sheetBackgroundColor,
             onBack = onDismiss,
         ) {
-            // Falls back to icons once the labels no longer fit, so both tabs stay visible in a narrow pane
-            BoxWithConstraints(modifier = Modifier.weight(1f, fill = false)) {
-                val tabs = listOf(R.string.mentions to Icons.Default.AlternateEmail, R.string.whispers to Icons.AutoMirrored.Filled.Chat)
-                val tabStyle = MaterialTheme.typography.titleSmall
-                val labels = tabs.map { (stringRes, _) -> stringResource(stringRes) }
-                val textMeasurer = rememberTextMeasurer()
-                val textTabsWidth =
-                    remember(labels, tabStyle, density) {
-                        val labelsWidth = with(density) { labels.sumOf { textMeasurer.measure(it, tabStyle).size.width }.toDp() }
-                        labelsWidth + TAB_HORIZONTAL_PADDING * 2 * tabs.size + TAB_BADGE_ALLOWANCE
-                    }
-                val useIcons = textTabsWidth > maxWidth
-                Surface(
-                    shape = MaterialTheme.shapes.extraLarge,
-                    color = MaterialTheme.colorScheme.surfaceContainerLow,
-                ) {
-                    val tabLayoutState = rememberPagerTabIndicatorState(tabs.size)
-                    val indicatorColor = MaterialTheme.colorScheme.primary
-                    Box {
-                        Row {
-                            tabs.forEachIndexed { index, (_, icon) ->
-                                val isSelected = pagerState.currentPage == index
-                                val textColor =
-                                    when {
-                                        isSelected -> MaterialTheme.colorScheme.primary
-                                        else -> MaterialTheme.colorScheme.onSurfaceVariant
-                                    }
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier =
-                                        Modifier
-                                            .clickable { scope.launch { pagerState.animateScrollToPage(index) } }
-                                            .defaultMinSize(minHeight = 48.dp)
-                                            .padding(horizontal = TAB_HORIZONTAL_PADDING, vertical = 14.dp)
-                                            .reportPosition(tabLayoutState, index),
-                                ) {
-                                    when {
-                                        useIcons -> {
-                                            Icon(
-                                                imageVector = icon,
-                                                contentDescription = labels[index],
-                                                tint = textColor,
-                                                modifier = Modifier.size(20.dp),
-                                            )
-                                        }
-
-                                        else -> {
-                                            Text(
-                                                text = labels[index],
-                                                color = textColor,
-                                                style = tabStyle,
-                                            )
-                                        }
-                                    }
-                                    if (index == 1 && whisperMentionCount > 0 && !isSelected) {
-                                        Spacer(Modifier.width(4.dp))
-                                        Badge()
-                                    }
+            // Icons in every language, labels fit in some languages and not in others
+            val tabs = listOf(R.string.mentions to Icons.Default.AlternateEmail, R.string.whispers to Icons.AutoMirrored.Filled.Chat)
+            Surface(
+                shape = MaterialTheme.shapes.extraLarge,
+                color = MaterialTheme.colorScheme.surfaceContainerLow,
+            ) {
+                val tabLayoutState = rememberPagerTabIndicatorState(tabs.size)
+                val indicatorColor = MaterialTheme.colorScheme.primary
+                Box {
+                    Row {
+                        tabs.forEachIndexed { index, (labelRes, icon) ->
+                            val isSelected = pagerState.currentPage == index
+                            val iconColor =
+                                when {
+                                    isSelected -> MaterialTheme.colorScheme.primary
+                                    else -> MaterialTheme.colorScheme.onSurfaceVariant
+                                }
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier =
+                                    Modifier
+                                        .clickable { scope.launch { pagerState.animateScrollToPage(index) } }
+                                        .defaultMinSize(minHeight = 48.dp)
+                                        .padding(horizontal = TAB_HORIZONTAL_PADDING, vertical = 14.dp)
+                                        .reportPosition(tabLayoutState, index),
+                            ) {
+                                Icon(
+                                    imageVector = icon,
+                                    contentDescription = stringResource(labelRes),
+                                    tint = iconColor,
+                                    modifier = Modifier.size(20.dp),
+                                )
+                                if (index == 1 && whisperMentionCount > 0 && !isSelected) {
+                                    Spacer(Modifier.width(4.dp))
+                                    Badge()
                                 }
                             }
                         }
-                        PagerTabIndicator(
-                            pagerState = pagerState,
-                            state = tabLayoutState,
-                            color = indicatorColor,
-                            modifier = Modifier.align(Alignment.BottomStart),
-                        )
                     }
+                    PagerTabIndicator(
+                        pagerState = pagerState,
+                        state = tabLayoutState,
+                        color = indicatorColor,
+                        modifier = Modifier.align(Alignment.BottomStart),
+                    )
                 }
             }
         }
@@ -316,4 +290,3 @@ internal fun BoxScope.SheetToolbar(
 }
 
 private val TAB_HORIZONTAL_PADDING = 16.dp
-private val TAB_BADGE_ALLOWANCE = 12.dp

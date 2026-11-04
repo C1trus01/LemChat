@@ -26,6 +26,7 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Tag
 import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Badge
@@ -101,6 +102,7 @@ fun FloatingToolbar(
     streamHeightDp: Dp,
     hasMentions: Boolean,
     onOpenMentions: (() -> Unit)?,
+    onOpenChannels: () -> Unit,
     onOpenHub: () -> Unit,
     onAction: (ToolbarAction) -> Unit,
     onAudioOnly: () -> Unit,
@@ -175,6 +177,7 @@ fun FloatingToolbar(
                         TopBarActions(
                             hasMentions = hasMentions,
                             onOpenMentions = onOpenMentions,
+                            onOpenChannels = onOpenChannels,
                             onOpenHub = onOpenHub,
                         )
                     }
@@ -209,6 +212,7 @@ fun FloatingToolbar(
                         TopBarActions(
                             hasMentions = hasMentions,
                             onOpenMentions = onOpenMentions,
+                            onOpenChannels = onOpenChannels,
                             onOpenHub = onOpenHub,
                         )
                     }
@@ -223,8 +227,18 @@ fun FloatingToolbar(
 private fun TopBarActions(
     hasMentions: Boolean,
     onOpenMentions: (() -> Unit)?,
+    onOpenChannels: () -> Unit,
     onOpenHub: () -> Unit,
 ) {
+    IconButton(
+        onClick = onOpenChannels,
+        modifier = Modifier.size(ACTIONS_ROW_HEIGHT),
+    ) {
+        Icon(
+            imageVector = Icons.Default.Tag,
+            contentDescription = stringResource(R.string.hub_channels),
+        )
+    }
     if (onOpenMentions != null) {
         IconButton(
             onClick = onOpenMentions,

@@ -16,30 +16,16 @@ import java.util.Locale
 object AppLanguage {
     const val SYSTEM = ""
 
-    private const val DEFAULT = "en"
     private const val PREFS_NAME = "app_language"
     private const val KEY_TAG = "tag"
-    private const val KEY_DEFAULT_APPLIED = "default_applied"
 
     // One per translation in res, the two languages the fork is written in come first
     val AVAILABLE: List<String> =
-        listOf(DEFAULT, "ru-RU") +
+        listOf("en", "ru-RU") +
             listOf(
                 "ar", "be-BY", "bg", "ca", "cs", "da", "de-DE", "el", "es-ES", "fa-IR", "fi-FI", "fr-FR", "hu-HU", "id-ID", "it", "ja-JP", "kk-KZ", "ko",
                 "nl", "no", "or-IN", "pl-PL", "pt-BR", "pt-PT", "ro", "sr", "sv", "tr-TR", "uk-UA", "vi", "zh-CN", "zh-Hant-TW",
             )
-
-    /** Apps start in English whatever the phone uses, a language already picked in the system settings stays. */
-    fun applyDefaultOnFirstRun(context: Context) {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        if (prefs.getBoolean(KEY_DEFAULT_APPLIED, false)) {
-            return
-        }
-        prefs.edit { putBoolean(KEY_DEFAULT_APPLIED, true) }
-        if (current(context) == SYSTEM) {
-            set(context, DEFAULT)
-        }
-    }
 
     fun current(context: Context): String {
         val tag =

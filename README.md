@@ -23,7 +23,7 @@
 - **Several Twitch accounts** with quick switching
 - **Chat beside the stream** in landscape, so it doesn't cover the player
 - **Compact message input** and a solid top bar, with less common actions in one menu
-- **Interface language setting**, English by default
+- **Interface language setting**, following your system language by default
 - **Built-in updates**: the app offers new versions, and you can install them now or later from Settings
 
 ## Install
@@ -61,7 +61,7 @@ LemChat — приложение для чата Twitch на Android с пеин
 - **Несколько аккаунтов Twitch** с быстрым переключением
 - **Чат рядом со стримом** в горизонтальном режиме, он не закрывает плеер
 - **Компактное поле ввода** и сплошная верхняя панель, а редкие действия собраны в одном меню
-- **Выбор языка интерфейса**, по умолчанию английский
+- **Выбор языка интерфейса**, по умолчанию как в системе
 - **Встроенные обновления**: приложение предлагает новую версию, поставить её можно сразу или позже из настроек
 
 ### Установка

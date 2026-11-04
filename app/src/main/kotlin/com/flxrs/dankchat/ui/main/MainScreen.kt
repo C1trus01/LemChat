@@ -590,6 +590,11 @@ fun MainScreen(
                 chatInputViewModel.setEmoteMenuOpen(false)
                 hubPage = HubPage.Main
             }
+            val openChannels: () -> Unit = {
+                keyboardController?.hide()
+                chatInputViewModel.setEmoteMenuOpen(false)
+                hubPage = HubPage.Channel
+            }
             val runHubAction: (HubAction) -> Unit = { action ->
                 hubPage = null
                 when (action) {
@@ -922,6 +927,7 @@ fun MainScreen(
                     streamHeightDp = streamState.heightDp,
                     hasMentions = tabState.tabs.sumOf { it.mentionCount } + tabState.whisperMentionCount > 0,
                     onOpenMentions = if (isLoggedIn) openMentions else null,
+                    onOpenChannels = openChannels,
                     onOpenHub = openHub,
                     onAction = handleToolbarAction,
                     onAudioOnly = { streamViewModel.toggleAudioOnly() },

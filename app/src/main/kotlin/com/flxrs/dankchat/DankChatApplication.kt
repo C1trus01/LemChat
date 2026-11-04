@@ -58,7 +58,6 @@ class DankChatApplication :
 
     override fun onCreate() {
         super.onCreate()
-        AppLanguage.applyDefaultOnFirstRun(this)
         startKoin<DankChatKoinApp> {
             androidContext(this@DankChatApplication)
         }
