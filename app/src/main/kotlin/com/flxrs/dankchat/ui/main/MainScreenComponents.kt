@@ -3,11 +3,8 @@ package com.flxrs.dankchat.ui.main
 import android.app.Activity
 import android.app.PictureInPictureParams
 import android.content.pm.ActivityInfo
-import android.content.res.Configuration
 import android.os.Build
-import android.os.SystemClock
 import android.util.Rational
-import android.view.OrientationEventListener
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -38,7 +35,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -53,7 +49,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.positionInWindow
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -76,9 +71,6 @@ import com.flxrs.dankchat.ui.chat.emotemenu.EmoteMenu
 import com.flxrs.dankchat.ui.main.stream.StreamViewModel
 import kotlin.math.abs
 import kotlin.math.roundToInt
-
-// A device lying nearly flat reports noisy angles, so readings must hold their zone
-private const val ROTATION_SUSTAIN_MS = 500L
 
 @Composable
 internal fun observePipMode(streamViewModel: StreamViewModel): Boolean {
@@ -160,96 +152,19 @@ internal fun FullscreenSystemBarsEffect(isFullscreen: Boolean) {
     }
 }
 
-// Theater mode forces landscape, restoring the sensor orientation on exit. The flag lives in
-// the StreamViewModel, so the effect re-applies after the rotation recreates the activity.
+// Theater mode stays in landscape until it is left on purpose, tilting the phone only flips
+// between the two landscape sides. The sensor orientation comes back on exit.
 @Composable
 internal fun TheaterOrientationEffect(isTheaterMode: Boolean) {
     val activity = LocalActivity.current
-    val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
 
-    DisposableEffect(isTheaterMode, activity, isLandscape) {
+    DisposableEffect(isTheaterMode, activity) {
         when {
             activity == null || !isTheaterMode -> onDispose { }
 
             else -> {
-                // Keep a resume pin until the display reaches it, then relax so 180° flips work
-                val pinnedVariant = activity.requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE ||
-                    activity.requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
-                if (!pinnedVariant || isLandscape) {
-                    activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
-                }
+                activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
                 onDispose { activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED }
-            }
-        }
-    }
-}
-
-@Composable
-internal fun TheaterRotationEffect(
-    isTheaterMode: Boolean,
-    isRotationSuspended: Boolean,
-    onSuspendTheater: () -> Unit,
-    onResumeTheater: () -> Unit,
-) {
-    val context = LocalContext.current
-    val activity = LocalActivity.current
-    val currentOnSuspendTheater by rememberUpdatedState(onSuspendTheater)
-    val currentOnResumeTheater by rememberUpdatedState(onResumeTheater)
-
-    DisposableEffect(isTheaterMode, isRotationSuspended, context) {
-        when {
-            !isTheaterMode && !isRotationSuspended -> onDispose { }
-
-            else -> {
-                val watchingForPortrait = isTheaterMode
-                var wasLandscape = false
-                var targetZoneSince = 0L
-                val listener =
-                    object : OrientationEventListener(context) {
-                        override fun onOrientationChanged(orientation: Int) {
-                            if (orientation == ORIENTATION_UNKNOWN) {
-                                targetZoneSince = 0L
-                                return
-                            }
-                            val nearLandscape = orientation in 60..120 || orientation in 240..300
-                            val nearPortrait = orientation <= 30 || orientation >= 330 || orientation in 150..210
-                            val inTargetZone =
-                                when {
-                                    watchingForPortrait -> {
-                                        if (nearLandscape) {
-                                            wasLandscape = true
-                                        }
-                                        nearPortrait && wasLandscape
-                                    }
-
-                                    else -> nearLandscape
-                                }
-                            val now = SystemClock.elapsedRealtime()
-                            when {
-                                !inTargetZone -> targetZoneSince = 0L
-
-                                targetZoneSince == 0L -> targetZoneSince = now
-
-                                now - targetZoneSince >= ROTATION_SUSTAIN_MS -> {
-                                    when {
-                                        watchingForPortrait -> currentOnSuspendTheater()
-
-                                        else -> {
-                                            // SENSOR_LANDSCAPE alone rotates to the default variant first, then flips 180°
-                                            activity?.requestedOrientation =
-                                                when {
-                                                    orientation in 60..120 -> ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
-                                                    else -> ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-                                                }
-                                            currentOnResumeTheater()
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                listener.enable()
-                onDispose { listener.disable() }
             }
         }
     }

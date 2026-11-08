@@ -49,10 +49,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
@@ -364,6 +366,7 @@ private fun ChannelTabs(
                             hasActivity -> FontWeight.SemiBold
                             else -> FontWeight.Normal
                         },
+                        modifier = if (tab.isLive) Modifier.liveDot() else Modifier,
                     )
                     if (tab.mentionCount > 0) {
                         Spacer(Modifier.width(4.dp))
@@ -383,6 +386,16 @@ private fun ChannelTabs(
         )
     }
 }
+
+// Green, so a row of live channels doesn't compete with the red mention dots.
+// Drawn into the tab's padding, a stream starting or ending must not shift the tabs.
+private val LiveDotColor = Color(0xFF3DD68C)
+
+private fun Modifier.liveDot() =
+    drawBehind {
+        val radius = 3.dp.toPx()
+        drawCircle(LiveDotColor, radius, Offset(-radius - 3.dp.toPx(), size.height / 2))
+    }
 
 // A tab with mentions scrolled out of view tints that edge of the row
 @Composable

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.data.repo.chat.ChatChannelProvider
 import com.flxrs.dankchat.data.repo.chat.ChatNotificationRepository
+import com.flxrs.dankchat.data.repo.stream.StreamDataRepository
 import com.flxrs.dankchat.data.state.ChannelLoadingState
 import com.flxrs.dankchat.data.state.GlobalLoadingState
 import com.flxrs.dankchat.data.twitch.message.WhisperMessage
@@ -13,8 +14,10 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import org.koin.core.annotation.KoinViewModel
 
@@ -23,8 +26,15 @@ class ChannelTabViewModel(
     private val chatChannelProvider: ChatChannelProvider,
     private val chatNotificationRepository: ChatNotificationRepository,
     channelDataCoordinator: ChannelDataCoordinator,
+    streamDataRepository: StreamDataRepository,
     private val preferenceStore: DankChatPreferenceStore,
 ) : ViewModel() {
+    // Viewer counts change on every refresh, the tabs only care about who is live
+    private val liveChannels =
+        streamDataRepository.streamData
+            .map { streams -> streams.mapTo(HashSet()) { it.channel } }
+            .distinctUntilChanged()
+
     val uiState: StateFlow<ChannelTabUiState> =
         preferenceStore
             .getChannelsWithRenamesFlow()
@@ -40,11 +50,11 @@ class ChannelTabViewModel(
 
                 combine(
                     chatChannelProvider.activeChannel,
-                    chatNotificationRepository.unreadMessagesMap,
+                    combine(chatNotificationRepository.unreadMessagesMap, liveChannels, ::Pair),
                     chatNotificationRepository.channelMentionCount,
                     combine(loadingFlows) { it.toList() },
                     channelDataCoordinator.globalLoadingState,
-                ) { active, unread, mentions, loadingStates, globalState ->
+                ) { active, (unread, live), mentions, loadingStates, globalState ->
                     val tabs =
                         channels.mapIndexed { index, channelWithRename ->
                             ChannelTabItem(
@@ -53,6 +63,7 @@ class ChannelTabViewModel(
                                     channelWithRename.rename?.value
                                         ?: channelWithRename.channel.value,
                                 isSelected = channelWithRename.channel == active,
+                                isLive = channelWithRename.channel in live,
                                 hasUnread = unread[channelWithRename.channel] ?: false,
                                 mentionCount = mentions[channelWithRename.channel] ?: 0,
                                 loadingState = loadingStates[index],

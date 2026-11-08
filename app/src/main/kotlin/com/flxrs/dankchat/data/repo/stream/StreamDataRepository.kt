@@ -119,10 +119,11 @@ class StreamDataRepository(
                     )
                 }.orEmpty()
 
+        // A failed refresh says nothing about who is live, so the last known state stays
         if (streams != null) {
             postLiveStatusMessages(channels, data, currentSettings.showLiveMessages)
+            _streamData.value = data.toImmutableList()
         }
-        _streamData.value = data.toImmutableList()
     }
 
     fun cancelStreamData() {

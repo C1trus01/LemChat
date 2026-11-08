@@ -240,10 +240,9 @@ fun MainScreen(
     val isOrientationLocked =
         configuration.smallestScreenWidthDp >= WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND || observeMultiWindowMode()
     // Follows the window, so neither the split layout nor a portrait shaped theater can flash
-    val isTheaterRequested = isTheaterMode || streamVmState.isTheaterRotationSuspended
     val theaterStream =
         when {
-            isTheaterRequested && (isLandscape || isOrientationLocked) && !isInPipMode -> currentStream
+            isTheaterMode && (isLandscape || isOrientationLocked) && !isInPipMode -> currentStream
             else -> null
         }
     val useTheaterLayout = theaterStream != null
@@ -418,12 +417,6 @@ fun MainScreen(
     FullscreenSystemBarsEffect(isFullscreen || useTheaterLayout)
     NavBarInsetWatchdog(expectBarsVisible = !isFullscreen && !useTheaterLayout && !isInPipMode)
     TheaterOrientationEffect(isTheaterMode && !isOrientationLocked)
-    TheaterRotationEffect(
-        isTheaterMode = isTheaterMode && !isOrientationLocked,
-        isRotationSuspended = streamVmState.isTheaterRotationSuspended && !isOrientationLocked,
-        onSuspendTheater = { streamViewModel.suspendTheaterForRotation() },
-        onResumeTheater = { streamViewModel.resumeTheaterFromRotation() },
-    )
 
     val isInputSheet = fullScreenSheetState is FullScreenSheetState.Replies ||
         fullScreenSheetState is FullScreenSheetState.Mention ||

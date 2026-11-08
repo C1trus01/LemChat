@@ -32,8 +32,8 @@ android {
         applicationId = "io.github.c1trus01.lemchat"
         minSdk = 30
         targetSdk = 36
-        versionCode = 10001
-        versionName = "1.0.1"
+        versionCode = 10002
+        versionName = "1.0.2"
     }
 
     androidResources { generateLocaleConfig = true }

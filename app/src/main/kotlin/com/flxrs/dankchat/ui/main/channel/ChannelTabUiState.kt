@@ -19,6 +19,7 @@ data class ChannelTabItem(
     val channel: UserName,
     val displayName: String,
     val isSelected: Boolean,
+    val isLive: Boolean,
     val hasUnread: Boolean,
     val mentionCount: Int,
     val loadingState: ChannelLoadingState,
