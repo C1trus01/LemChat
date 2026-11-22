@@ -127,6 +127,7 @@
     <string name="system_message_connected">Connesso</string>
     <string name="system_message_reconnected">Riconnesso</string>
     <string name="system_message_channel_non_existent">Questo canale non esiste</string>
+    <string name="system_message_channel_join_failed">Impossibile entrare in questo canale</string>
     <string name="system_message_disconnected">Disconnesso</string>
     <string name="system_message_history_unavailable_detailed">Servizio di cronologia messaggi non disponibile (Errore %1$s)</string>
     <string name="system_message_history_unavailable">Servizio cronologia messaggi non disponibile</string>
@@ -260,6 +261,7 @@
     </plurals>
     <string name="timed_out_message">&lt; Messaggio eliminato &gt;</string>
     <string name="multi_entry_header_regex">Regex</string>
+    <string name="multi_entry_invalid_regex">Regex non valida</string>
     <string name="multi_entry_add_entry">Aggiungi una voce</string>
     <string name="login_expired">Sessione scaduta! Prova ad accedere nuovamente.</string>
     <string name="message_history_disclaimer_title">Avvertenza cronologia dei messaggi</string>
@@ -299,6 +301,7 @@
     <string name="restart">Riavvia</string>
     <string name="uploader_reset">Ripristina a predefiniti</string>
     <string name="uploader_url">Carica URL</string>
+    <string name="uploader_url_unresolved">Impossibile trovare questo dominio</string>
     <string name="uploader_field">Campo del modulo</string>
     <string name="uploader_headers">Intestazioni</string>
     <string name="uploader_image_link">Modello link multimediale</string>
@@ -321,6 +324,8 @@
     <string name="menu_exit_fullscreen">Esci dallo schermo intero</string>
     <string name="menu_hide_input">Nascondi input</string>
     <string name="menu_show_input">Mostra input</string>
+    <string name="menu_enable_tts">Abilita TTS</string>
+    <string name="menu_disable_tts">Disabilita TTS</string>
     <string name="preference_fullscreen_button_opacity_title">Opacità dei pulsanti a schermo intero</string>
     <string name="preference_fullscreen_button_opacity_summary">Pulsanti mostrati a schermo intero o quando l\'input è nascosto: %d%%</string>
     <string name="preference_fullscreen_button_opacity_hint">Opacità (1–100)</string>
@@ -344,6 +349,7 @@
     <string name="input_action_mod_actions">Moderazione canale</string>
     <string name="input_action_fullscreen">Schermo intero</string>
     <string name="input_action_hide_input">Nascondi input</string>
+    <string name="input_action_tts">Sintesi vocale</string>
     <string name="input_action_debug">Debug</string>
     <string name="input_action_configure">Configura azioni</string>
     <string name="input_action_hide_all">Nascondi tutte le azioni</string>
@@ -420,6 +426,7 @@
     <string name="tts_ignore_list_add_user">Aggiungi un utente</string>
     <string name="tts_ignore_list_remove_user">Rimuovi l\'utente</string>
     <string name="tts_ignore_list_user_hint">Utente</string>
+    <string name="tts_start_failed">Impossibile avviare il TTS</string>
     <string name="recent_upload_deletion_link">Link di eliminazione:\n%1$s</string>
     <string name="recent_uploads_clear">Cancella caricamenti</string>
     <string name="host">Host</string>
@@ -517,7 +524,7 @@
     <string name="preference_show_whispers_inline_title">Mostra gli MP nella chat</string>
     <string name="preference_show_whispers_inline_summary">Mostra gli MP inviati e ricevuti in tutti i canali aperti</string>
     <string name="preference_show_twitch_gifs_title">Mostra GIF di Twitch</string>
-    <string name="preference_animate_gifs_title">Gif animate</string>
+    <string name="preference_animations_title">Anima emote, badge e GIF</string>
     <string name="preference_line_separator_title">Separa messaggi con righe</string>
     <string name="preference_keep_screen_on_title">Mantieni lo schermo acceso</string>
     <string name="preference_font_size_title">Dimensione dei caratteri</string>
@@ -562,6 +569,8 @@
     <string name="preference_tts_message_ignore_emote_title">Ignora emote</string>
     <string name="preference_tts_message_ignore_command_message">Ignora i messaggi che iniziano con un prefisso di comando (!, $, %, +, -, ~)</string>
     <string name="preference_tts_message_ignore_command_title">Ignora comandi</string>
+    <string name="preference_tts_ignore_user_name_numbers_title">Ignora i numeri nei nomi utente</string>
+    <string name="preference_tts_ignore_user_name_numbers_summary">Legge i nomi utente senza numeri, ad es. john1990 come john</string>
     <string name="preference_tts_volume_title">Volume</string>
     <string name="preference_tts_audio_ducking_title">Attenuazione audio</string>
     <string name="preference_tts_audio_ducking_summary">Abbassa il volume delle altre app durante la riproduzione TTS</string>
@@ -610,6 +619,32 @@
     <string name="preference_uploader_header">Caricatore multimediale</string>
     <string name="preference_uploader_configure_title">Configura caricatore</string>
     <string name="preference_uploader_recent_uploads_title">Caricamenti recenti</string>
+    <string name="preference_export_header">Esporta</string>
+    <string name="backup_channels_title">Canali</string>
+    <string name="backup_export">Esporta</string>
+    <string name="backup_import">Importa</string>
+    <string name="backup_copy">Copia negli appunti</string>
+    <string name="backup_paste">Incolla dagli appunti</string>
+    <string name="backup_channels_description">Esporta tutti i canali con i nomi personalizzati. L\'importazione aggiunge solo i canali mancanti</string>
+    <string name="backup_settings_description">Esporta tutte le impostazioni escluso il tuo accesso</string>
+    <string name="backup_settings_uploader_note">Include la tua configurazione personalizzata del caricatore</string>
+    <string name="import_data_confirmation">Sostituire le tue impostazioni, canali, evidenziazioni e ignorati con quelli importati? L\'app si riavvierà dopo.</string>
+    <string name="export_data_done">Impostazioni esportate</string>
+    <string name="export_data_failed">Impossibile salvare il file</string>
+    <string name="import_data_failed">Impossibile leggere questo file</string>
+    <string name="import_data_newer_version">Questo backup è stato creato con una versione più recente di LemChat</string>
+    <string name="clipboard_no_export">Gli appunti non contengono un\'esportazione</string>
+    <plurals name="channels_exported">
+        <item quantity="one">%1$d canale esportato</item>
+        <item quantity="many">%1$d canali esportati</item>
+        <item quantity="other">%1$d canali esportati</item>
+    </plurals>
+    <plurals name="channels_imported">
+        <item quantity="one">%1$d canale aggiunto</item>
+        <item quantity="many">%1$d canali aggiunti</item>
+        <item quantity="other">%1$d canali aggiunti</item>
+    </plurals>
+    <string name="channels_import_none_new">Tutti questi canali sono già stati aggiunti</string>
     <string name="preference_tts_user_ignore_list_title">Lista utenti ignorati</string>
     <string name="preference_tts_user_ignore_list_summary">Lista di utenti/profili che saranno ignorati</string>
     <string name="preference_tools_header">Strumenti</string>
@@ -642,8 +677,8 @@
     <string name="preference_stream_live_messages_summary">Aggiunge un messaggio in chat quando un canale inizia o termina la diretta</string>
     <string name="preference_stream_extensions_title">Mostra estensioni della live</string>
     <string name="preference_stream_extensions_summary">Mostra le sovrapposizioni delle estensioni sul player della live</string>
-    <string name="preference_retain_webview_title">Impedisci ricaricamento live</string>
-    <string name="preference_retain_webview_summary">Abilita la prevenzione sperimentale dei ricaricamenti della live, al cambiamento di orientamento o riapertura di LemChat.</string>
+    <string name="preference_keep_stream_while_typing_title">Mantieni la live visibile durante la scrittura</string>
+    <string name="preference_keep_stream_while_typing_summary">Mostra la live in verticale anche quando la tastiera o il menu delle emote lasciano poco spazio alla chat</string>
     <string name="preference_show_changelogs">Mostra i changelog dopo l\'aggiornamento</string>
     <string name="preference_whats_new_header">Novità</string>
     <string name="preference_custom_login_title">Login personalizzato</string>

@@ -3,9 +3,13 @@ package com.flxrs.dankchat.ui.chat
 import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -34,17 +38,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BugReport
-import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.FullscreenExit
 import androidx.compose.material.icons.filled.Headphones
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Shield
-import androidx.compose.material.icons.filled.Theaters
 import androidx.compose.material.icons.filled.Videocam
-import androidx.compose.material.icons.filled.VideocamOff
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -57,9 +55,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
-import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.TooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -67,6 +63,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -80,13 +77,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.PopupPositionProvider
 import com.composeunstyled.UnstyledScrollArea
 import com.composeunstyled.UnstyledThumb
 import com.composeunstyled.UnstyledVerticalScrollbar
@@ -96,6 +97,7 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.preferences.appearance.FabAnchor
 import com.flxrs.dankchat.preferences.appearance.InputAction
 import com.flxrs.dankchat.ui.chat.emote.EmoteSheetData
+import com.flxrs.dankchat.ui.chat.emote.LocalChatPageVisible
 import com.flxrs.dankchat.ui.chat.messages.AutomodMessageComposable
 import com.flxrs.dankchat.ui.chat.messages.DateSeparatorComposable
 import com.flxrs.dankchat.ui.chat.messages.ModerationMessageComposable
@@ -106,11 +108,17 @@ import com.flxrs.dankchat.ui.chat.messages.SystemMessageComposable
 import com.flxrs.dankchat.ui.chat.messages.UserNoticeMessageComposable
 import com.flxrs.dankchat.ui.chat.messages.WhisperMessageComposable
 import com.flxrs.dankchat.ui.main.TheaterChatModeIcon
+import com.flxrs.dankchat.ui.main.input.InputActionMenuItem
+import com.flxrs.dankchat.ui.main.input.InputActionsState
 import com.flxrs.dankchat.ui.main.input.TourTooltip
+import com.flxrs.dankchat.ui.main.input.fabMenuItems
 import com.flxrs.dankchat.utils.compose.predictiveBackScale
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.takeWhile
@@ -147,11 +155,12 @@ fun ChatScreen(
     isFullscreen: Boolean = false,
     fullscreenButtonOpacity: Float = 0.75f,
     requireFullscreenExitConfirmation: Boolean = false,
-    fabAnchor: FabAnchor = FabAnchor.BottomEnd,
+    fabAnchor: FabAnchor = FabAnchor.TopEnd,
     fabOffsetXFraction: Float = 0f,
     fabOffsetYFraction: Float = 0f,
     onFabPositionChange: (FabAnchor, Float, Float) -> Unit = { _, _, _ -> },
-    onRecover: () -> Unit = {},
+    onShowInput: () -> Unit = {},
+    onExitFullscreen: () -> Unit = {},
     fabMenuCallbacks: FabMenuCallbacks? = null,
     showTheaterChatModeFab: Boolean = false,
     isTheaterChatDocked: Boolean = false,
@@ -179,7 +188,7 @@ fun ChatScreen(
         }
     }
 
-    // Disable auto-scroll when user scrolls up, re-enable when they return to bottom.
+    // Disable auto-scroll when user scrolls up.
     // A list state shown in a previous layout keeps its last scroll direction, so only scrolls seen here count.
     var hasScrolledHere by remember(listState) { mutableStateOf(false) }
     SideEffect(listState.isScrollInProgress) {
@@ -191,9 +200,6 @@ fun ChatScreen(
         }
         if (listState.lastScrolledForward && scrollState.shouldAutoScroll) {
             scrollState.shouldAutoScroll = false
-        }
-        if (!listState.isScrollInProgress && isAtBottom && !scrollState.shouldAutoScroll) {
-            scrollState.shouldAutoScroll = true
         }
         onScrollDirectionChange(listState.lastScrolledForward)
     }
@@ -207,26 +213,28 @@ fun ChatScreen(
     }
 
     val reversedMessages = messages.asReversed()
+    val currentReversedMessages by rememberUpdatedState(reversedMessages)
 
-    // Handle scroll-to-message requests — keyed on both scrollToMessageId and whether messages
-    // are available, so the scroll retries after ViewModel recreation (which briefly empties messages).
-    val hasMessages = reversedMessages.isNotEmpty()
+    // A jump target can be missing from a list that is still loading or that was frozen while the page was offscreen.
+    // It is kept until the list contains it and given up shortly after there are messages to search.
+    val currentOnScrollToMessageHandle by rememberUpdatedState(onScrollToMessageHandle)
     var settlingMessageId by remember { mutableStateOf<String?>(null) }
-    LaunchedEffect(scrollToMessageId, hasMessages) {
+    LaunchedEffect(scrollToMessageId) {
         val targetId = scrollToMessageId ?: return@LaunchedEffect
-        if (!hasMessages) return@LaunchedEffect
-        val index = reversedMessages.indexOfFirst { it.id == targetId }
-        if (index >= 0) {
+        snapshotFlow { currentReversedMessages.isNotEmpty() }.first { it }
+        val index = withTimeoutOrNull(JUMP_TARGET_TIMEOUT) {
+            snapshotFlow { currentReversedMessages.indexOfFirst { it.id == targetId } }.first { it >= 0 }
+        }
+        if (index != null) {
             scrollState.shouldAutoScroll = false
             listState.scrollToCentered(index)
             settlingMessageId = targetId
         }
-        onScrollToMessageHandle()
+        currentOnScrollToMessageHandle()
     }
 
     // A jump that starts a reply opens the keyboard, which shrinks the reversed list from the bottom and pushes the
     // message up. It is centered again while the visible area settles, unless the user drags the list meanwhile.
-    val currentReversedMessages by rememberUpdatedState(reversedMessages)
     LaunchedEffect(settlingMessageId) {
         val targetId = settlingMessageId ?: return@LaunchedEffect
         withTimeoutOrNull(JUMP_SETTLE_WINDOW) {
@@ -244,6 +252,21 @@ fun ChatScreen(
                 }
         }
         settlingMessageId = null
+    }
+
+    // Resting at the newest messages turns auto-scroll back on, also when a jump, a resize or a shorter list ends up there.
+    // Pages out of view leave the shared toolbar alone.
+    val currentOnScrollToBottom by rememberUpdatedState(onScrollToBottom)
+    val isPageVisible by rememberUpdatedState(LocalChatPageVisible.current)
+    LaunchedEffect(listState, scrollState) {
+        snapshotFlow { isAtBottom && !listState.isScrollInProgress && settlingMessageId == null }
+            .filter { it && !scrollState.shouldAutoScroll }
+            .collect {
+                scrollState.shouldAutoScroll = true
+                if (isPageVisible) {
+                    currentOnScrollToBottom()
+                }
+            }
     }
 
     Surface(
@@ -305,17 +328,17 @@ fun ChatScreen(
 
             // FABs at bottom-end with coordinated position animation
             if (showFabs) {
-                val showScrollFab = !scrollState.shouldAutoScroll && messages.isNotEmpty()
+                // Auto-scroll stays off while a jump settles, even at the newest messages
+                val showScrollFab = !scrollState.shouldAutoScroll && !isAtBottom && messages.isNotEmpty()
                 // Scaffold padding already animates with input show/hide; extra spring would double up.
                 val fabBottomPadding = contentPadding.calculateBottomPadding()
                 val recoveryBottomPadding by animateDpAsState(
                     targetValue = if (showScrollFab) 56.dp + 12.dp else 0.dp,
                     label = "recoveryBottomPadding",
                 )
-                var fabMenuExpanded by remember { mutableStateOf(false) }
 
                 // Dismiss scrim + back handler when fab menu is open
-                if (fabMenuExpanded) {
+                if (fabMenuCallbacks?.menuExpanded == true) {
                     Box(
                         modifier =
                             Modifier
@@ -324,7 +347,7 @@ fun ChatScreen(
                                     indication = null,
                                     interactionSource = remember { MutableInteractionSource() },
                                 ) {
-                                    fabMenuExpanded = false
+                                    fabMenuCallbacks.onMenuExpandedChange(false)
                                 },
                     )
                 }
@@ -369,21 +392,20 @@ fun ChatScreen(
                         isDragging = isDragging,
                         fullscreenButtonOpacity = fullscreenButtonOpacity,
                         requireConfirmation = requireFullscreenExitConfirmation,
-                        onRecover = onRecover,
+                        onShowInput = onShowInput,
+                        onExitFullscreen = onExitFullscreen,
                         fabMenuCallbacks = fabMenuCallbacks,
                         showTheaterChatModeFab = showTheaterChatModeFab,
                         isTheaterChatDocked = isTheaterChatDocked,
                         onToggleTheaterChatMode = onToggleTheaterChatMode,
-                        menuExpanded = fabMenuExpanded,
-                        onMenuExpandedChange = { fabMenuExpanded = it },
                         recoveryFabTooltipState = recoveryFabTooltipState,
                         onTourAdvance = {
                             onTourAdvance?.invoke()
-                            onRecover()
+                            onShowInput()
                         },
                         onTourSkip = {
                             onTourSkip?.invoke()
-                            onRecover()
+                            onShowInput()
                         },
                         dragModifier = dragModifier,
                     )
@@ -397,14 +419,11 @@ fun ChatScreen(
 data class FabMenuCallbacks(
     val onAction: (InputAction) -> Unit,
     val onAudioOnly: () -> Unit,
-    val isStreamActive: Boolean,
+    val actionState: InputActionsState,
+    val pinnedActions: ImmutableList<InputAction>,
     val isAudioOnly: Boolean,
-    val hasStreamData: Boolean,
-    val isFullscreen: Boolean,
-    val isModerator: Boolean,
-    val debugMode: Boolean,
-    val enabled: Boolean,
-    val hasLastMessage: Boolean,
+    val menuExpanded: Boolean,
+    val onMenuExpandedChange: (Boolean) -> Unit,
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -413,13 +432,12 @@ private fun RecoveryFabs(
     isFullscreen: Boolean,
     showInput: Boolean,
     fullscreenButtonOpacity: Float,
-    onRecover: () -> Unit,
+    onShowInput: () -> Unit,
+    onExitFullscreen: () -> Unit,
     fabMenuCallbacks: FabMenuCallbacks?,
     showTheaterChatModeFab: Boolean,
     isTheaterChatDocked: Boolean,
     onToggleTheaterChatMode: () -> Unit,
-    menuExpanded: Boolean,
-    onMenuExpandedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     dragModifier: Modifier = Modifier,
     isDragging: Boolean = false,
@@ -429,6 +447,8 @@ private fun RecoveryFabs(
     onTourSkip: (() -> Unit)? = null,
 ) {
     val visible = isFullscreen || !showInput
+    val menuExpanded = fabMenuCallbacks?.menuExpanded == true
+    val onMenuExpandedChange: (Boolean) -> Unit = { fabMenuCallbacks?.onMenuExpandedChange?.invoke(it) }
     val dragElevation = if (isDragging) 12.dp else 0.dp
     val idleContainer = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = fullscreenButtonOpacity)
     val dragContainer = MaterialTheme.colorScheme.primary
@@ -448,71 +468,81 @@ private fun RecoveryFabs(
     val fabShape = FloatingActionButtonDefaults.smallShape
 
     var confirmPending by remember { mutableStateOf(false) }
-    var pendingLabel by remember { mutableStateOf("") }
-    SideEffect(visible, requireConfirmation) {
-        if (!visible || !requireConfirmation) confirmPending = false
+    SideEffect(isFullscreen, requireConfirmation) {
+        if (!isFullscreen || !requireConfirmation) confirmPending = false
     }
     LaunchedEffect(confirmPending) {
         if (confirmPending) {
-            kotlinx.coroutines.delay(3000)
+            delay(3000)
             confirmPending = false
         }
     }
 
-    val commitRecover: () -> Unit = {
+    val showInputLabel = stringResource(R.string.menu_show_input)
+    val showInputFab: @Composable () -> Unit = {
+        SmallFloatingActionButton(
+            onClick = {
+                onMenuExpandedChange(false)
+                // The tour callback shows the input as well
+                when {
+                    isTourHighlighted && onTourAdvance != null -> onTourAdvance()
+                    else -> onShowInput()
+                }
+            },
+            containerColor = when {
+                isTourHighlighted -> MaterialTheme.colorScheme.secondaryContainer
+                else -> animatedContainer
+            },
+            contentColor = animatedContent,
+            elevation = FloatingActionButtonDefaults.elevation(dragElevation, dragElevation, dragElevation, dragElevation),
+            modifier = when {
+                isTourHighlighted -> Modifier.border(2.dp, MaterialTheme.colorScheme.primary, fabShape)
+                else -> Modifier
+            },
+        ) {
+            Icon(
+                imageVector = Icons.Default.Visibility,
+                contentDescription = showInputLabel,
+            )
+        }
+    }
+
+    val exitFullscreenLabel = stringResource(R.string.menu_exit_fullscreen)
+    val commitExitFullscreen: () -> Unit = {
         confirmPending = false
         onMenuExpandedChange(false)
-        onTourAdvance?.invoke()
-        onRecover()
+        onExitFullscreen()
     }
-    val actionLabel = when {
-        isFullscreen -> stringResource(R.string.menu_exit_fullscreen)
-        else -> stringResource(R.string.menu_show_input)
-    }
-    // Snapshotted at tap-time so the exit animation doesn't flash the next-mode label.
-    val chipLabel = pendingLabel.ifEmpty { actionLabel }
-
-    val escapeFab: @Composable () -> Unit = {
+    val exitFullscreenFab: @Composable () -> Unit = {
         AnimatedContent(
             targetState = confirmPending,
             transitionSpec = { (scaleIn() + fadeIn()) togetherWith (scaleOut() + fadeOut()) },
-            label = "EscapeFabConfirm",
+            label = "ExitFullscreenFabConfirm",
         ) { pending ->
             when {
                 pending -> ExtendedFloatingActionButton(
-                    onClick = commitRecover,
+                    onClick = commitExitFullscreen,
                     containerColor = animatedContainer,
                     contentColor = animatedContent,
                     elevation = FloatingActionButtonDefaults.elevation(dragElevation, dragElevation, dragElevation, dragElevation),
                     icon = { Icon(Icons.Default.FullscreenExit, contentDescription = null) },
-                    text = { Text(chipLabel) },
+                    text = { Text(exitFullscreenLabel) },
                 )
 
                 else -> SmallFloatingActionButton(
                     onClick = {
                         when {
-                            requireConfirmation && !isTourHighlighted -> {
-                                pendingLabel = actionLabel
-                                confirmPending = true
-                            }
-
-                            else -> commitRecover()
+                            requireConfirmation -> confirmPending = true
+                            else -> commitExitFullscreen()
                         }
                     },
-                    containerColor = when {
-                        isTourHighlighted -> MaterialTheme.colorScheme.secondaryContainer
-                        else -> animatedContainer
-                    },
+                    containerColor = animatedContainer,
                     contentColor = animatedContent,
                     elevation = FloatingActionButtonDefaults.elevation(dragElevation, dragElevation, dragElevation, dragElevation),
-                    modifier = when {
-                        isTourHighlighted -> Modifier.border(2.dp, MaterialTheme.colorScheme.primary, fabShape)
-                        else -> Modifier
-                    },
                 ) {
                     Icon(
                         imageVector = Icons.Default.FullscreenExit,
-                        contentDescription = actionLabel,
+                        contentDescription = exitFullscreenLabel,
                     )
                 }
             }
@@ -521,11 +551,7 @@ private fun RecoveryFabs(
 
     if (recoveryFabTooltipState != null) {
         TooltipBox(
-            positionProvider =
-                TooltipDefaults.rememberTooltipPositionProvider(
-                    TooltipAnchorPosition.Above,
-                    spacingBetweenTooltipAndAnchor = 8.dp,
-                ),
+            positionProvider = rememberVerticalTooltipPositionProvider(spacing = 8.dp),
             tooltip = {
                 TourTooltip(
                     text = stringResource(R.string.tour_recovery_fab),
@@ -541,18 +567,17 @@ private fun RecoveryFabs(
             modifier = modifier,
         ) {
             AnimatedVisibility(
-                visible = visible,
+                visible = !showInput,
                 enter = scaleIn() + fadeIn(),
                 exit = scaleOut() + fadeOut(),
             ) {
-                escapeFab()
+                showInputFab()
             }
         }
     } else {
-        AnimatedVisibility(
+        EnterOnlyVisibility(
             visible = visible,
             enter = scaleIn() + fadeIn(),
-            exit = scaleOut() + fadeOut(),
             modifier = modifier,
         ) {
             Column(
@@ -562,14 +587,27 @@ private fun RecoveryFabs(
                 modifier = if (confirmPending) Modifier else dragModifier,
             ) {
                 if (!showInput && fabMenuCallbacks != null) {
-                    FabMenuToggle(
-                        fabMenuCallbacks = fabMenuCallbacks,
-                        menuExpanded = menuExpanded,
-                        onMenuExpandedChange = onMenuExpandedChange,
-                        containerColor = animatedContainer,
-                        contentColor = animatedContent,
-                        dragElevation = dragElevation,
-                    )
+                    val menuItems = fabMenuCallbacks.actionState.fabMenuItems(fabMenuCallbacks.pinnedActions)
+                    // Audio only lives in the menu too, so an active stream always gives it an entry
+                    val hasMenuEntries = menuItems.isNotEmpty() || fabMenuCallbacks.actionState.isStreamActive
+                    SideEffect(hasMenuEntries) {
+                        if (!hasMenuEntries) {
+                            onMenuExpandedChange(false)
+                        }
+                    }
+                    if (hasMenuEntries) {
+                        FabMenuToggle(
+                            fabMenuCallbacks = fabMenuCallbacks,
+                            menuItems = menuItems,
+                            menuExpanded = menuExpanded,
+                            onMenuExpandedChange = onMenuExpandedChange,
+                            containerColor = animatedContainer,
+                            contentColor = animatedContent,
+                            dragElevation = dragElevation,
+                            // The expanded menu takes whatever height the other buttons leave and scrolls the rest
+                            modifier = Modifier.weight(1f, fill = false),
+                        )
+                    }
                 }
                 if (!showInput && showTheaterChatModeFab) {
                     SmallFloatingActionButton(
@@ -581,8 +619,43 @@ private fun RecoveryFabs(
                         TheaterChatModeIcon(isDocked = isTheaterChatDocked)
                     }
                 }
-                escapeFab()
+                EnterOnlyVisibility(
+                    visible = !showInput,
+                    enter = expandVertically(expandFrom = Alignment.Bottom) + fadeIn(),
+                ) {
+                    showInputFab()
+                }
+                EnterOnlyVisibility(
+                    visible = isFullscreen,
+                    enter = expandVertically(expandFrom = Alignment.Bottom) + fadeIn(),
+                ) {
+                    exitFullscreenFab()
+                }
             }
+        }
+    }
+}
+
+/**
+ * Animates in, but leaves in the same frame the state changes. The toolbar, input and insets change at once,
+ * a lingering button would visibly jump with them.
+ */
+@Composable
+private fun EnterOnlyVisibility(
+    visible: Boolean,
+    enter: EnterTransition,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
+    if (visible) {
+        val visibleState = remember { MutableTransitionState(false).apply { targetState = true } }
+        AnimatedVisibility(
+            visibleState = visibleState,
+            enter = enter,
+            exit = ExitTransition.None,
+            modifier = modifier,
+        ) {
+            content()
         }
     }
 }
@@ -590,10 +663,12 @@ private fun RecoveryFabs(
 @Composable
 private fun FabMenuToggle(
     fabMenuCallbacks: FabMenuCallbacks,
+    menuItems: ImmutableList<InputActionMenuItem>,
     menuExpanded: Boolean,
     onMenuExpandedChange: (Boolean) -> Unit,
     containerColor: Color,
     contentColor: Color,
+    modifier: Modifier = Modifier,
     dragElevation: Dp = 0.dp,
 ) {
     AnimatedContent(
@@ -602,6 +677,7 @@ private fun FabMenuToggle(
             (scaleIn() + fadeIn()) togetherWith (scaleOut() + fadeOut())
         },
         label = "FabMenuToggle",
+        modifier = modifier,
     ) { expanded ->
         when {
             expanded -> {
@@ -618,6 +694,7 @@ private fun FabMenuToggle(
                 }
                 FabActionsMenu(
                     callbacks = fabMenuCallbacks,
+                    menuItems = menuItems,
                     onDismiss = { onMenuExpandedChange(false) },
                     modifier = Modifier.predictiveBackScale(backProgress),
                 )
@@ -643,6 +720,7 @@ private fun FabMenuToggle(
 @Composable
 private fun FabActionsMenu(
     callbacks: FabMenuCallbacks,
+    menuItems: ImmutableList<InputActionMenuItem>,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -669,26 +747,7 @@ private fun FabActionsMenu(
                         .width(IntrinsicSize.Max)
                         .verticalScroll(scrollState),
             ) {
-                val menuItems =
-                    InputAction.entries.mapNotNull { action ->
-                        getFabMenuItem(
-                            action = action,
-                            isStreamActive = callbacks.isStreamActive,
-                            hasStreamData = callbacks.hasStreamData,
-                            isFullscreen = callbacks.isFullscreen,
-                            isModerator = callbacks.isModerator,
-                            debugMode = callbacks.debugMode,
-                        )?.let { action to it }
-                    }
-
-                menuItems.forEachIndexed { index, (action, item) ->
-                    val actionEnabled =
-                        when (action) {
-                            InputAction.Search, InputAction.Fullscreen, InputAction.HideInput, InputAction.Debug -> true
-                            InputAction.LastMessage -> callbacks.enabled && callbacks.hasLastMessage
-                            InputAction.Stream, InputAction.ModActions, InputAction.Theater -> callbacks.enabled
-                        }
-
+                menuItems.forEachIndexed { index, item ->
                     val measureModifier = if (index == 0) {
                         Modifier.onSizeChanged { itemHeightPx = it.height }
                     } else {
@@ -698,10 +757,10 @@ private fun FabActionsMenu(
                     DropdownMenuItem(
                         text = { Text(stringResource(item.labelRes)) },
                         onClick = {
-                            callbacks.onAction(action)
+                            callbacks.onAction(item.action)
                             onDismiss()
                         },
-                        enabled = actionEnabled,
+                        enabled = item.enabled,
                         modifier = measureModifier,
                         leadingIcon = {
                             Icon(
@@ -712,7 +771,7 @@ private fun FabActionsMenu(
                     )
                 }
 
-                if (callbacks.isStreamActive) {
+                if (callbacks.actionState.isStreamActive) {
                     DropdownMenuItem(
                         text = {
                             Text(
@@ -725,7 +784,7 @@ private fun FabActionsMenu(
                             callbacks.onAudioOnly()
                             onDismiss()
                         },
-                        enabled = callbacks.enabled,
+                        enabled = callbacks.actionState.enabled,
                         leadingIcon = {
                             Icon(
                                 imageVector = if (callbacks.isAudioOnly) Icons.Default.Videocam else Icons.Default.Headphones,
@@ -757,77 +816,8 @@ private fun FabActionsMenu(
     }
 }
 
-@Immutable
-private data class FabMenuItem(
-    val labelRes: Int,
-    val icon: ImageVector,
-)
-
-private fun getFabMenuItem(
-    action: InputAction,
-    isStreamActive: Boolean,
-    hasStreamData: Boolean,
-    isFullscreen: Boolean,
-    isModerator: Boolean,
-    debugMode: Boolean,
-): FabMenuItem? = when (action) {
-    InputAction.Search -> {
-        FabMenuItem(R.string.input_action_search, Icons.Default.Search)
-    }
-
-    InputAction.LastMessage -> {
-        null
-    }
-
-    InputAction.Stream -> {
-        when {
-            hasStreamData || isStreamActive -> {
-                FabMenuItem(
-                    if (isStreamActive) R.string.menu_hide_stream else R.string.menu_show_stream,
-                    if (isStreamActive) Icons.Default.VideocamOff else Icons.Default.Videocam,
-                )
-            }
-
-            else -> {
-                null
-            }
-        }
-    }
-
-    InputAction.ModActions -> {
-        when {
-            isModerator -> FabMenuItem(R.string.menu_mod_actions, Icons.Default.Shield)
-            else -> null
-        }
-    }
-
-    InputAction.Fullscreen -> {
-        FabMenuItem(
-            if (isFullscreen) R.string.menu_exit_fullscreen else R.string.menu_fullscreen,
-            if (isFullscreen) Icons.Default.FullscreenExit else Icons.Default.Fullscreen,
-        )
-    }
-
-    InputAction.Theater -> {
-        when {
-            isStreamActive -> FabMenuItem(R.string.menu_theater_mode, Icons.Default.Theaters)
-            else -> null
-        }
-    }
-
-    InputAction.HideInput -> {
-        FabMenuItem(R.string.menu_show_input, Icons.Default.Visibility)
-    }
-
-    InputAction.Debug -> {
-        when {
-            debugMode -> FabMenuItem(R.string.input_action_debug, Icons.Default.BugReport)
-            else -> null
-        }
-    }
-}
-
 private val MESSAGE_GAP = 4.dp
+private val JUMP_TARGET_TIMEOUT = 2.seconds
 private val JUMP_SETTLE_WINDOW = 1.seconds
 private val HIGHLIGHT_CORNER_RADIUS = 6.dp
 
@@ -948,6 +938,32 @@ private fun ChatMessageItem(
                     { onTap(message.toMessageTapContext()) }
                 },
             )
+        }
+    }
+}
+
+/** Below the anchor in the upper half of the window, above it in the lower half, so it never covers the toolbar. */
+@Composable
+private fun rememberVerticalTooltipPositionProvider(spacing: Dp): PopupPositionProvider {
+    val spacingPx = with(LocalDensity.current) { spacing.roundToPx() }
+    return remember(spacingPx) {
+        object : PopupPositionProvider {
+            override fun calculatePosition(
+                anchorBounds: IntRect,
+                windowSize: IntSize,
+                layoutDirection: LayoutDirection,
+                popupContentSize: IntSize,
+            ): IntOffset {
+                val x = anchorBounds.center.x - popupContentSize.width / 2
+                val y = when {
+                    anchorBounds.center.y < windowSize.height / 2 -> anchorBounds.bottom + spacingPx
+                    else -> anchorBounds.top - popupContentSize.height - spacingPx
+                }
+                return IntOffset(
+                    x = x.coerceIn(0, maxOf(0, windowSize.width - popupContentSize.width)),
+                    y = y.coerceIn(0, maxOf(0, windowSize.height - popupContentSize.height)),
+                )
+            }
         }
     }
 }

@@ -15,21 +15,27 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Tag
 import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Badge
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -44,6 +50,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -66,6 +73,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.preferences.appearance.ChannelBarLayout
 import com.flxrs.dankchat.ui.main.channel.ChannelTabUiState
 import com.flxrs.dankchat.ui.main.stream.AudioOnlyBar
 import com.flxrs.dankchat.utils.compose.PagerTabIndicator
@@ -78,21 +86,26 @@ internal const val RESTING_SCROLLBAR_ALPHA = 0.6f
 private val TABS_ROW_HEIGHT = 44.dp
 private val ACTIONS_ROW_HEIGHT = 40.dp
 private val DIVIDER_HEIGHT = 1.dp
+private val CHANNEL_SWITCHER_MAX_HEIGHT = 360.dp
 
-// Landscape is too short for a second row, there the icons sit at the end of the tabs
+// Landscape is too short for a second row, there the icons always sit at the end of the tabs
 @Composable
 @ReadOnlyComposable
-private fun isTopBarSingleRow(): Boolean = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+private fun isTopBarSingleRow(layout: ChannelBarLayout): Boolean =
+    layout == ChannelBarLayout.OneRow || LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
 
 /** Height of the bar without the status bar gap, messages start right below it. */
 @Composable
 @ReadOnlyComposable
-internal fun topBarHeight(): Dp = when {
-    isTopBarSingleRow() -> TABS_ROW_HEIGHT + DIVIDER_HEIGHT
+internal fun topBarHeight(layout: ChannelBarLayout): Dp = when {
+    isTopBarSingleRow(layout) -> TABS_ROW_HEIGHT + DIVIDER_HEIGHT
     else -> ACTIONS_ROW_HEIGHT + TABS_ROW_HEIGHT + DIVIDER_HEIGHT
 }
 
-/** The channel tabs get the whole width, with the mentions and the hub in a row of their own above them. */
+/**
+ * With two rows the channel tabs get the whole width, with the mentions and the hub in a row of their own above them.
+ * With one row the icons and a list of all channels sit at the end of the tabs.
+ */
 @Composable
 fun FloatingToolbar(
     tabState: ChannelTabUiState,
@@ -102,6 +115,7 @@ fun FloatingToolbar(
     currentStream: UserName?,
     isAudioOnly: Boolean,
     streamHeightDp: Dp,
+    channelBarLayout: ChannelBarLayout,
     hasMentions: Boolean,
     onOpenMentions: (() -> Unit)?,
     onOpenChannels: () -> Unit,
@@ -117,7 +131,8 @@ fun FloatingToolbar(
     var barHeightPx by remember { mutableIntStateOf(0) }
 
     val hasStream = currentStream != null && streamHeightDp > 0.dp
-    val statusBarTopPx = WindowInsets.statusBars.getTop(density)
+    // Split screen can hide the status bar, so the toolbar clears the display cutout as well
+    val statusBarTopPx = WindowInsets.statusBars.union(WindowInsets.displayCutout).getTop(density)
     val toolbarBottomPx = with(density) {
         when {
             isFullscreen -> 0
@@ -131,7 +146,7 @@ fun FloatingToolbar(
         }
     }
     SideEffect(toolbarBottomPx) { onToolbarBottomChange(toolbarBottomPx) }
-    val isSingleRow = isTopBarSingleRow()
+    val isSingleRow = isTopBarSingleRow(channelBarLayout)
 
     AnimatedVisibility(
         visible = showAppBar && !isFullscreen,
@@ -211,6 +226,7 @@ fun FloatingToolbar(
                                 .fillMaxHeight(),
                     )
                     if (isSingleRow) {
+                        ChannelSwitcher(tabState = tabState, selectedIndex = composePagerState.currentPage, onAction = onAction)
                         TopBarActions(
                             hasMentions = hasMentions,
                             onOpenMentions = onOpenMentions,
@@ -267,6 +283,72 @@ private fun TopBarActions(
             imageVector = Icons.Outlined.GridView,
             contentDescription = stringResource(R.string.hub_open),
         )
+    }
+}
+
+/** Lists every channel, so one far down the tabs is a tap away instead of a long scroll. */
+@Composable
+private fun ChannelSwitcher(
+    tabState: ChannelTabUiState,
+    selectedIndex: Int,
+    onAction: (ToolbarAction) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    Box {
+        IconButton(
+            onClick = { expanded = true },
+            modifier = Modifier.size(ACTIONS_ROW_HEIGHT),
+        ) {
+            Icon(
+                imageVector = Icons.Default.ArrowDropDown,
+                contentDescription = stringResource(R.string.channel_switcher_open),
+            )
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.heightIn(max = CHANNEL_SWITCHER_MAX_HEIGHT),
+        ) {
+            tabState.tabs.forEachIndexed { index, tab ->
+                val isSelected = index == selectedIndex
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = tab.displayName,
+                            color = when {
+                                isSelected -> MaterialTheme.colorScheme.primary
+                                else -> MaterialTheme.colorScheme.onSurface
+                            },
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    },
+                    leadingIcon = {
+                        Box(
+                            modifier =
+                                Modifier
+                                    .size(8.dp)
+                                    .drawBehind {
+                                        if (tab.isLive) {
+                                            drawCircle(LiveDotColor)
+                                        }
+                                    },
+                        )
+                    },
+                    trailingIcon =
+                        if (tab.mentionCount > 0) {
+                            { Badge() }
+                        } else {
+                            null
+                        },
+                    onClick = {
+                        expanded = false
+                        onAction(ToolbarAction.SelectTab(index))
+                    },
+                )
+            }
+        }
     }
 }
 

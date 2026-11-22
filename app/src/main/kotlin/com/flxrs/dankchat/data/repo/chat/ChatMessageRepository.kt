@@ -50,6 +50,7 @@ class ChatMessageRepository(
     private val messages = ConcurrentHashMap<UserName, MutableStateFlow<List<ChatItem>>>()
     private val historyHandoffs = ConcurrentHashMap<UserName, HistoryHandoff>()
     private val _chatLoadingFailures = MutableStateFlow(emptySet<ChatLoadingFailure>())
+    private val _reparseCount = MutableStateFlow(0)
     private val _sessionMessageCount = AtomicInt(0)
     private val _ircSentCount = AtomicInt(0)
     private val _helixSentCount = AtomicInt(0)
@@ -79,10 +80,13 @@ class ChatMessageRepository(
                         flow.update { it.takeLast(length) }
                     }
                 }
-            }.stateIn(scope, SharingStarted.Eagerly, 500)
+            }.stateIn(scope, SharingStarted.Eagerly, chatSettingsDataStore.current().scrollbackLength)
     val scrollBackLength get() = scrollBackLengthFlow.value
 
     val chatLoadingFailures = _chatLoadingFailures.asStateFlow()
+
+    // Increments after emotes and badges were reparsed, for messages that are mapped outside the channel buffers
+    val reparseCount: StateFlow<Int> = _reparseCount.asStateFlow()
 
     fun getChat(channel: UserName): StateFlow<List<ChatItem>> = messages.getOrPut(channel) { MutableStateFlow(emptyList()) }.also {
         updateChannelKeys()
@@ -216,20 +220,28 @@ class ChatMessageRepository(
 
     suspend fun reparseAllEmotesAndBadges() = withContext(dispatchersProvider.default) {
         messages.values
-            .map { flow ->
-                async {
-                    flow.update { items ->
-                        items.map { item ->
-                            // Unchanged messages keep their tag so mapping caches and compose keys survive
-                            when (val reparsed = messageProcessor.reparseEmotesAndBadges(item.message)) {
-                                item.message -> item
-                                else -> item.copy(tag = item.tag + 1, message = reparsed)
-                            }
-                        }
-                    }
-                }
-            }.awaitAll()
+            .map { flow -> async { flow.reparseEmotesAndBadges() } }
+            .awaitAll()
         chatNotificationRepository.reparseAll()
+        _reparseCount.update { it + 1 }
+    }
+
+    suspend fun reparseEmotesAndBadges(channel: UserName) = withContext(dispatchersProvider.default) {
+        messages[channel]?.reparseEmotesAndBadges()
+        chatNotificationRepository.reparseMentions(channel)
+        _reparseCount.update { it + 1 }
+    }
+
+    private suspend fun MutableStateFlow<List<ChatItem>>.reparseEmotesAndBadges() {
+        update { items ->
+            items.map { item ->
+                // Unchanged messages keep their tag so mapping caches and compose keys survive
+                when (val reparsed = messageProcessor.reparseEmotesAndBadges(item.message)) {
+                    item.message -> item
+                    else -> item.copy(tag = item.tag + 1, message = reparsed)
+                }
+            }
+        }
     }
 
     suspend fun reparseMessagesOfUsers(userIds: Set<UserId>) = withContext(dispatchersProvider.default) {

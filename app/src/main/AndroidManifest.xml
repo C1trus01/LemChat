@@ -25,6 +25,8 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:name=".DankChatApplication"
         android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
         android:largeHeap="true"
         android:enableOnBackInvokedCallback="true"
         android:icon="@mipmap/ic_launcher"
@@ -32,7 +34,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        tools:ignore="AllowBackup,GoogleAppIndexingWarning"
+        tools:ignore="GoogleAppIndexingWarning"
         tools:targetApi="tiramisu">
 
         <profileable android:shell="true" />
@@ -44,6 +46,7 @@
 
         <activity
             android:name=".ui.main.MainActivity"
+            android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenSize|smallestScreenSize|screenLayout"
             android:exported="true"
             android:launchMode="singleTask"
             android:supportsPictureInPicture="true"

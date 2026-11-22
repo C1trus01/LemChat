@@ -2,6 +2,7 @@ package com.flxrs.dankchat.preferences.appearance
 
 import android.content.Context
 import android.content.res.Configuration
+import android.graphics.Color
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.LocalActivity
@@ -74,6 +75,7 @@ import com.flxrs.dankchat.R
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.AutoDisableInput
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.CheckeredMessages
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.CompactChannelInfo
+import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.SetChannelBarLayout
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.FontSize
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.FullscreenButtonOpacity
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.KeepScreenOn
@@ -173,6 +175,7 @@ private fun AppearanceSettingsContent(
             HorizontalDivider(thickness = Dp.Hairline)
             ComponentsCategory(
                 swipeNavigation = settings.swipeNavigation,
+                channelBarLayout = settings.channelBarLayout,
                 compactChannelInfo = settings.compactChannelInfo,
                 fullscreenButtonOpacity = settings.fullscreenButtonOpacity,
                 requireFullscreenExitConfirmation = settings.requireFullscreenExitConfirmation,
@@ -228,6 +231,7 @@ private fun InputCategory(
 @Composable
 private fun ComponentsCategory(
     swipeNavigation: Boolean,
+    channelBarLayout: ChannelBarLayout,
     compactChannelInfo: Boolean,
     fullscreenButtonOpacity: Float,
     requireFullscreenExitConfirmation: Boolean,
@@ -244,6 +248,21 @@ private fun ComponentsCategory(
     PreferenceCategory(
         title = stringResource(R.string.preference_components_group_title),
     ) {
+        val barLayouts = remember { ChannelBarLayout.entries.toImmutableList() }
+        val barLayoutLabels =
+            listOf(
+                stringResource(R.string.preference_channel_bar_layout_two_rows),
+                stringResource(R.string.preference_channel_bar_layout_one_row),
+            ).toImmutableList()
+        PreferenceListDialog(
+            title = stringResource(R.string.preference_channel_bar_layout_title),
+            summary = barLayoutLabels[barLayouts.indexOf(channelBarLayout)],
+            values = barLayouts,
+            entries = barLayoutLabels,
+            selected = channelBarLayout,
+            onChange = { onInteraction(SetChannelBarLayout(it)) },
+        )
+
         SwitchPreferenceItem(
             title = stringResource(R.string.preference_swipe_navigation_title),
             summary = stringResource(R.string.preference_swipe_navigation_summary),
@@ -698,8 +717,8 @@ private fun setDarkMode(
         ThemePreference.System -> systemDark
     }
     val barStyle = when {
-        isDark -> SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
-        else -> SystemBarStyle.light(android.graphics.Color.TRANSPARENT, android.graphics.Color.TRANSPARENT)
+        isDark -> SystemBarStyle.dark(Color.TRANSPARENT)
+        else -> SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
     }
     activity.enableEdgeToEdge(statusBarStyle = barStyle, navigationBarStyle = barStyle)
 }

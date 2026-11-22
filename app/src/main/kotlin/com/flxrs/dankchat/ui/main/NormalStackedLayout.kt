@@ -14,6 +14,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,7 +33,7 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.utils.compose.bottomInsetsPadding
 import kotlinx.coroutines.delay
 
-private const val MIN_VISIBLE_MESSAGE_LINES = 9
+private const val MIN_VISIBLE_MESSAGE_LINES = 7
 
 @Composable
 internal fun BoxScope.NormalStackedLayout(
@@ -50,6 +51,7 @@ internal fun BoxScope.NormalStackedLayout(
     scaffoldBottomInsets: WindowInsets,
     scaffoldBottomTargetDp: Dp,
     inputHeightDp: Dp,
+    singleLineInputHeightDp: Dp,
     isFullscreen: Boolean,
     gestureToolbarHidden: Boolean,
     isKeyboardVisible: Boolean,
@@ -59,6 +61,7 @@ internal fun BoxScope.NormalStackedLayout(
     containerWidthPx: Int,
     containerHeightPx: Int,
     fontSize: Int,
+    keepStreamWhileTyping: Boolean,
     showInput: Boolean,
     inputPopupExpanded: Boolean,
     forceOverflowOpen: Boolean,
@@ -76,8 +79,9 @@ internal fun BoxScope.NormalStackedLayout(
         containerWidthPx = containerWidthPx,
         containerHeightPx = containerHeightPx,
         scaffoldBottomPadding = scaffoldBottomTargetDp,
-        inputHeightDp = inputHeightDp,
+        singleLineInputHeightDp = singleLineInputHeightDp,
         fontSize = fontSize,
+        keepStreamWhileTyping = keepStreamWhileTyping,
         density = density,
     )
     val toolbarVisible = shouldShowToolbar(showStream, isKeyboardVisible, isEmoteMenuOpen, isSheetOpen)
@@ -102,6 +106,11 @@ internal fun BoxScope.NormalStackedLayout(
             val chatTopPadding = maxOf(with(density) { WindowInsets.statusBars.getTop(density).toDp() }, streamState.heightDp)
             scaffoldContent(paddingValues, chatTopPadding, toolbarVisible)
         }
+    }
+
+    // The split and theater layouts never measure the stream, so a height left behind would offset their toolbar
+    DisposableEffect(streamState) {
+        onDispose { streamState.heightDp = 0.dp }
     }
 
     // Stream View layer — kept in composition when hidden so the WebView
@@ -199,7 +208,7 @@ internal fun BoxScope.NormalStackedLayout(
 
     if (!isInPipMode) emoteMenuLayer(Modifier.align(Alignment.BottomCenter))
 
-    if (!isInPipMode && showInput && isKeyboardVisible) {
+    if (!isInPipMode && showInput) {
         suggestionDropdown(
             Modifier
                 .align(Alignment.BottomStart)
@@ -220,8 +229,9 @@ private fun shouldShowStream(
     containerWidthPx: Int,
     containerHeightPx: Int,
     scaffoldBottomPadding: Dp,
-    inputHeightDp: Dp,
+    singleLineInputHeightDp: Dp,
     fontSize: Int,
+    keepStreamWhileTyping: Boolean,
     density: Density,
 ): Boolean {
     val hasStream = currentStream != null && !isAudioOnly
@@ -229,12 +239,13 @@ private fun shouldShowStream(
     if (isInPipMode) return true
 
     val isInputActive = isKeyboardVisible || isEmoteMenuOpen
-    if (!isInputActive || containerHeightPx <= 0) return true
+    if (!isInputActive || keepStreamWhileTyping || containerHeightPx <= 0) return true
 
     val containerHeightDp = with(density) { containerHeightPx.toDp() }
     val streamNaturalHeight = with(density) { containerWidthPx.toDp() } * 9 / 16
     val minMessageArea = with(density) { (fontSize * MIN_VISIBLE_MESSAGE_LINES).sp.toDp() }
-    val available = containerHeightDp - streamNaturalHeight - scaffoldBottomPadding - inputHeightDp
+    // Single-line height so the stream doesn't disappear while a longer message is typed
+    val available = containerHeightDp - streamNaturalHeight - scaffoldBottomPadding - singleLineInputHeightDp
     return available >= minMessageArea
 }
 

@@ -7,6 +7,7 @@ import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.chat.ChatImportance
 import com.flxrs.dankchat.data.chat.ChatItem
+import com.flxrs.dankchat.data.repo.UserDisplayRepository
 import com.flxrs.dankchat.data.repo.chat.UsersRepository
 import com.flxrs.dankchat.data.repo.emote.SevenTVCosmeticsRepository
 import com.flxrs.dankchat.data.toDisplayName
@@ -56,6 +57,7 @@ import org.koin.core.annotation.Single
 class ChatMessageMapper(
     private val usersRepository: UsersRepository,
     private val sevenTVCosmeticsRepository: SevenTVCosmeticsRepository,
+    private val userDisplayRepository: UserDisplayRepository,
 ) {
     fun mapToUiState(
         item: ChatItem,
@@ -181,6 +183,10 @@ class ChatMessageMapper(
 
                 is SystemMessageType.ChannelNonExistent -> {
                     TextResource.Res(R.string.system_message_channel_non_existent)
+                }
+
+                is SystemMessageType.ChannelJoinFailed -> {
+                    TextResource.Res(R.string.system_message_channel_join_failed)
                 }
 
                 is SystemMessageType.MessageHistoryIgnored -> {
@@ -391,10 +397,13 @@ class ChatMessageMapper(
 
         val displayName = tags["display-name"].orEmpty()
         val login = tags["login"]?.toUserName()
-        val ircColor =
-            tags["color"]?.parseColorOrNull()
-                ?: login?.let { usersRepository.getCachedUserColor(it) }
-        val rawNameColor = resolveNameColor(null, ircColor, tags["user-id"]?.toUserId(), chatSettings)
+        val ircColor = tags["color"]?.parseColorOrNull()
+        val userId = tags["user-id"]?.toUserId()
+        val rawNameColor =
+            when (login) {
+                null -> resolveNameColor(null, ircColor, userId, chatSettings)
+                else -> resolveCachedNameColor(login, ircColor, userId, chatSettings)
+            }
 
         return ChatMessageUiState.UserNoticeMessageUi(
             id = id,
@@ -405,7 +414,7 @@ class ChatMessageMapper(
             textAlpha = textAlpha,
             isHighlighted = highlightType != null,
             channel = channel,
-            userId = tags["user-id"]?.toUserId(),
+            userId = userId,
             userName = login,
             message = message,
             links = findLinks(message).toImmutableList(),
@@ -457,8 +466,8 @@ class ChatMessageMapper(
             targetName = targetUserDisplay?.toString(),
             creatorUserName = creatorUser,
             targetUserName = targetUser,
-            creatorColor = creatorUser?.let { usersRepository.getCachedUserColor(it) } ?: Message.DEFAULT_COLOR,
-            targetColor = targetUser?.let { usersRepository.getCachedUserColor(it) } ?: Message.DEFAULT_COLOR,
+            creatorColor = creatorUser?.let { resolveCachedNameColor(it, null, null, chatSettings) } ?: Message.DEFAULT_COLOR,
+            targetColor = targetUser?.let { resolveCachedNameColor(it, null, null, chatSettings) } ?: Message.DEFAULT_COLOR,
             arguments = arguments,
         )
     }
@@ -507,7 +516,7 @@ class ChatMessageMapper(
                         )
                     }.toImmutableList(),
             userDisplayName = userName.formatWithDisplayName(userDisplayName),
-            rawNameColor = color ?: Message.DEFAULT_COLOR,
+            rawNameColor = resolveCachedNameColor(userName, color, null, chatSettings),
             messageText = messageText?.takeIf { it.isNotEmpty() },
             reason = reason,
             status = uiStatus,
@@ -603,7 +612,7 @@ class ChatMessageMapper(
                     rootId = thread.rootId,
                     userName = thread.name.value,
                     message = thread.message,
-                    rawNameColor = usersRepository.getCachedUserColor(thread.name) ?: Message.DEFAULT_COLOR,
+                    rawNameColor = resolveCachedNameColor(thread.name, null, null, chatSettings),
                 )
             } else {
                 null
@@ -663,7 +672,7 @@ class ChatMessageMapper(
                         displayName = usersRepository.findDisplayName(channel, userName) ?: mention.userName.toDisplayName(),
                         rawColor =
                             if (chatSettings.colorUsernameMentions) {
-                                usersRepository.getCachedUserColor(userName)
+                                resolveCachedNameColor(userName, null, null, chatSettings)
                             } else {
                                 null
                             },
@@ -729,7 +738,7 @@ class ChatMessageMapper(
             }
 
         val nameText = if (!requiresUserInput) aliasOrFormattedName else null
-        val nameColor = usersRepository.getCachedUserColor(name) ?: Message.DEFAULT_COLOR
+        val nameColor = resolveCachedNameColor(name, null, null, chatSettings)
 
         return ChatMessageUiState.PointRedemptionMessageUi(
             id = id,
@@ -863,6 +872,18 @@ class ChatMessageMapper(
             replyTargetBadges = if (replyTarget.isOutgoing) persistentListOf() else badgeUis,
         )
     }
+
+    private fun resolveCachedNameColor(
+        userName: UserName,
+        ircColor: Int?,
+        userId: UserId?,
+        chatSettings: ChatSettings,
+    ): Int = resolveNameColor(
+        customColor = userDisplayRepository.findMatchingUserDisplay(userName)?.color,
+        ircColor = ircColor ?: usersRepository.getCachedUserColor(userName),
+        userId = userId ?: usersRepository.getCachedUserId(userName),
+        chatSettings = chatSettings,
+    )
 
     private fun resolveNameColor(
         customColor: Int?,
@@ -1079,8 +1100,8 @@ class ChatMessageMapper(
 
         // Checkered background colors — 12% opacity overlay
         private const val CHECKERED_ALPHA = (255 * 0.12f).toInt()
-        private val CHECKERED_LIGHT = Color(android.graphics.Color.argb(CHECKERED_ALPHA, 0, 0, 0))
-        private val CHECKERED_DARK = Color(android.graphics.Color.argb(CHECKERED_ALPHA, 255, 255, 255))
+        private val CHECKERED_LIGHT = Color(red = 0, green = 0, blue = 0, alpha = CHECKERED_ALPHA)
+        private val CHECKERED_DARK = Color(red = 255, green = 255, blue = 255, alpha = CHECKERED_ALPHA)
     }
 }
 

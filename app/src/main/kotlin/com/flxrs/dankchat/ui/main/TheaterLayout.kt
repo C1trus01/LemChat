@@ -79,7 +79,7 @@ internal fun TheaterLayout(
     onChatDrag: (Float) -> Unit,
     onChatDragEnd: () -> Unit,
     onOpenReplies: (String, UserName) -> Unit,
-    onRecover: () -> Unit,
+    onShowInput: () -> Unit,
     streamView: @Composable (StreamViewConfig, Modifier) -> Unit,
     bottomBar: @Composable () -> Unit,
     emoteMenuLayer: @Composable (Modifier) -> Unit,
@@ -203,7 +203,7 @@ internal fun TheaterLayout(
                                 isPageVisible = isChatVisible,
                                 showInput = showInput,
                                 showPinnedMessage = false,
-                                onRecover = onRecover,
+                                onShowInput = onShowInput,
                                 showTheaterChatModeFab = canDockChat,
                                 isTheaterChatDocked = isDocked,
                                 onToggleTheaterChatMode = onToggleChatMode,
@@ -228,7 +228,7 @@ internal fun TheaterLayout(
                                 bottomBar()
                             }
 
-                            if (showInput && isKeyboardVisible) {
+                            if (showInput) {
                                 suggestionDropdown(
                                     Modifier
                                         .align(Alignment.BottomStart)

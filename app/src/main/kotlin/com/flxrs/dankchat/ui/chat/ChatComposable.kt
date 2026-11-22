@@ -60,7 +60,8 @@ fun ChatComposable(
     showInput: Boolean = true,
     isFullscreen: Boolean = false,
     showFabs: Boolean = true,
-    onRecover: () -> Unit = {},
+    onShowInput: () -> Unit = {},
+    onExitFullscreen: () -> Unit = {},
     fabMenuCallbacks: FabMenuCallbacks? = null,
     showPinnedMessage: Boolean = true,
     showTheaterChatModeFab: Boolean = false,
@@ -104,7 +105,7 @@ fun ChatComposable(
 
     val displaySettings by viewModel.chatDisplaySettings.collectAsStateWithLifecycle()
     val userLongClickBehavior by chatSettingsDataStore.userLongClickBehavior.collectAsStateWithLifecycle(initialValue = UserLongClickBehavior.MentionsUser)
-    val isLoggedIn = preferenceStore.isLoggedIn
+    val isLoggedIn by preferenceStore.isLoggedInFlow.collectAsStateWithLifecycle(initialValue = preferenceStore.isLoggedIn)
     val openUserCard: (String?, String, String, String?, List<BadgeUi>) -> Unit = { userId, userName, displayName, ch, badges ->
         userPopupViewModel.show(
             UserPopupStateParams(
@@ -150,7 +151,7 @@ fun ChatComposable(
                     }
 
                     else -> {
-                        chatInputViewModel.setReplying(true, message.messageId, message.userName, message.message)
+                        chatInputViewModel.startReply(message.messageId, message.userName, message.message)
                     }
                 }
             },
@@ -224,7 +225,8 @@ fun ChatComposable(
                 showInput = showInput,
                 isFullscreen = isFullscreen,
                 showFabs = showFabs,
-                onRecover = onRecover,
+                onShowInput = onShowInput,
+                onExitFullscreen = onExitFullscreen,
                 fabMenuCallbacks = fabMenuCallbacks,
                 showTheaterChatModeFab = showTheaterChatModeFab,
                 isTheaterChatDocked = isTheaterChatDocked,
@@ -282,6 +284,7 @@ fun ChatComposable(
                 if (bannerState != null) {
                     PinnedMessageBanner(
                         state = bannerState,
+                        remainingTime = pinnedMessageViewModel.remainingTime,
                         fontSize = displaySettings.fontSize,
                         animateGifs = displaySettings.animateGifs,
                         callbacks = callbacks,

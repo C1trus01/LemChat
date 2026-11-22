@@ -122,6 +122,7 @@
     <string name="system_message_connected">Bağlanıldı</string>
     <string name="system_message_reconnected">Yeniden bağlanıldı</string>
     <string name="system_message_channel_non_existent">Bu kanal yok</string>
+    <string name="system_message_channel_join_failed">Bu kanala katılınamadı</string>
     <string name="system_message_disconnected">Bağlantı kesildi</string>
     <string name="system_message_history_unavailable_detailed">Mesaj tarihi servisi kullanılamıyor (Hata %1$s)</string>
     <string name="system_message_history_unavailable">Mesaj tarihi servisi kullanılamıyor</string>
@@ -253,6 +254,7 @@
     </plurals>
     <string name="timed_out_message">&lt; Mesaj silindi &gt;</string>
     <string name="multi_entry_header_regex">Düzenli ifade</string>
+    <string name="multi_entry_invalid_regex">Geçersiz düzenli ifade</string>
     <string name="multi_entry_add_entry">Girdi ekle</string>
     <string name="login_expired">Giriş süresi doldu! Yeniden giriş yapmayı deneyin.</string>
     <string name="message_history_disclaimer_title">Mesaj tarihi açıklaması</string>
@@ -297,6 +299,7 @@ Servis bu hizmeti verebilmek için sizin (ve başkalarının) ziyaret ettiği ka
     <string name="restart">Yeniden başlat</string>
     <string name="uploader_reset">Varsayılanlara sıfırla</string>
     <string name="uploader_url">Yükleme URL\'i</string>
+    <string name="uploader_url_unresolved">Bu alan adı bulunamadı</string>
     <string name="uploader_field">Form alanı</string>
     <string name="uploader_headers">Başlıklar</string>
     <string name="uploader_image_link">Medya bağlantı şablonu</string>
@@ -320,6 +323,8 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="menu_exit_fullscreen">Tam ekrandan çık</string>
     <string name="menu_hide_input">Girişi gizle</string>
     <string name="menu_show_input">Girişi göster</string>
+    <string name="menu_enable_tts">TTS\'i etkinleştir</string>
+    <string name="menu_disable_tts">TTS\'i devre dışı bırak</string>
     <string name="preference_fullscreen_button_opacity_title">Tam ekran düğme saydamlığı</string>
     <string name="preference_fullscreen_button_opacity_summary">Tam ekranda veya giriş gizlendiğinde gösterilen düğmeler: %d%%</string>
     <string name="preference_fullscreen_button_opacity_hint">Saydamlık (1–100)</string>
@@ -342,6 +347,7 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="input_action_mod_actions">Kanal moderasyonu</string>
     <string name="input_action_fullscreen">Tam ekran</string>
     <string name="input_action_hide_input">Girişi gizle</string>
+    <string name="input_action_tts">Metin okuma</string>
     <string name="input_action_debug">Hata ayıklama</string>
     <string name="input_action_configure">Eylemleri yapılandır</string>
     <string name="input_action_hide_all">Tüm işlemleri gizle</string>
@@ -418,6 +424,7 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="tts_ignore_list_add_user">Kullanıcı ekle</string>
     <string name="tts_ignore_list_remove_user">Kullanıcıyı kaldır</string>
     <string name="tts_ignore_list_user_hint">Kullanıcı</string>
+    <string name="tts_start_failed">TTS başlatılamadı</string>
     <string name="recent_upload_deletion_link">Silme bağlantısı:
 %1$s</string>
     <string name="recent_uploads_clear">Yüklemeleri temizle</string>
@@ -516,7 +523,7 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="preference_show_whispers_inline_title">Fısıltıları sohbette göster</string>
     <string name="preference_show_whispers_inline_summary">Gönderilen ve alınan fısıltıları tüm açık kanallarda gösterir</string>
     <string name="preference_show_twitch_gifs_title">Twitch GIF\'lerini göster</string>
-    <string name="preference_animate_gifs_title">GIF\'leri hareketlendir</string>
+    <string name="preference_animations_title">İfadeleri, rozetleri ve GIF\'leri hareketlendir</string>
     <string name="preference_line_separator_title">Mesajları çizgiler ile ayır</string>
     <string name="preference_keep_screen_on_title">Ekranı açık tut</string>
     <string name="preference_font_size_title">Yazı tipi boyutu</string>
@@ -561,6 +568,8 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="preference_tts_message_ignore_emote_title">İfadeleri yok say</string>
     <string name="preference_tts_message_ignore_command_message">Komut ön ekiyle (!, $, %, +, -, ~) başlayan mesajları yok sayar</string>
     <string name="preference_tts_message_ignore_command_title">Komutları yok say</string>
+    <string name="preference_tts_ignore_user_name_numbers_title">Kullanıcı adlarındaki sayıları yok say</string>
+    <string name="preference_tts_ignore_user_name_numbers_summary">Kullanıcı adlarını sayılar olmadan okur, örneğin john1990 yerine john</string>
     <string name="preference_tts_volume_title">Ses seviyesi</string>
     <string name="preference_tts_audio_ducking_title">Ses kısma</string>
     <string name="preference_tts_audio_ducking_summary">TTS konuşurken diğer uygulamaların sesini kıs</string>
@@ -609,6 +618,30 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="preference_uploader_header">Medya yükleyici</string>
     <string name="preference_uploader_configure_title">Yükleyiciyi ayarla</string>
     <string name="preference_uploader_recent_uploads_title">Son yüklemeler</string>
+    <string name="preference_export_header">Dışa aktar</string>
+    <string name="backup_channels_title">Kanallar</string>
+    <string name="backup_export">Dışa aktar</string>
+    <string name="backup_import">İçe aktar</string>
+    <string name="backup_copy">Panoya kopyala</string>
+    <string name="backup_paste">Panodan yapıştır</string>
+    <string name="backup_channels_description">Tüm kanalları özel adlarıyla birlikte dışa aktarır. İçe aktarma yalnızca eksik kanalları ekler</string>
+    <string name="backup_settings_description">Giriş bilgileriniz hariç tüm ayarları dışa aktarır</string>
+    <string name="backup_settings_uploader_note">Özel yükleyici yapılandırmanızı içerir</string>
+    <string name="import_data_confirmation">Ayarlarınız, kanallarınız, öne çıkarmalarınız ve yok saymalarınız içe aktarılanlarla değiştirilsin mi? Uygulama ardından yeniden başlar.</string>
+    <string name="export_data_done">Ayarlar dışa aktarıldı</string>
+    <string name="export_data_failed">Dosya kaydedilemedi</string>
+    <string name="import_data_failed">Bu dosya okunamadı</string>
+    <string name="import_data_newer_version">Bu yedek, LemChat\'in daha yeni bir sürümüyle oluşturuldu</string>
+    <string name="clipboard_no_export">Pano bir dışa aktarım içermiyor</string>
+    <plurals name="channels_exported">
+        <item quantity="one">%1$d kanal dışa aktarıldı</item>
+        <item quantity="other">%1$d kanal dışa aktarıldı</item>
+    </plurals>
+    <plurals name="channels_imported">
+        <item quantity="one">%1$d kanal eklendi</item>
+        <item quantity="other">%1$d kanal eklendi</item>
+    </plurals>
+    <string name="channels_import_none_new">Bu kanalların tümü zaten ekli</string>
     <string name="preference_tts_user_ignore_list_title">Kullanıcı yok sayma listesi</string>
     <string name="preference_tts_user_ignore_list_summary">Yok sayılacak kullanıcıların/hesapların listesi</string>
     <string name="preference_tools_header">Araçlar</string>
@@ -641,8 +674,8 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="preference_stream_live_messages_summary">Bir kanal yayına girdiğinde veya yayını sonlandırdığında sohbete bir mesaj ekler</string>
     <string name="preference_stream_extensions_title">Yayın uzantılarını göster</string>
     <string name="preference_stream_extensions_summary">Yayın oynatıcısının üzerinde uzantıları gösterir</string>
-    <string name="preference_retain_webview_title">Yayın yenilemelerini önle</string>
-    <string name="preference_retain_webview_summary">Yön değişikliklerinden ya da LemChat\'in yeniden açılmasından sonra yayın yenilemelerinin deneysel önlenmesini etkinleştirir.</string>
+    <string name="preference_keep_stream_while_typing_title">Yazarken yayını görünür tut</string>
+    <string name="preference_keep_stream_while_typing_summary">Klavye veya ifade menüsü sohbete az yer bıraksa bile yayını dikey modda gösterir</string>
     <string name="preference_show_changelogs">Güncellemeden sonra değişiklik günlüklerini göster</string>
     <string name="preference_whats_new_header">Yenilikler</string>
     <string name="preference_custom_login_title">Özel giriş</string>

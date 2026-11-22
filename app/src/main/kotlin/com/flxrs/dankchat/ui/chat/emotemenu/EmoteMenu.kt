@@ -43,10 +43,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.compose.AsyncImage
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.twitch.emote.GenericEmote
 import com.flxrs.dankchat.preferences.components.DankBackground
+import com.flxrs.dankchat.ui.chat.emote.EmoteImage
 import com.flxrs.dankchat.ui.chat.emote.EmoteInfoViewModel
 import com.flxrs.dankchat.ui.chat.emote.toEmoteSheetData
 import com.flxrs.dankchat.ui.main.sheet.EmoteMenuViewModel
@@ -63,12 +63,12 @@ fun EmoteMenu(
     viewModel: EmoteMenuViewModel = koinViewModel(),
     emoteInfoViewModel: EmoteInfoViewModel = koinViewModel(),
 ) {
-    val tabItems by viewModel.emoteTabItems.collectAsStateWithLifecycle()
-    val selectedTabIndex by viewModel.selectedTabIndex.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val tabItems = uiState.tabItems
     val scope = rememberCoroutineScope()
     val pagerState =
         rememberPagerState(
-            initialPage = selectedTabIndex,
+            initialPage = uiState.selectedTabIndex,
             pageCount = { tabItems.size },
         )
 
@@ -130,6 +130,7 @@ fun EmoteMenu(
                     val tab = tabItems.getOrNull(page) ?: return@HorizontalPager
                     EmoteGridPage(
                         tab = tab,
+                        animateEmotes = uiState.animateEmotes,
                         subsGridState = subsGridState,
                         navBarBottomDp = navBarBottomDp,
                         onEmoteClick = onEmoteClick,
@@ -164,13 +165,13 @@ fun EmoteMenu(
 @Composable
 private fun EmoteGridPage(
     tab: EmoteMenuTabItem,
+    animateEmotes: Boolean,
     subsGridState: LazyGridState,
     navBarBottomDp: Dp,
     onEmoteClick: (code: String, id: String) -> Unit,
     onEmoteLongClick: (GenericEmote) -> Unit,
 ) {
     val items = tab.items
-
     if (tab.type == EmoteMenuTab.RECENT && items.isEmpty()) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             DankBackground(visible = true)
@@ -232,9 +233,9 @@ private fun EmoteGridPage(
                     }
 
                     is EmoteItem.Emote -> {
-                        AsyncImage(
-                            model = item.emote.url,
-                            contentDescription = item.emote.code,
+                        EmoteImage(
+                            emote = item.emote,
+                            animate = animateEmotes,
                             modifier =
                                 Modifier
                                     .fillMaxWidth()

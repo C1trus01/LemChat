@@ -1,5 +1,6 @@
 package com.flxrs.dankchat.data.twitch.chat
 
+import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.auth.AuthDataStore
 import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.di.DispatchersProvider
@@ -62,13 +63,23 @@ internal class ChatConnectionTest {
         userName: String? = null,
         oAuth: String? = null,
         pongTimeout: Duration = 10.seconds,
+        activeChannel: UserName? = null,
     ): ChatConnection {
         val authDataStore: AuthDataStore =
             mockk {
                 every { this@mockk.userName } returns userName?.toUserName()
                 every { oAuthKey } returns oAuth
             }
-        return ChatConnection(ChatConnectionType.Read, httpClient, authDataStore, dispatchers, serviceActive = MutableStateFlow(true), url = mockServer.url, pongTimeout = pongTimeout).also {
+        return ChatConnection(
+            ChatConnectionType.Read,
+            httpClient,
+            authDataStore,
+            dispatchers,
+            serviceActive = MutableStateFlow(true),
+            activeChannel = MutableStateFlow(activeChannel),
+            url = mockServer.url,
+            pongTimeout = pongTimeout,
+        ).also {
             connection = it
         }
     }
@@ -268,6 +279,43 @@ internal class ChatConnectionTest {
     }
 
     @Test
+    fun `clean close by the server reconnects`() = runTest {
+        withContext(Dispatchers.Default) {
+            withTimeout(15.seconds) {
+                mockServer.enqueueUpgrade()
+
+                val conn = createConnection()
+                conn.joinChannels(listOf("ch1".toUserName()))
+                conn.connect()
+                conn.messages.first { it is ChatEvent.Connected }
+
+                mockServer.closeClientConnection()
+
+                mockServer.frames.first { mockServer.sentFrames.count { frame -> frame.startsWith("CAP REQ") } >= 2 }
+                conn.connected.first { it }
+            }
+        }
+    }
+
+    @Test
+    fun `failed login does not reconnect`() = runTest {
+        withContext(Dispatchers.Default) {
+            withTimeout(15.seconds) {
+                mockServer.enqueueUpgrade()
+
+                val conn = createConnection(userName = "testuser", oAuth = "oauth:expired")
+                conn.connect()
+                mockServer.sendToClient(":tmi.twitch.tv NOTICE * :Login authentication failed")
+                conn.messages.first { it is ChatEvent.Closed }
+
+                delay(2.seconds)
+                assertEquals(1, mockServer.sentFrames.count { it.startsWith("CAP REQ") })
+                assertFalse(conn.connected.value)
+            }
+        }
+    }
+
+    @Test
     fun `identical consecutive messages are all delivered`() = runTest {
         withContext(Dispatchers.Default) {
             withTimeout(15.seconds) {
@@ -293,6 +341,28 @@ internal class ChatConnectionTest {
     }
 
     @Test
+    fun `malformed lines are skipped without a reconnect`() = runTest {
+        withContext(Dispatchers.Default) {
+            withTimeout(15.seconds) {
+                val conn = createConnection()
+                conn.joinChannels(listOf("ch1".toUserName()))
+                conn.connect()
+                conn.messages.first { it is ChatEvent.Connected }
+
+                mockServer.sendToClient("")
+                mockServer.sendToClient(":tmi.twitch.tv 366 ")
+                mockServer.sendToClient(":tmi.twitch.tv 366 justinfan")
+                val notice = "@msg-id=msg_emoteonly :tmi.twitch.tv NOTICE #ch1 :This room is in emote-only mode."
+                mockServer.sendToClient(notice)
+
+                conn.messages.first { it is ChatEvent.Message && it.message.command == "NOTICE" }
+                assertEquals(1, mockServer.sentFrames.count { it.startsWith("CAP REQ") })
+                assertTrue(conn.connected.value)
+            }
+        }
+    }
+
+    @Test
     fun `multiple channels are joined via single JOIN command`() = runTest {
         withContext(Dispatchers.Default) {
             withTimeout(15.seconds) {
@@ -304,6 +374,63 @@ internal class ChatConnectionTest {
                 val joinFrame = mockServer.sentFrames.first { it.startsWith("JOIN") }
                 assertContains(joinFrame, "#ch1")
                 assertContains(joinFrame, "#ch2")
+            }
+        }
+    }
+
+    @Test
+    fun `active channel is joined first`() = runTest {
+        withContext(Dispatchers.Default) {
+            withTimeout(15.seconds) {
+                val channels = (1..7).map { "ch$it".toUserName() }
+                val conn = createConnection(activeChannel = "ch7".toUserName())
+                conn.joinChannels(channels)
+                conn.connect()
+
+                val joinFrame = mockServer.frames.first { it.startsWith("JOIN") }
+                assertTrue(joinFrame.startsWith("JOIN #ch7,"), joinFrame)
+            }
+        }
+    }
+
+    @Test
+    fun `channel removed while its join is queued is not joined`() = runTest {
+        withContext(Dispatchers.Default) {
+            withTimeout(15.seconds) {
+                val channels = (1..6).map { "ch$it".toUserName() }
+                val conn = createConnection()
+                conn.joinChannels(channels)
+                conn.connect()
+
+                val firstJoin = mockServer.frames.first { it.startsWith("JOIN") }
+                val joined = firstJoin.removePrefix("JOIN ").split(",")
+                val queued = channels.single { "#$it" !in joined }
+                conn.partChannel(queued)
+
+                // The second chunk follows the first one after three seconds
+                delay(4.seconds)
+                assertEquals(1, mockServer.sentFrames.count { it.startsWith("JOIN") })
+            }
+        }
+    }
+
+    @Test
+    fun `pong pending from a closed session does not reconnect the next one`() = runTest {
+        withContext(Dispatchers.Default) {
+            withTimeout(15.seconds) {
+                mockServer.respondToPing = false
+                mockServer.enqueueUpgrade()
+                mockServer.enqueueUpgrade()
+
+                val conn = createConnection()
+                conn.connect()
+                mockServer.frames.first { it.startsWith("PING") }
+
+                mockServer.closeClientConnection()
+                mockServer.frames.first { mockServer.sentFrames.count { frame -> frame.startsWith("PING") } >= 2 }
+
+                delay(2.seconds)
+                assertEquals(2, mockServer.sentFrames.count { it.startsWith("CAP REQ") })
             }
         }
     }

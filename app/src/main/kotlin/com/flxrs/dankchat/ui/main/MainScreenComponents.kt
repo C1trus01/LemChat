@@ -3,10 +3,15 @@ package com.flxrs.dankchat.ui.main
 import android.app.Activity
 import android.app.PictureInPictureParams
 import android.content.pm.ActivityInfo
+import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Rational
+import android.view.ViewTreeObserver
 import androidx.activity.compose.LocalActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -32,9 +37,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -54,38 +62,40 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.core.app.MultiWindowModeChangedInfo
 import androidx.core.app.OnMultiWindowModeChangedProvider
+import androidx.core.app.OnPictureInPictureModeChangedProvider
+import androidx.core.app.PictureInPictureModeChangedInfo
 import androidx.core.util.Consumer
+import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.ui.chat.emotemenu.EmoteMenu
+import com.flxrs.dankchat.ui.chat.messages.common.launchCustomTab
+import com.flxrs.dankchat.ui.chat.messages.common.launchPartialCustomTab
 import com.flxrs.dankchat.ui.main.stream.StreamViewModel
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
 @Composable
 internal fun observePipMode(streamViewModel: StreamViewModel): Boolean {
-    val context = LocalContext.current
-    val activity = context as? Activity
-    var isInPipMode by remember { mutableStateOf(false) }
-    val lifecycleOwner = LocalLifecycleOwner.current
+    val activity = LocalActivity.current
+    var isInPipMode by remember(activity) { mutableStateOf(activity?.isInPictureInPictureMode == true) }
 
-    DisposableEffect(lifecycleOwner) {
-        val observer =
-            LifecycleEventObserver { _, _ ->
-                isInPipMode = activity?.isInPictureInPictureMode == true
-            }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    DisposableEffect(activity) {
+        val provider = activity as? OnPictureInPictureModeChangedProvider ?: return@DisposableEffect onDispose { }
+        val listener = Consumer<PictureInPictureModeChangedInfo> { isInPipMode = it.isInPictureInPictureMode }
+        provider.addOnPictureInPictureModeChangedListener(listener)
+        onDispose { provider.removeOnPictureInPictureModeChangedListener(listener) }
     }
 
     LaunchedEffect(Unit) {
@@ -119,15 +129,49 @@ internal fun observeMultiWindowMode(): Boolean {
     return isInMultiWindowMode
 }
 
+// A playing stream keeps running behind a partial tab, while a full one stops it
+@Composable
+internal fun rememberChatLinkUriHandler(
+    streamViewModel: StreamViewModel,
+    streamBottom: () -> Dp,
+): UriHandler {
+    val context = LocalContext.current
+    val density = LocalDensity.current
+    val resultLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {}
+    val currentStreamBottom by rememberUpdatedState(streamBottom)
+    return remember(context, density, streamViewModel, resultLauncher) {
+        object : UriHandler {
+            override fun openUri(uri: String) {
+                when (streamViewModel.streamState.value.currentStream) {
+                    null -> {
+                        launchCustomTab(context, uri)
+                    }
+
+                    else -> {
+                        val streamBottomPx = with(density) { currentStreamBottom().roundToPx() }
+                        launchPartialCustomTab(context, uri, streamBottomPx, resultLauncher)
+                    }
+                }
+            }
+        }
+    }
+}
+
 private fun Activity.setPipAutoEnterEnabled(enabled: Boolean) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        setPictureInPictureParams(
-            PictureInPictureParams
-                .Builder()
-                .setAutoEnterEnabled(enabled)
-                .setAspectRatio(Rational(16, 9))
-                .build(),
-        )
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || !packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)) {
+        return
+    }
+
+    val params =
+        PictureInPictureParams
+            .Builder()
+            .setAutoEnterEnabled(enabled)
+            .setAspectRatio(Rational(16, 9))
+            .build()
+    try {
+        setPictureInPictureParams(params)
+    } catch (_: IllegalStateException) {
+        // Some devices declare picture-in-picture but still reject it, so there is nothing to auto-enter
     }
 }
 
@@ -140,14 +184,16 @@ internal fun FullscreenSystemBarsEffect(isFullscreen: Boolean) {
     DisposableEffect(isFullscreen, window, view) {
         if (window == null) return@DisposableEffect onDispose { }
         val controller = WindowCompat.getInsetsController(window, view)
+        // The split screen caption bar can't be hidden, the system pads the window for it instead
+        val bars = WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.navigationBars()
         if (isFullscreen) {
             controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            controller.hide(WindowInsetsCompat.Type.systemBars())
+            controller.hide(bars)
         } else {
-            controller.show(WindowInsetsCompat.Type.systemBars())
+            controller.show(bars)
         }
         onDispose {
-            controller.show(WindowInsetsCompat.Type.systemBars())
+            controller.show(bars)
         }
     }
 }
@@ -322,12 +368,76 @@ internal fun Modifier.edgeGestureGuard(): Modifier {
 }
 
 /**
+ * Whether the keyboard is open in a window the system resizes for it. Windows that are not drawn edge to edge
+ * are resized instead of passing the keyboard insets on to the content, so the content never sees the keyboard.
+ */
+@Composable
+internal fun rememberIsWindowResizedForIme(): State<Boolean> {
+    val view = LocalView.current
+    val isResized = remember { mutableStateOf(false) }
+    DisposableEffect(view) {
+        val location = IntArray(2)
+        val listener =
+            ViewTreeObserver.OnGlobalLayoutListener {
+                val imeBottom = ViewCompat.getRootWindowInsets(view)?.getInsets(WindowInsetsCompat.Type.ime())?.bottom ?: 0
+                view.getLocationInWindow(location)
+                isResized.value = imeBottom > 0 && location[1] + view.height <= view.rootView.height - imeBottom
+            }
+        view.viewTreeObserver.addOnGlobalLayoutListener(listener)
+        onDispose { view.viewTreeObserver.removeOnGlobalLayoutListener(listener) }
+    }
+    return isResized
+}
+
+/**
+ * Bottom inset of the open emote menu. While a keyboard of another height opens or closes, the inset moves
+ * between the menu and keyboard heights in step with it, so the input glides instead of jumping when the two swap.
+ * Resolved in the layout phase.
+ */
+@Stable
+internal class EmoteMenuInsets(
+    private val isOpen: Boolean,
+    private val menuHeight: Dp,
+    private val imeHeight: () -> Int,
+    private val fullImeHeight: () -> Int,
+) : WindowInsets {
+    // How far the menu sits below its resting place, negative while a taller keyboard holds it up.
+    // fullImeHeight is the height the keyboard is opening to or closing from
+    fun displacement(density: Density): Int {
+        val menuHeightPx = with(density) { menuHeight.roundToPx() }
+        val fullHeight = fullImeHeight()
+        return when {
+            fullHeight <= 0 -> 0
+            else -> ((menuHeightPx - fullHeight) * (imeHeight() / fullHeight.toFloat()).coerceIn(0f, 1f)).roundToInt()
+        }
+    }
+
+    override fun getBottom(density: Density): Int = when {
+        isOpen -> with(density) { menuHeight.roundToPx() } - displacement(density)
+        else -> 0
+    }
+
+    override fun getLeft(
+        density: Density,
+        layoutDirection: LayoutDirection,
+    ): Int = 0
+
+    override fun getTop(density: Density): Int = 0
+
+    override fun getRight(
+        density: Density,
+        layoutDirection: LayoutDirection,
+    ): Int = 0
+}
+
+/**
  * Animated emote menu overlay that slides in from the bottom.
  * Supports predictive back gesture scaling.
  */
 @Composable
 internal fun EmoteMenuOverlay(
     isVisible: Boolean,
+    opensBehindKeyboard: Boolean,
     totalMenuHeight: Dp,
     backProgress: Float,
     onEmoteClick: (code: String, id: String) -> Unit,
@@ -336,7 +446,13 @@ internal fun EmoteMenuOverlay(
 ) {
     AnimatedVisibility(
         visible = isVisible,
-        enter = slideInVertically(animationSpec = tween(durationMillis = 140), initialOffsetY = { it }),
+        enter =
+            when {
+                // The closing keyboard uncovers the menu, sliding in as well would leave a gap under the input
+                opensBehindKeyboard -> EnterTransition.None
+
+                else -> slideInVertically(animationSpec = tween(durationMillis = 140), initialOffsetY = { it })
+            },
         exit = slideOutVertically(animationSpec = tween(durationMillis = 140), targetOffsetY = { it }),
         modifier = modifier,
     ) {

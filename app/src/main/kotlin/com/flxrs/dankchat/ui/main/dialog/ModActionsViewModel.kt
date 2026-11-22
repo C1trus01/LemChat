@@ -7,13 +7,18 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.auth.AuthDataStore
 import com.flxrs.dankchat.data.repo.ShieldModeRepository
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
+import com.flxrs.dankchat.data.repo.stream.StreamData
+import com.flxrs.dankchat.data.repo.stream.StreamDataRepository
 import com.flxrs.dankchat.data.twitch.message.RoomState
+import com.flxrs.dankchat.preferences.stream.StreamsSettingsDataStore
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
 
@@ -22,12 +27,15 @@ data class ModActionsUiState(
     val roomState: RoomState?,
     val shieldModeActive: Boolean?,
     val isBroadcaster: Boolean,
+    val isLive: Boolean,
 )
 
 @KoinViewModel
 class ModActionsViewModel(
     private val shieldModeRepository: ShieldModeRepository,
     private val channelRepository: ChannelRepository,
+    private val streamDataRepository: StreamDataRepository,
+    private val streamsSettingsDataStore: StreamsSettingsDataStore,
     private val authDataStore: AuthDataStore,
 ) : ViewModel() {
     private val _state = MutableStateFlow<ModActionsUiState?>(null)
@@ -39,33 +47,46 @@ class ModActionsViewModel(
     fun show(channel: UserName) {
         collectJob?.cancel()
         val initialRoomState = channelRepository.getRoomState(channel)
-        val isBroadcaster = authDataStore.userIdString == initialRoomState?.channelId
+        // The sheet opens with what is known, the shield mode is refreshed alongside
+        _state.value = createState(
+            channel = channel,
+            roomState = initialRoomState,
+            shieldModeActive = shieldModeRepository.getState(channel).value,
+            streams = streamDataRepository.streamData.value,
+            fetchStreams = streamsSettingsDataStore.currentSettings.value.fetchStreams,
+        )
 
         collectJob = viewModelScope.launch {
-            shieldModeRepository.fetch(channel)
+            launch { shieldModeRepository.fetch(channel) }
 
+            val roomStates: Flow<RoomState?> = channelRepository.getRoomStateFlow(channel)
             combine(
-                channelRepository.getRoomStateFlow(channel),
+                roomStates.onStart { emit(initialRoomState) },
                 shieldModeRepository.getState(channel),
-            ) { roomState, shieldModeActive ->
-                ModActionsUiState(
-                    roomState = roomState,
-                    shieldModeActive = shieldModeActive,
-                    isBroadcaster = isBroadcaster,
-                )
+                streamDataRepository.streamData,
+                streamsSettingsDataStore.fetchStreams,
+            ) { roomState, shieldModeActive, streams, fetchStreams ->
+                createState(channel, roomState, shieldModeActive, streams, fetchStreams)
             }.collect { _state.value = it }
         }
-
-        // Emit immediately with initial state so the sheet opens without delay
-        _state.value = ModActionsUiState(
-            roomState = initialRoomState,
-            shieldModeActive = null,
-            isBroadcaster = isBroadcaster,
-        )
     }
 
     fun dismiss() {
         collectJob?.cancel()
         _state.value = null
     }
+
+    private fun createState(
+        channel: UserName,
+        roomState: RoomState?,
+        shieldModeActive: Boolean?,
+        streams: List<StreamData>,
+        fetchStreams: Boolean,
+    ): ModActionsUiState = ModActionsUiState(
+        roomState = roomState,
+        shieldModeActive = shieldModeActive,
+        isBroadcaster = roomState != null && roomState.channelId == authDataStore.userIdString,
+        // Without stream data the live state is unknown and the stream actions stay available
+        isLive = !fetchStreams || streams.any { it.channel == channel },
+    )
 }

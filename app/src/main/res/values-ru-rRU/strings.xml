@@ -132,6 +132,7 @@
     <string name="system_message_connected">Подключено</string>
     <string name="system_message_reconnected">Переподключено</string>
     <string name="system_message_channel_non_existent">Такой канал не существует</string>
+    <string name="system_message_channel_join_failed">Не удалось подключиться к этому каналу</string>
     <string name="system_message_disconnected">Отключено</string>
     <string name="system_message_history_unavailable_detailed">Сервис истории сообщений недоступен (Ошибка %1$s)</string>
     <string name="system_message_history_unavailable">Сервис истории сообщений недоступен</string>
@@ -267,6 +268,7 @@
     </plurals>
     <string name="timed_out_message">&lt; Сообщение удалено &gt;</string>
     <string name="multi_entry_header_regex">Regex</string>
+    <string name="multi_entry_invalid_regex">Некорректный regex</string>
     <string name="multi_entry_add_entry">Добавить запись</string>
     <string name="login_expired">Сеанс входа истёк! Попробуйте войти ещё раз.</string>
     <string name="message_history_disclaimer_title">Примечание об истории сообщений</string>
@@ -311,6 +313,7 @@
     <string name="restart">Перезапустить</string>
     <string name="uploader_reset">Сбросить по умолчанию</string>
     <string name="uploader_url">Загрузить URL</string>
+    <string name="uploader_url_unresolved">Не удалось найти этот домен</string>
     <string name="uploader_field">Форма поля</string>
     <string name="uploader_headers">Заголовок</string>
     <string name="uploader_image_link">Шаблон медиа ссылки</string>
@@ -333,6 +336,8 @@
     <string name="menu_exit_fullscreen">Выйти из полноэкранного режима</string>
     <string name="menu_hide_input">Скрыть ввод</string>
     <string name="menu_show_input">Показать ввод</string>
+    <string name="menu_enable_tts">Включить синтезатор речи</string>
+    <string name="menu_disable_tts">Выключить синтезатор речи</string>
     <string name="preference_fullscreen_button_opacity_title">Прозрачность кнопок в полноэкранном режиме</string>
     <string name="preference_fullscreen_button_opacity_summary">Кнопки, отображаемые в полноэкранном режиме или при скрытом вводе: %d%%</string>
     <string name="preference_fullscreen_button_opacity_hint">Прозрачность (1–100)</string>
@@ -357,6 +362,7 @@
     <string name="input_action_mod_actions">Модерация канала</string>
     <string name="input_action_fullscreen">На весь экран</string>
     <string name="input_action_hide_input">Скрыть ввод</string>
+    <string name="input_action_tts">Синтезатор речи</string>
     <string name="input_action_debug">Отладка</string>
     <string name="input_action_configure">Настроить действия</string>
     <string name="input_action_hide_all">Скрыть все действия</string>
@@ -454,6 +460,7 @@
     <string name="tts_ignore_list_add_user">Добавить пользователя</string>
     <string name="tts_ignore_list_remove_user">Удалить пользователя</string>
     <string name="tts_ignore_list_user_hint">Пользователь</string>
+    <string name="tts_start_failed">Не удалось запустить синтезатор речи</string>
     <string name="recent_upload_deletion_link">Ссылка для удаления:\n%1$s</string>
     <string name="recent_uploads_clear">Очистить загрузки</string>
     <string name="host">Хост</string>
@@ -483,6 +490,10 @@
     <string name="preference_always_show_pinned_message_moderator_note">Twitch может показывать закреплённые сообщения только модераторам</string>
     <string name="preference_show_stream_title_in_live_message_title">Показывать название трансляции в сообщениях о выходе в эфир</string>
     <string name="preference_compact_channel_info_title">Компактная информация о канале</string>
+    <string name="preference_channel_bar_layout_title">Панель каналов</string>
+    <string name="preference_channel_bar_layout_two_rows">Две строки</string>
+    <string name="preference_channel_bar_layout_one_row">Одна строка</string>
+    <string name="channel_switcher_open">Все каналы</string>
     <string name="preference_compact_channel_info_summary">Отображать режимы чата и информацию о трансляции в одну строку</string>
     <string name="preference_streaminfo_title">Отображать информацию о трансляции</string>
     <string name="preference_streaminfo_summary">Отображать статус в сети и счётчик зрителей</string>
@@ -554,7 +565,7 @@
     <string name="preference_show_whispers_inline_title">Отображать личные сообщения в чате</string>
     <string name="preference_show_whispers_inline_summary">Отображает отправленные и полученные личные сообщения во всех открытых каналах</string>
     <string name="preference_show_twitch_gifs_title">Показывать GIF из Twitch</string>
-    <string name="preference_animate_gifs_title">Анимировать GIF</string>
+    <string name="preference_animations_title">Анимировать эмоции, значки и GIF</string>
     <string name="preference_line_separator_title">Разделять сообщения линиями</string>
     <string name="preference_keep_screen_on_title">Не затемнять экран</string>
     <string name="preference_font_size_title">Размер шрифта</string>
@@ -599,6 +610,8 @@
     <string name="preference_tts_message_ignore_emote_title">Игнорировать смайлы </string>
     <string name="preference_tts_message_ignore_command_message">Игнорировать сообщения, начинающиеся с префикса команды (!, $, %, +, -, ~)</string>
     <string name="preference_tts_message_ignore_command_title">Игнорировать команды</string>
+    <string name="preference_tts_ignore_user_name_numbers_title">Игнорировать цифры в именах пользователей</string>
+    <string name="preference_tts_ignore_user_name_numbers_summary">Читает имена пользователей без цифр, например john1990 как john</string>
     <string name="preference_tts_volume_title">Громкость</string>
     <string name="preference_tts_audio_ducking_title">Приглушение звука</string>
     <string name="preference_tts_audio_ducking_summary">Уменьшать громкость других приложений во время озвучки</string>
@@ -647,6 +660,34 @@
     <string name="preference_uploader_header">Загрузчик медиа</string>
     <string name="preference_uploader_configure_title">Настроить загрузчик</string>
     <string name="preference_uploader_recent_uploads_title">Недавние загрузки</string>
+    <string name="preference_export_header">Экспорт</string>
+    <string name="backup_channels_title">Каналы</string>
+    <string name="backup_export">Экспортировать</string>
+    <string name="backup_import">Импортировать</string>
+    <string name="backup_copy">Скопировать в буфер обмена</string>
+    <string name="backup_paste">Вставить из буфера обмена</string>
+    <string name="backup_channels_description">Экспортирует все каналы вместе с пользовательскими названиями. При импорте добавляются только отсутствующие каналы</string>
+    <string name="backup_settings_description">Экспортирует все настройки, кроме данных входа</string>
+    <string name="backup_settings_uploader_note">Включает твою пользовательскую конфигурацию загрузчика</string>
+    <string name="import_data_confirmation">Заменить твои настройки, каналы, выделения и игнорирования импортированными? После этого приложение перезапустится.</string>
+    <string name="export_data_done">Настройки экспортированы</string>
+    <string name="export_data_failed">Не удалось сохранить файл</string>
+    <string name="import_data_failed">Не удалось прочитать этот файл</string>
+    <string name="import_data_newer_version">Эта резервная копия создана в более новой версии LemChat</string>
+    <string name="clipboard_no_export">В буфере обмена нет экспорта</string>
+    <plurals name="channels_exported">
+        <item quantity="one">Экспортирован %1$d канал</item>
+        <item quantity="few">Экспортировано %1$d канала</item>
+        <item quantity="many">Экспортировано %1$d каналов</item>
+        <item quantity="other">Экспортировано %1$d канала</item>
+    </plurals>
+    <plurals name="channels_imported">
+        <item quantity="one">Добавлен %1$d канал</item>
+        <item quantity="few">Добавлено %1$d канала</item>
+        <item quantity="many">Добавлено %1$d каналов</item>
+        <item quantity="other">Добавлено %1$d канала</item>
+    </plurals>
+    <string name="channels_import_none_new">Все эти каналы уже добавлены</string>
     <string name="preference_tts_user_ignore_list_title">Список игнорируемых пользователей</string>
     <string name="preference_tts_user_ignore_list_summary">Список пользователей/аккаунтов, которые будут игнорироваться</string>
     <string name="preference_tools_header">Инструменты</string>
@@ -679,8 +720,8 @@
     <string name="preference_stream_live_messages_summary">Добавляет сообщение в чат, когда канал начинает или заканчивает эфир</string>
     <string name="preference_stream_extensions_title">Показывать расширения трансляции</string>
     <string name="preference_stream_extensions_summary">Показывает наложения расширений в проигрывателе трансляции</string>
-    <string name="preference_retain_webview_title">Предотвратить перезагрузку трансляции</string>
-    <string name="preference_retain_webview_summary">Включить экспериментальное предотвращение перезагрузки трансляции после изменения ориентации или повторного открытия LemChat.</string>
+    <string name="preference_keep_stream_while_typing_title">Оставлять трансляцию видимой при наборе</string>
+    <string name="preference_keep_stream_while_typing_summary">Показывает трансляцию в портретной ориентации, даже если клавиатура или меню смайлов оставляют мало места для чата</string>
     <string name="preference_show_changelogs">Отображать список изменений после обновления</string>
     <string name="preference_whats_new_header">Список изменений</string>
     <string name="preference_custom_login_title">Пользовательский логин</string>

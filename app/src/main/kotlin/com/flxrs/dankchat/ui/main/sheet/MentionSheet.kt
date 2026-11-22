@@ -37,6 +37,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -113,7 +114,14 @@ fun MentionSheet(
 
     val whisperMentionCount by mentionViewModel.whisperMentionCount.collectAsStateWithLifecycle()
 
+    DisposableEffect(mentionViewModel) {
+        mentionViewModel.setSheetOpen(true)
+        onDispose { mentionViewModel.setSheetOpen(false) }
+    }
+
     SideEffect(pagerState.currentPage) {
+        // The other tab was not scrolled to hide the toolbar
+        toolbarVisible = true
         onTabChange(pagerState.currentPage)
         mentionViewModel.setCurrentTab(pagerState.currentPage)
         when (pagerState.currentPage) {

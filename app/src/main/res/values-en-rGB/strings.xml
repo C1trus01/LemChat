@@ -122,6 +122,7 @@
     <string name="system_message_connected">Connected</string>
     <string name="system_message_reconnected">Reconnected</string>
     <string name="system_message_channel_non_existent">This channel does not exist</string>
+    <string name="system_message_channel_join_failed">Failed to join this channel</string>
     <string name="system_message_disconnected">Disconnected</string>
     <string name="system_message_history_unavailable_detailed">Message history service unavailable (Error %1$s)</string>
     <string name="system_message_history_unavailable">Message history service unavailable</string>
@@ -253,6 +254,7 @@
     </plurals>
     <string name="timed_out_message">&lt; Message deleted &gt;</string>
     <string name="multi_entry_header_regex">Regex</string>
+    <string name="multi_entry_invalid_regex">Invalid regex</string>
     <string name="multi_entry_add_entry">Add an entry</string>
     <string name="login_expired">Login expired! Try logging in again.</string>
     <string name="message_history_disclaimer_title">Message history disclaimer</string>
@@ -294,6 +296,7 @@ The service temporarily stores messages for channels you (and others) visit to p
     <string name="restart">Restart</string>
     <string name="uploader_reset">Reset to defaults</string>
     <string name="uploader_url">Upload url</string>
+    <string name="uploader_url_unresolved">Could not find this domain</string>
     <string name="uploader_field">Form field</string>
     <string name="uploader_headers">Headers</string>
     <string name="uploader_image_link">Media link pattern</string>
@@ -317,6 +320,8 @@ Check this guide for help: https://wiki.chatterino.com/Image%20Uploader/</string
     <string name="menu_exit_fullscreen">Exit fullscreen</string>
     <string name="menu_hide_input">Hide input</string>
     <string name="menu_show_input">Show input</string>
+    <string name="menu_enable_tts">Enable TTS</string>
+    <string name="menu_disable_tts">Disable TTS</string>
     <string name="preference_fullscreen_button_opacity_title">Fullscreen button opacity</string>
     <string name="preference_fullscreen_button_opacity_summary">Buttons shown in fullscreen or when input is hidden: %d%%</string>
     <string name="preference_fullscreen_button_opacity_hint">Opacity (1–100)</string>
@@ -338,6 +343,7 @@ Check this guide for help: https://wiki.chatterino.com/Image%20Uploader/</string
     <string name="input_action_mod_actions">Channel moderation</string>
     <string name="input_action_fullscreen">Fullscreen</string>
     <string name="input_action_hide_input">Hide input</string>
+    <string name="input_action_tts">Text to speech</string>
     <string name="input_action_debug">Debug</string>
     <string name="input_action_configure">Configure actions</string>
     <string name="room_state_emote_only">Emote only</string>
@@ -413,6 +419,7 @@ Check this guide for help: https://wiki.chatterino.com/Image%20Uploader/</string
     <string name="tts_ignore_list_add_user">Add a user</string>
     <string name="tts_ignore_list_remove_user">Remove the user</string>
     <string name="tts_ignore_list_user_hint">User</string>
+    <string name="tts_start_failed">Failed to start TTS</string>
     <string name="recent_upload_deletion_link">Deletion link:
 %1$s</string>
     <string name="recent_uploads_clear">Clear uploads</string>
@@ -503,7 +510,7 @@ Check this guide for help: https://wiki.chatterino.com/Image%20Uploader/</string
     <string name="preference_show_whispers_inline_title">Show whispers inline</string>
     <string name="preference_show_whispers_inline_summary">Display sent and received whispers in every open chat</string>
     <string name="preference_show_twitch_gifs_title">Show Twitch GIFs</string>
-    <string name="preference_animate_gifs_title">Animate gifs</string>
+    <string name="preference_animations_title">Animate emotes, badges and GIFs</string>
     <string name="preference_line_separator_title">Separate messages with lines</string>
     <string name="preference_keep_screen_on_title">Keep screen on</string>
     <string name="preference_font_size_title">Font size</string>
@@ -544,6 +551,8 @@ Check this guide for help: https://wiki.chatterino.com/Image%20Uploader/</string
     <string name="preference_tts_message_format_title">Message format mode</string>
     <string name="preference_tts_message_ignore_command_message">Ignores messages starting with a command prefix (!, $, %, +, -, ~)</string>
     <string name="preference_tts_message_ignore_command_title">Ignore commands</string>
+    <string name="preference_tts_ignore_user_name_numbers_title">Ignore numbers in usernames</string>
+    <string name="preference_tts_ignore_user_name_numbers_summary">Reads out usernames without numbers, e.g. john1990 as john</string>
     <string name="preference_tts_volume_title">Volume</string>
     <string name="preference_tts_audio_ducking_title">Audio ducking</string>
     <string name="preference_tts_audio_ducking_summary">Lower other audio volume while TTS is speaking</string>
@@ -592,6 +601,30 @@ Check this guide for help: https://wiki.chatterino.com/Image%20Uploader/</string
     <string name="preference_uploader_header">Media uploader</string>
     <string name="preference_uploader_configure_title">Configure uploader</string>
     <string name="preference_uploader_recent_uploads_title">Recent uploads</string>
+    <string name="preference_export_header">Export</string>
+    <string name="backup_channels_title">Channels</string>
+    <string name="backup_export">Export</string>
+    <string name="backup_import">Import</string>
+    <string name="backup_copy">Copy to clipboard</string>
+    <string name="backup_paste">Paste from clipboard</string>
+    <string name="backup_channels_description">Exports all channels including custom names. Importing adds missing channels only</string>
+    <string name="backup_settings_description">Exports all settings excluding your login</string>
+    <string name="backup_settings_uploader_note">Includes your custom uploader configuration</string>
+    <string name="import_data_confirmation">Replace your settings, channels, highlights and ignores with the imported ones? The app restarts afterwards.</string>
+    <string name="export_data_done">Settings exported</string>
+    <string name="export_data_failed">The file could not be saved</string>
+    <string name="import_data_failed">This file could not be read</string>
+    <string name="import_data_newer_version">This backup was created by a newer version of LemChat</string>
+    <string name="clipboard_no_export">The clipboard does not contain an export</string>
+    <plurals name="channels_exported">
+        <item quantity="one">Exported %1$d channel</item>
+        <item quantity="other">Exported %1$d channels</item>
+    </plurals>
+    <plurals name="channels_imported">
+        <item quantity="one">Added %1$d channel</item>
+        <item quantity="other">Added %1$d channels</item>
+    </plurals>
+    <string name="channels_import_none_new">All of these channels are already added</string>
     <string name="preference_tts_user_ignore_list_title">User ignore list</string>
     <string name="preference_tts_user_ignore_list_summary">List of users/accounts that will be ignored</string>
     <string name="preference_tools_header">Tools</string>
@@ -614,6 +647,8 @@ Check this guide for help: https://wiki.chatterino.com/Image%20Uploader/</string
     <string name="preference_stream_live_messages_summary">Adds a chat message when a channel goes live or offline</string>
     <string name="preference_stream_extensions_title">Show stream extensions</string>
     <string name="preference_stream_extensions_summary">Shows extension overlays on the stream player</string>
+    <string name="preference_keep_stream_while_typing_title">Keep stream visible while typing</string>
+    <string name="preference_keep_stream_while_typing_summary">Shows the stream in portrait even when the keyboard or emote menu leaves little room for chat</string>
     <string name="preference_show_changelogs">Show changelogs after update</string>
     <string name="preference_whats_new_header">What\'s new</string>
     <string name="preference_custom_login_title">Custom login</string>

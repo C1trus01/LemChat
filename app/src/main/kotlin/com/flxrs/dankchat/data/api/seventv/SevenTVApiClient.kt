@@ -9,6 +9,7 @@ import com.flxrs.dankchat.data.api.seventv.dto.SevenTVPresenceDataDto
 import com.flxrs.dankchat.data.api.seventv.dto.SevenTVPresenceRequestDto
 import com.flxrs.dankchat.data.api.seventv.dto.SevenTVUserDto
 import com.flxrs.dankchat.data.api.throwApiErrorOnFailure
+import com.flxrs.dankchat.utils.extensions.runCatchingCancellable
 import io.ktor.client.call.body
 import kotlinx.serialization.json.Json
 import org.koin.core.annotation.Single
@@ -18,28 +19,28 @@ class SevenTVApiClient(
     private val sevenTVApi: SevenTVApi,
     private val json: Json,
 ) {
-    suspend fun getSevenTVChannelEmotes(channelId: UserId): Result<SevenTVUserDto?> = runCatching {
+    suspend fun getSevenTVChannelEmotes(channelId: UserId): Result<SevenTVUserDto?> = runCatchingCancellable {
         sevenTVApi
             .getChannelEmotes(channelId)
             .throwApiErrorOnFailure(json)
             .body<SevenTVUserDto>()
     }.recoverNotFoundWith(default = null)
 
-    suspend fun getSevenTVUser(sevenTVUserId: String): Result<SevenTVFullUserDto> = runCatching {
+    suspend fun getSevenTVUser(sevenTVUserId: String): Result<SevenTVFullUserDto> = runCatchingCancellable {
         sevenTVApi
             .getUser(sevenTVUserId)
             .throwApiErrorOnFailure(json)
             .body()
     }
 
-    suspend fun getSevenTVEmoteSet(emoteSetId: String): Result<SevenTVEmoteSetDto> = runCatching {
+    suspend fun getSevenTVEmoteSet(emoteSetId: String): Result<SevenTVEmoteSetDto> = runCatchingCancellable {
         sevenTVApi
             .getEmoteSet(emoteSetId)
             .throwApiErrorOnFailure(json)
             .body()
     }
 
-    suspend fun getSevenTVGlobalEmotes(): Result<List<SevenTVEmoteDto>> = runCatching {
+    suspend fun getSevenTVGlobalEmotes(): Result<List<SevenTVEmoteDto>> = runCatchingCancellable {
         sevenTVApi
             .getGlobalEmotes()
             .throwApiErrorOnFailure(json)

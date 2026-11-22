@@ -109,6 +109,7 @@
     <string name="system_message_connected">ସଂଯୋଗ ହୋଇଛି</string>
     <string name="system_message_reconnected">ପୁନ-ସଂଯୋଗିତ</string>
     <string name="system_message_channel_non_existent">ଏହି ଚ୍ୟାନେଲ୍ ବିଦ୍ୟମାନ ନାହିଁ</string>
+    <string name="system_message_channel_join_failed">ଏହି ଚ୍ୟାନେଲରେ ଯୋଗ ଦେବାରେ ବିଫଳ</string>
     <string name="system_message_disconnected">ବିଚ୍ଛିନ୍ନ ହୋଇଛି</string>
     <string name="system_message_history_unavailable_detailed">ବାର୍ତ୍ତା ଇତିହାସ ସେବା ଉପଲବ୍ଧ ନାହିଁ (ତ୍ରୁଟି %1$s)</string>
     <string name="system_message_history_unavailable">ବାର୍ତ୍ତା ଇତିହାସ ସେବା ଉପଲବ୍ଧ ନାହିଁ</string>
@@ -223,6 +224,7 @@
         <item quantity="other">\u0020(%1$d ଥର)</item>
     </plurals>
     <string name="multi_entry_header_regex">ରେଜେକ୍ସ</string>
+    <string name="multi_entry_invalid_regex">ଅବୈଧ ରେଜେକ୍ସ</string>
     <string name="multi_entry_add_entry">ଏକ ଏଣ୍ଟ୍ରି ଯୋଡନ୍ତୁ</string>
     <string name="login_expired">ଲଗଇନ୍ ସମାପ୍ତ ହୋଇଛି! ପୁନର୍ବାର ଲଗ୍ ଇନ୍ କରିବାକୁ ଚେଷ୍ଟା କରନ୍ତୁ</string>
     <string name="more">ଅଧିକ</string>
@@ -256,6 +258,7 @@
     <string name="confirm_user_block_positive_button">ଅବରୋଧ କରନ୍ତୁ</string>
     <string name="restart">ପୁନଃପ୍ରାରମ୍ଭ</string>
     <string name="uploader_url">URL ଅପଲୋଡ୍ କରନ୍ତୁ</string>
+    <string name="uploader_url_unresolved">ଏହି ଡୋମେନ୍ ମିଳିଲା ନାହିଁ</string>
     <string name="toggle_fullscreen">ଫୁଲ୍ ସ୍କ୍ରିନ୍ ଟୋଗଲ୍ କରନ୍ତୁ</string>
     <string name="toggle_stream">ଷ୍ଟ୍ରିମ୍ ଟୋଗଲ୍ କରନ୍ତୁ</string>
     <string name="menu_show_stream">ଷ୍ଟ୍ରିମ୍ ଦେଖାନ୍ତୁ</string>
@@ -273,6 +276,8 @@
     <string name="menu_exit_fullscreen">ଫୁଲ୍ ସ୍କ୍ରିନ୍ ବାହାରନ୍ତୁ</string>
     <string name="menu_hide_input">ଇନପୁଟ୍ ଲୁଚାନ୍ତୁ</string>
     <string name="menu_show_input">ଇନପୁଟ୍ ଦେଖାନ୍ତୁ</string>
+    <string name="menu_enable_tts">TTS ସକ୍ଷମ କରନ୍ତୁ</string>
+    <string name="menu_disable_tts">TTS ଅକ୍ଷମ କରନ୍ତୁ</string>
     <string name="preference_fullscreen_button_opacity_title">ପୂର୍ଣ୍ଣ ସ୍କ୍ରିନ୍ ବଟନ୍ ଅସ୍ୱଚ୍ଛତା</string>
     <string name="preference_fullscreen_button_opacity_summary">ପୂର୍ଣ୍ଣ ସ୍କ୍ରିନ୍ ବା ଇନପୁଟ୍ ଲୁକ୍କାୟିତ ଥିବାବେଳେ ଦେଖାଯାଉଥିବା ବଟନ୍: %d%%</string>
     <string name="preference_fullscreen_button_opacity_hint">ଅସ୍ୱଚ୍ଛତା (1–100)</string>
@@ -295,6 +300,7 @@
     <string name="input_action_mod_actions">ଚ୍ୟାନେଲ ମଡରେସନ</string>
     <string name="input_action_fullscreen">ଫୁଲ୍ ସ୍କ୍ରିନ୍</string>
     <string name="input_action_hide_input">ଇନପୁଟ୍ ଲୁଚାନ୍ତୁ</string>
+    <string name="input_action_tts">TTS</string>
     <string name="input_action_debug">ଡିବଗ୍</string>
     <string name="input_action_configure">କ୍ରିୟାଗୁଡିକ ବିନ୍ୟାସ କରନ୍ତୁ</string>
     <string name="input_action_hide_all">ସମସ୍ତ କାର୍ଯ୍ୟ ଲୁଚାନ୍ତୁ</string>
@@ -369,6 +375,7 @@
     <string name="tts_ignore_list_add_user">ଜଣେ ଉପଭୋକ୍ତା ଯୋଡନ୍ତୁ</string>
     <string name="tts_ignore_list_remove_user">ଉପଭୋକ୍ତାଙ୍କୁ ଅପସାରଣ କରନ୍ତୁ</string>
     <string name="tts_ignore_list_user_hint">ଉପଭୋକ୍ତା</string>
+    <string name="tts_start_failed">TTS ଆରମ୍ଭ କରିବାରେ ବିଫଳ</string>
     <string name="recent_upload_deletion_link">ବିଲୋପ ଲିଙ୍କ୍:\n%1$s</string>
     <string name="recent_uploads_clear">ଅପଲୋଡ୍ ସଫା କରନ୍ତୁ</string>
     <string name="host">ହୋଷ୍ଟ</string>
@@ -454,7 +461,7 @@
     <string name="preference_show_whispers_inline_title">ଚାଟରେ ଫୁସ୍ଫୁସ୍ ଦେଖାନ୍ତୁ</string>
     <string name="preference_show_whispers_inline_summary">ସମସ୍ତ ଖୋଲା ଚ୍ୟାନେଲରେ ପଠାଯାଇଥିବା ଏବଂ ପ୍ରାପ୍ତ ଫୁସ୍ଫୁସ୍ ଦେଖାଏ</string>
     <string name="preference_show_twitch_gifs_title">Twitch GIF ଦେଖାନ୍ତୁ</string>
-    <string name="preference_animate_gifs_title">ଆନିମେଟ ଗିଫ୍</string>
+    <string name="preference_animations_title">ଇମୋଟ, ବ୍ୟାଜ୍ ଏବଂ GIF ଆନିମେଟ କରନ୍ତୁ</string>
     <string name="preference_line_separator_title">ରେଖା ସହିତ ବାର୍ତ୍ତା ପୃଥକ କରନ୍ତୁ</string>
     <string name="preference_keep_screen_on_title">ସ୍କ୍ରୀନ୍ ସଚଳ ରଖିବା</string>
     <string name="preference_font_size_title">ଅକ୍ଷର ଆକାର</string>
@@ -493,6 +500,8 @@
     <string name="preference_tts_message_ignore_emote_title">ଇମୋଟ୍କୁ ଉପେକ୍ଷା କରନ୍ତୁ</string>
     <string name="preference_tts_message_ignore_command_message">କମାଣ୍ଡ ଉପସର୍ଗ (!, $, %, +, -, ~) ସହିତ ଆରମ୍ଭ ହେଉଥିବା ବାର୍ତ୍ତାଗୁଡ଼ିକୁ ଉପେକ୍ଷା କରେ</string>
     <string name="preference_tts_message_ignore_command_title">କମାଣ୍ଡଗୁଡ଼ିକୁ ଉପେକ୍ଷା କରନ୍ତୁ</string>
+    <string name="preference_tts_ignore_user_name_numbers_title">ଉପଯୋଗକର୍ତ୍ତା ନାମରେ ଥିବା ସଂଖ୍ୟାଗୁଡ଼ିକୁ ଉପେକ୍ଷା କରନ୍ତୁ</string>
+    <string name="preference_tts_ignore_user_name_numbers_summary">ସଂଖ୍ୟା ବିନା ଉପଯୋଗକର୍ତ୍ତା ନାମ ପଢ଼େ, ଯେପରିକି john1990 କୁ john ଭାବେ</string>
     <string name="preference_tts_volume_title">ଧ୍ୱନି</string>
     <string name="preference_tts_audio_ducking_title">ଅଡିଓ ଡକିଂ</string>
     <string name="preference_tts_audio_ducking_summary">TTS ବୋଲୁଥିବା ସମୟରେ ଅନ୍ୟ ଅଡିଓ ଧ୍ୱନି କମ୍ କରନ୍ତୁ</string>
@@ -541,6 +550,30 @@
     <string name="preference_uploader_header">ମିଡିଆ ଅପଲୋଡର୍</string>
     <string name="preference_uploader_configure_title">ଅପଲୋଡର୍ କୁ ବିନ୍ୟାସ କରନ୍ତୁ</string>
     <string name="preference_uploader_recent_uploads_title">ସମ୍ପ୍ରତି ଅପଲୋଡ୍</string>
+    <string name="preference_export_header">ରପ୍ତାନି</string>
+    <string name="backup_channels_title">ଚ୍ୟାନେଲଗୁଡ଼ିକ</string>
+    <string name="backup_export">ରପ୍ତାନି କରନ୍ତୁ</string>
+    <string name="backup_import">ଆମଦାନି କରନ୍ତୁ</string>
+    <string name="backup_copy">କ୍ଲିପବୋର୍ଡକୁ କପି କରନ୍ତୁ</string>
+    <string name="backup_paste">କ୍ଲିପବୋର୍ଡରୁ ପେଷ୍ଟ କରନ୍ତୁ</string>
+    <string name="backup_channels_description">କଷ୍ଟମ୍ ନାମ ସହିତ ସମସ୍ତ ଚ୍ୟାନେଲ ରପ୍ତାନି କରେ। ଆମଦାନି କଲେ କେବଳ ନଥିବା ଚ୍ୟାନେଲଗୁଡ଼ିକ ଯୋଗ ହୁଏ</string>
+    <string name="backup_settings_description">ଆପଣଙ୍କ ଲଗଇନ୍ ବ୍ୟତୀତ ସମସ୍ତ ସେଟିଂସମୂହ ରପ୍ତାନି କରେ</string>
+    <string name="backup_settings_uploader_note">ଆପଣଙ୍କ କଷ୍ଟମ୍ ଅପଲୋଡର୍ ବିନ୍ୟାସ ଅନ୍ତର୍ଭୁକ୍ତ କରେ</string>
+    <string name="import_data_confirmation">ଆପଣଙ୍କ ସେଟିଂସମୂହ, ଚ୍ୟାନେଲ, ହାଇଲାଇଟ୍ସ ଏବଂ ଅବହେଳାଗୁଡ଼ିକୁ ଆମଦାନି ହୋଇଥିବା ବିଷୟବସ୍ତୁ ସହିତ ବଦଳାଇବେ କି? ଏହା ପରେ ଆପ୍ ପୁନଃଆରମ୍ଭ ହେବ।</string>
+    <string name="export_data_done">ସେଟିଂସମୂହ ରପ୍ତାନି ହୋଇଛି</string>
+    <string name="export_data_failed">ଫାଇଲ ସେଭ୍ କରାଯାଇପାରିଲା ନାହିଁ</string>
+    <string name="import_data_failed">ଏହି ଫାଇଲ ପଢ଼ାଯାଇପାରିଲା ନାହିଁ</string>
+    <string name="import_data_newer_version">ଏହି ବ୍ୟାକଅପ୍ LemChat ର ନୂତନ ସଂସ୍କରଣରେ ତିଆରି ହୋଇଛି</string>
+    <string name="clipboard_no_export">କ୍ଲିପବୋର୍ଡରେ କୌଣସି ରପ୍ତାନି ନାହିଁ</string>
+    <plurals name="channels_exported">
+        <item quantity="one">%1$d ଟି ଚ୍ୟାନେଲ ରପ୍ତାନି ହୋଇଛି</item>
+        <item quantity="other">%1$d ଟି ଚ୍ୟାନେଲ ରପ୍ତାନି ହୋଇଛି</item>
+    </plurals>
+    <plurals name="channels_imported">
+        <item quantity="one">%1$d ଟି ଚ୍ୟାନେଲ ଯୋଗ ହୋଇଛି</item>
+        <item quantity="other">%1$d ଟି ଚ୍ୟାନେଲ ଯୋଗ ହୋଇଛି</item>
+    </plurals>
+    <string name="channels_import_none_new">ଏହି ସମସ୍ତ ଚ୍ୟାନେଲ ପୂର୍ବରୁ ଯୋଗ ହୋଇସାରିଛି</string>
     <string name="preference_tts_user_ignore_list_title">ଉପଯୋଗକର୍ତ୍ତା ତାଲିକାକୁ ଅଣଦେଖା କରନ୍ତୁ</string>
     <string name="preference_tts_user_ignore_list_summary">ଉପଯୋଗକର୍ତ୍ତା / ଖାତାଗୁଡ଼ିକର ତାଲିକା ଯାହାକୁ ଅଣଦେଖା କରାଯିବ</string>
     <string name="preference_tools_header">ସାଧନଗୁଡ଼ିକ</string>
@@ -573,6 +606,8 @@
     <string name="preference_stream_live_messages_summary">ଏକ ଚ୍ୟାନେଲ ଲାଇଭ କିମ୍ବା ଅଫଲାଇନ ହେଲେ ଚାଟରେ ଏକ ବାର୍ତ୍ତା ଯୋଡ଼େ</string>
     <string name="preference_stream_extensions_title">ଷ୍ଟ୍ରିମ୍ ଏକ୍ସଟେନସନ୍ ଦେଖାନ୍ତୁ</string>
     <string name="preference_stream_extensions_summary">ଷ୍ଟ୍ରିମ୍ ପ୍ଲେୟାରରେ ଏକ୍ସଟେନସନ୍ ଓଭରଲେ ଦେଖାଏ</string>
+    <string name="preference_keep_stream_while_typing_title">ଟାଇପ୍ କରିବା ସମୟରେ ଷ୍ଟ୍ରିମ୍ ଦୃଶ୍ୟମାନ ରଖନ୍ତୁ</string>
+    <string name="preference_keep_stream_while_typing_summary">କିବୋର୍ଡ କିମ୍ବା ଇମୋଟ୍ ମେନୁ ଚାଟ୍ ପାଇଁ କମ୍ ସ୍ଥାନ ଛାଡିଲେ ମଧ୍ୟ ପୋର୍ଟ୍ରେଟରେ ଷ୍ଟ୍ରିମ୍ ଦେଖାଏ</string>
     <string name="preference_show_changelogs">ଅପଡେଟ୍ ପରେ ପରିଵର୍ତ୍ତନ ଲଗ୍ ଦେଖାଇବା</string>
     <string name="preference_whats_new_header">କଣ ସବୁ ନୁଆଁ?</string>
     <string name="preference_custom_login_title">କଷ୍ଟମ୍ ଲଗଇନ୍</string>

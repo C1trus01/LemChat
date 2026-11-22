@@ -10,12 +10,13 @@ import com.flxrs.dankchat.data.twitch.message.Message
 import com.flxrs.dankchat.data.twitch.message.MessageThread
 import com.flxrs.dankchat.data.twitch.message.MessageThreadHeader
 import com.flxrs.dankchat.data.twitch.message.PrivMessage
-import com.flxrs.dankchat.utils.extensions.replaceIf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.updateAndGet
 import org.koin.core.annotation.Single
 import java.util.concurrent.ConcurrentHashMap
 
@@ -26,14 +27,21 @@ class RepliesRepository(
 ) {
     private val threads = ConcurrentHashMap<String, MutableStateFlow<MessageThread>>()
 
-    fun getThreadItemsFlow(rootMessageId: String): Flow<List<ChatItem>> = threads[rootMessageId]?.map { thread ->
-        val replies = thread.replies.map { ChatItem(it, isInReplies = true) }
-        if (thread.rootMessage.message.isEmpty()) {
-            replies
-        } else {
-            listOf(ChatItem(thread.rootMessage, isInReplies = true)) + replies
-        }
-    } ?: flowOf(emptyList())
+    // Ids of messages that left the buffer while their thread was open in a replies sheet, by thread root id
+    private val removedWhileObserved = ConcurrentHashMap<String, Set<String>>()
+
+    fun getThreadItemsFlow(rootMessageId: String): Flow<List<ChatItem>> {
+        val threadFlow = threads[rootMessageId] ?: return flowOf(emptyList())
+        return threadFlow
+            .map { thread ->
+                val replies = thread.replies.map { thread.toChatItem(it) }
+                if (thread.rootMessage.message.isEmpty()) {
+                    replies
+                } else {
+                    listOf(thread.toChatItem(thread.rootMessage)) + replies
+                }
+            }.onCompletion { cleanupClosedThread(rootMessageId) }
+    }
 
     fun hasMessageThread(rootMessageId: String) = threads.containsKey(rootMessageId)
 
@@ -42,17 +50,33 @@ class RepliesRepository(
             return
         }
 
-        // An open replies sheet holds on to its thread flow, so keep observed threads to let it receive new replies
-        threads.computeIfPresent(message.id) { _, thread -> thread.takeIf { it.subscriptionCount.value > 0 } }
+        val rootId = message.tags[THREAD_ROOT_MESSAGE_ID_TAG] ?: message.id
+        threads.computeIfPresent(rootId) { _, thread ->
+            when {
+                // An open replies sheet keeps its content and still receives new replies, its cleanup runs once it closes
+                thread.subscriptionCount.value > 0 -> {
+                    removedWhileObserved.merge(rootId, setOf(message.id)) { ids, added -> ids + added }
+                    thread
+                }
+
+                else -> {
+                    thread.withoutRemovedMessages(setOf(message.id))
+                }
+            }
+        }
     }
 
     fun cleanupMessageThreadsInChannel(channel: UserName) {
         threads.values
             .map { it.value }
             .filter { it.rootMessage.channel == channel }
-            .forEach { threads.remove(it.rootMessageId) }
+            .forEach {
+                threads.remove(it.rootMessageId)
+                removedWhileObserved.remove(it.rootMessageId)
+            }
     }
 
+    // Computes the thread header, the reply is added to its thread by addMessageToThread once it is fully processed
     fun calculateMessageThread(
         message: Message,
         findMessageById: (channel: UserName, id: String) -> Message?,
@@ -67,42 +91,15 @@ class RepliesRepository(
 
         val strippedMessage = message.stripLeadingReplyMention()
         val rootId = message.tags.getValue(THREAD_ROOT_MESSAGE_ID_TAG)
-        val thread =
-            when (val existing = threads[rootId]?.value) {
-                null -> {
-                    val rootMessage =
-                        findMessageById(strippedMessage.channel, rootId) as? PrivMessage
-                            ?: createPlaceholderRootMessage(strippedMessage, rootId)
-                            ?: return message
-                    MessageThread(
-                        rootMessageId = rootId,
-                        rootMessage = rootMessage,
-                        replies = listOf(strippedMessage),
-                        participated = strippedMessage.isParticipating(),
-                    )
-                }
-
-                else -> {
-                    // Message already exists in thread
-                    if (existing.replies.any { it.id == strippedMessage.id }) {
-                        val parentName = message.tags[PARENT_MESSAGE_LOGIN_TAG]?.toUserName() ?: existing.rootMessage.name
-                        val parentBody = message.tags[PARENT_MESSAGE_BODY_TAG] ?: existing.rootMessage.originalMessage
-                        return strippedMessage.copy(thread = MessageThreadHeader(rootId, parentName, parentBody, existing.participated))
-                    }
-
-                    existing.copy(replies = existing.replies + strippedMessage, participated = existing.updateParticipated(strippedMessage))
-                }
-            }
-        val existing = threads.putIfAbsent(rootId, MutableStateFlow(thread))
-        existing?.update { thread }
+        val thread = threads[rootId]?.value
+        val rootMessage = thread?.rootMessage ?: resolveRootMessage(strippedMessage, rootId, findMessageById) ?: return message
 
         val parentMessageId = message.tags[PARENT_MESSAGE_ID_TAG]
         val parentInThread =
             parentMessageId?.let { id ->
-                if (id == thread.rootMessageId) {
-                    thread.rootMessage
-                } else {
-                    thread.replies.find { it.id == id }
+                when (id) {
+                    rootId -> rootMessage
+                    else -> thread?.replies?.find { it.id == id }
                 }
             }
 
@@ -112,12 +109,34 @@ class RepliesRepository(
             parentName = parentInThread.name
             parentBody = parentInThread.originalMessage
         } else {
-            parentName = message.tags[PARENT_MESSAGE_LOGIN_TAG]?.toUserName() ?: thread.rootMessage.name
-            parentBody = message.tags[PARENT_MESSAGE_BODY_TAG] ?: thread.rootMessage.originalMessage
+            parentName = message.tags[PARENT_MESSAGE_LOGIN_TAG]?.toUserName() ?: rootMessage.name
+            parentBody = message.tags[PARENT_MESSAGE_BODY_TAG] ?: rootMessage.originalMessage
         }
 
-        return strippedMessage
-            .copy(thread = MessageThreadHeader(thread.rootMessageId, parentName, parentBody, thread.participated))
+        val participated = thread?.participated == true || strippedMessage.isParticipating()
+        return strippedMessage.copy(thread = MessageThreadHeader(rootId, parentName, parentBody, participated))
+    }
+
+    // History loads and live messages write to the same thread concurrently, so every write builds on the current value
+    fun addMessageToThread(
+        message: Message,
+        findMessageById: (channel: UserName, id: String) -> Message?,
+    ): Message {
+        val rootId = (message as? PrivMessage)?.thread?.rootId ?: return updateMessageInThread(message)
+        val flow =
+            threads[rootId] ?: run {
+                val rootMessage = resolveRootMessage(message, rootId, findMessageById) ?: return message
+                val created =
+                    MessageThread(
+                        rootMessageId = rootId,
+                        rootMessage = rootMessage,
+                        replies = listOf(message),
+                        participated = message.isParticipating(),
+                    )
+                threads.putIfAbsent(rootId, MutableStateFlow(created)) ?: return message
+            }
+        flow.update { it.withReply(message) }
+        return message
     }
 
     fun updateMessageInThread(message: Message): Message {
@@ -128,20 +147,64 @@ class RepliesRepository(
         when (THREAD_ROOT_MESSAGE_ID_TAG) {
             in message.tags -> {
                 val rootId = message.tags.getValue(THREAD_ROOT_MESSAGE_ID_TAG)
-                val flow = threads[rootId] ?: return message
-                flow.update { thread ->
-                    thread.copy(replies = thread.replies.replaceIf(message) { it.id == message.id })
-                }
+                threads[rootId]?.update { it.withReplacedReply(message) }
             }
 
             else -> {
-                val flow = threads[message.id] ?: return message
-                flow.update { thread -> thread.copy(rootMessage = message) }
+                threads[message.id]?.update { thread ->
+                    when (thread.rootMessage) {
+                        message -> thread
+                        else -> thread.copy(rootMessage = message, itemTags = thread.itemTags.withNextTag(message.id))
+                    }
+                }
             }
         }
 
         return message
     }
+
+    private fun cleanupClosedThread(rootId: String) {
+        threads.computeIfPresent(rootId) { _, thread ->
+            when {
+                thread.subscriptionCount.value > 0 -> {
+                    thread
+                }
+
+                else -> {
+                    when (val removedIds = removedWhileObserved.remove(rootId)) {
+                        null -> thread
+                        else -> thread.withoutRemovedMessages(removedIds)
+                    }
+                }
+            }
+        }
+    }
+
+    // A thread is dropped once its root or its last reply left the buffer
+    private fun MutableStateFlow<MessageThread>.withoutRemovedMessages(removedIds: Set<String>): MutableStateFlow<MessageThread>? {
+        if (value.rootMessageId in removedIds) {
+            return null
+        }
+
+        val remaining = updateAndGet { thread -> thread.copy(replies = thread.replies.filterNot { it.id in removedIds }, itemTags = thread.itemTags - removedIds) }
+        return takeIf { remaining.replies.isNotEmpty() }
+    }
+
+    private fun MessageThread.withReply(reply: PrivMessage): MessageThread = when {
+        replies.none { it.id == reply.id } -> copy(replies = replies + reply, participated = updateParticipated(reply))
+        else -> withReplacedReply(reply)
+    }
+
+    // Changed messages get a new item tag so mapping caches of open replies sheets pick up the change
+    private fun MessageThread.withReplacedReply(reply: PrivMessage): MessageThread {
+        val index = replies.indexOfFirst { it.id == reply.id }
+        return when {
+            index == -1 || replies[index] == reply -> this
+            else -> copy(replies = replies.toMutableList().apply { set(index, reply) }, itemTags = itemTags.withNextTag(reply.id))
+        }
+    }
+
+    private fun Map<String, Int>.withNextTag(id: String): Map<String, Int> = this + (id to (this[id] ?: 0) + 1)
 
     private fun MessageThread.updateParticipated(message: PrivMessage): Boolean {
         if (participated) {
@@ -169,6 +232,14 @@ class RepliesRepository(
         return this
     }
 
+    private fun MessageThread.toChatItem(message: PrivMessage) = ChatItem(message, tag = itemTags[message.id] ?: 0, isInReplies = true)
+
+    private fun resolveRootMessage(
+        reply: PrivMessage,
+        rootId: String,
+        findMessageById: (channel: UserName, id: String) -> Message?,
+    ): PrivMessage? = findMessageById(reply.channel, rootId) as? PrivMessage ?: createPlaceholderRootMessage(reply, rootId)
+
     private fun createPlaceholderRootMessage(
         reply: PrivMessage,
         rootId: String,
@@ -185,6 +256,7 @@ class RepliesRepository(
             channel = reply.channel,
             sourceChannel = null,
             name = name,
+            userId = usersRepository.getCachedUserId(name),
             displayName = displayName,
             color = usersRepository.getCachedUserColor(name),
             message = body,

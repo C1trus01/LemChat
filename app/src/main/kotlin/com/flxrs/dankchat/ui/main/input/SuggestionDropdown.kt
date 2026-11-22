@@ -41,7 +41,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil3.compose.AsyncImage
+import com.flxrs.dankchat.ui.chat.emote.EmoteImage
 import com.flxrs.dankchat.ui.chat.suggestion.Suggestion
 import kotlinx.collections.immutable.ImmutableList
 
@@ -50,6 +50,7 @@ private val SUGGESTION_DROPDOWN_MAX_HEIGHT = 250.dp
 @Composable
 fun SuggestionDropdown(
     suggestions: ImmutableList<Suggestion>,
+    animateEmotes: Boolean,
     onSuggestionClick: (Suggestion) -> Unit,
     modifier: Modifier = Modifier,
     availableMaxHeightDp: Dp = SUGGESTION_DROPDOWN_MAX_HEIGHT,
@@ -118,6 +119,7 @@ fun SuggestionDropdown(
                 ) { _, suggestion ->
                     SuggestionItem(
                         suggestion = suggestion,
+                        animateEmotes = animateEmotes,
                         onClick = { onSuggestionClick(suggestion) },
                     )
                 }
@@ -129,6 +131,7 @@ fun SuggestionDropdown(
 @Composable
 private fun SuggestionItem(
     suggestion: Suggestion,
+    animateEmotes: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -143,9 +146,9 @@ private fun SuggestionItem(
     ) {
         when (suggestion) {
             is Suggestion.EmoteSuggestion -> {
-                AsyncImage(
-                    model = suggestion.emote.url,
-                    contentDescription = suggestion.emote.code,
+                EmoteImage(
+                    emote = suggestion.emote,
+                    animate = animateEmotes,
                     modifier = Modifier.size(iconSize),
                 )
             }

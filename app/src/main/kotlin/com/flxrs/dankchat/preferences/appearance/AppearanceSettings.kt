@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import com.flxrs.dankchat.R
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -15,6 +16,7 @@ enum class InputAction {
     Fullscreen,
     Theater,
     HideInput,
+    TTS,
     Debug,
 }
 
@@ -36,8 +38,30 @@ enum class HubAction {
     Debug,
 }
 
+/** How the channel bar is laid out in portrait, landscape always uses one row. */
 @Serializable
-enum class FabAnchor { BottomEnd, TopEnd, Free }
+enum class ChannelBarLayout { TwoRows, OneRow }
+
+@Serializable
+enum class FabAnchor {
+    BottomEnd,
+    TopEnd,
+
+    @SerialName("FreeEdge")
+    Free,
+
+    /** Positioned within the space the cluster leaves free, converted to [Free] once the cluster is laid out. */
+    @SerialName("Free")
+    LegacyFree,
+}
+
+/** The settings that decide the colors of the app theme. */
+data class ThemeSettings(
+    val theme: ThemePreference = ThemePreference.System,
+    val trueDarkTheme: Boolean = false,
+    val accentColor: AccentColor? = AccentColor.Citrus,
+    val paletteStyle: PaletteStylePreference = PaletteStylePreference.SystemDefault,
+)
 
 @Serializable
 data class AppearanceSettings(
@@ -55,18 +79,22 @@ data class AppearanceSettings(
     val showChangelogs: Boolean = true,
     val showCharacterCounter: Boolean = false,
     val showSendWaitTimer: Boolean = false,
-    val showClearInputButton: Boolean = true,
+    val showClearInputButton: Boolean = false,
     val showSendButton: Boolean = true,
     val swipeNavigation: Boolean = true,
     val compactChannelInfo: Boolean = false,
     val fullscreenButtonOpacity: Float = 0.75f,
     val requireFullscreenExitConfirmation: Boolean = false,
-    val fabAnchor: FabAnchor = FabAnchor.BottomEnd,
+    val fabAnchor: FabAnchor = FabAnchor.TopEnd,
     val fabOffsetXFraction: Float = 0f,
     val fabOffsetYFraction: Float = 0f,
     val inputActions: List<InputAction> = emptyList(),
     val pinnedHubAction: HubAction = HubAction.Stream,
-)
+    val channelBarLayout: ChannelBarLayout = ChannelBarLayout.TwoRows,
+) {
+    val themeSettings: ThemeSettings
+        get() = ThemeSettings(theme = theme, trueDarkTheme = trueDarkTheme, accentColor = accentColor, paletteStyle = paletteStyle)
+}
 
 enum class ThemePreference { System, Dark, Light }
 

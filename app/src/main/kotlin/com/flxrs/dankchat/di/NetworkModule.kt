@@ -1,6 +1,7 @@
 package com.flxrs.dankchat.di
 
 import com.flxrs.dankchat.BuildConfig
+import com.flxrs.dankchat.data.api.SKIP_HTTP_LOGGING
 import com.flxrs.dankchat.data.api.auth.AuthApi
 import com.flxrs.dankchat.data.api.badges.BadgesApi
 import com.flxrs.dankchat.data.api.bttv.BTTVApi
@@ -20,7 +21,6 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.UserAgent
-import io.ktor.client.plugins.cache.HttpCache
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
@@ -43,6 +43,9 @@ import kotlin.time.toJavaDuration
 
 const val UPLOAD_OKHTTP_CLIENT = "UploadOkHttpClient"
 const val UPDATE_OKHTTP_CLIENT = "UpdateOkHttpClient"
+
+// Channel loads send several requests per channel to the same host at once
+private const val API_MAX_REQUESTS_PER_HOST = 16
 
 private val okhttpLogger = KotlinLogging.logger("OkHttp")
 
@@ -106,8 +109,8 @@ class NetworkModule {
                             httpLogger.trace { message }
                         }
                     }
+                filter { request -> !request.attributes.contains(SKIP_HTTP_LOGGING) }
             }
-            install(HttpCache)
             install(UserAgent) {
                 agent = "lemchat/${BuildConfig.VERSION_NAME}"
             }
@@ -255,5 +258,5 @@ private fun createSafeOkHttpDispatcher(): Dispatcher {
             }
         }
     }
-    return Dispatcher(executor)
+    return Dispatcher(executor).apply { maxRequestsPerHost = API_MAX_REQUESTS_PER_HOST }
 }

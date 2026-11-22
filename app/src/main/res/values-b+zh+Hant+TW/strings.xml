@@ -117,6 +117,7 @@
     <string name="system_message_connected">已連線</string>
     <string name="system_message_reconnected">已重新連接</string>
     <string name="system_message_channel_non_existent">此頻道不存在</string>
+    <string name="system_message_channel_join_failed">無法加入此頻道</string>
     <string name="system_message_disconnected">已斷線</string>
     <string name="system_message_history_unavailable_detailed">聊天紀錄無法存取(Error:  %1$s)</string>
     <string name="system_message_history_unavailable">聊天紀錄無法存取</string>
@@ -246,6 +247,7 @@
     </plurals>
     <string name="timed_out_message">&lt; 訊息已被刪除 &gt;</string>
     <string name="multi_entry_header_regex">Regex 正規表達式</string>
+    <string name="multi_entry_invalid_regex">無效的正規表達式</string>
     <string name="multi_entry_add_entry">新增項目</string>
     <string name="login_expired">登入已過期！請重新登入。</string>
     <string name="message_history_disclaimer_title">聊天歷史紀錄聲明</string>
@@ -290,6 +292,7 @@
     <string name="restart">重新啟動</string>
     <string name="uploader_reset">重置為預設值</string>
     <string name="uploader_url">上傳連結</string>
+    <string name="uploader_url_unresolved">找不到此網域</string>
     <string name="uploader_field">表單字段</string>
     <string name="uploader_headers">標頭</string>
     <string name="uploader_image_link">媒體連結格式</string>
@@ -312,6 +315,8 @@
     <string name="menu_exit_fullscreen">退出全螢幕</string>
     <string name="menu_hide_input">隱藏輸入框</string>
     <string name="menu_show_input">顯示輸入框</string>
+    <string name="menu_enable_tts">啟用文字朗讀</string>
+    <string name="menu_disable_tts">停用文字朗讀</string>
     <string name="preference_fullscreen_button_opacity_title">全螢幕按鈕透明度</string>
     <string name="preference_fullscreen_button_opacity_summary">在全螢幕或隱藏輸入時顯示的按鈕：%d%%</string>
     <string name="preference_fullscreen_button_opacity_hint">透明度 (1–100)</string>
@@ -333,6 +338,7 @@
     <string name="input_action_mod_actions">頻道管理</string>
     <string name="input_action_fullscreen">全螢幕</string>
     <string name="input_action_hide_input">隱藏輸入框</string>
+    <string name="input_action_tts">文字朗讀</string>
     <string name="input_action_debug">偵錯</string>
     <string name="input_action_configure">設定動作</string>
     <string name="input_action_hide_all">隱藏所有操作</string>
@@ -409,6 +415,7 @@
     <string name="tts_ignore_list_add_user">新增使用者</string>
     <string name="tts_ignore_list_remove_user">移除使用者</string>
     <string name="tts_ignore_list_user_hint">使用者</string>
+    <string name="tts_start_failed">無法啟動文字朗讀</string>
     <string name="recent_upload_deletion_link">刪除連結: \n%1$s</string>
     <string name="recent_uploads_clear">清除上傳</string>
     <string name="host">主機</string>
@@ -507,7 +514,7 @@
     <string name="preference_show_whispers_inline_title">在聊天室中顯示悄悄話</string>
     <string name="preference_show_whispers_inline_summary">在所有開啟的頻道中顯示傳送和接收的悄悄話</string>
     <string name="preference_show_twitch_gifs_title">顯示 Twitch 動圖 (GIF)</string>
-    <string name="preference_animate_gifs_title">顯示動圖 (GIF)</string>
+    <string name="preference_animations_title">播放表情、徽章與 GIF 動畫</string>
     <string name="preference_line_separator_title">透過格線分隔訊息</string>
     <string name="preference_keep_screen_on_title">保持螢幕恆開</string>
     <string name="preference_font_size_title">字型大小</string>
@@ -552,6 +559,8 @@
     <string name="preference_tts_message_ignore_emote_title">忽略表情符號</string>
     <string name="preference_tts_message_ignore_command_message">在文字朗讀時忽略以指令前綴（!、$、%、+、-、~）開頭的訊息</string>
     <string name="preference_tts_message_ignore_command_title">忽略指令</string>
+    <string name="preference_tts_ignore_user_name_numbers_title">忽略使用者名中的數字</string>
+    <string name="preference_tts_ignore_user_name_numbers_summary">朗讀使用者名時略過數字，例如將 john1990 讀作 john</string>
     <string name="preference_tts_volume_title">音量</string>
     <string name="preference_tts_audio_ducking_title">音訊閃避</string>
     <string name="preference_tts_audio_ducking_summary">TTS朗讀時降低其他應用程式的音量</string>
@@ -600,6 +609,28 @@
     <string name="preference_uploader_header">媒體上傳者</string>
     <string name="preference_uploader_configure_title">設定上傳者</string>
     <string name="preference_uploader_recent_uploads_title">近期上傳</string>
+    <string name="preference_export_header">匯出</string>
+    <string name="backup_channels_title">頻道</string>
+    <string name="backup_export">匯出</string>
+    <string name="backup_import">匯入</string>
+    <string name="backup_copy">複製到剪貼簿</string>
+    <string name="backup_paste">從剪貼簿貼上</string>
+    <string name="backup_channels_description">匯出所有頻道及自訂名稱。匯入時只會新增缺少的頻道</string>
+    <string name="backup_settings_description">匯出所有設定，不包含你的登入資訊</string>
+    <string name="backup_settings_uploader_note">包含你的自訂上傳者設定</string>
+    <string name="import_data_confirmation">要以匯入的內容取代你的設定、頻道、標示和忽略嗎？之後應用程式將會重新啟動。</string>
+    <string name="export_data_done">設定已匯出</string>
+    <string name="export_data_failed">無法儲存檔案</string>
+    <string name="import_data_failed">無法讀取此檔案</string>
+    <string name="import_data_newer_version">此備份是由較新版本的 LemChat 建立的</string>
+    <string name="clipboard_no_export">剪貼簿中沒有匯出的資料</string>
+    <plurals name="channels_exported">
+        <item quantity="other">已匯出 %1$d 個頻道</item>
+    </plurals>
+    <plurals name="channels_imported">
+        <item quantity="other">已新增 %1$d 個頻道</item>
+    </plurals>
+    <string name="channels_import_none_new">這些頻道都已新增</string>
     <string name="preference_tts_user_ignore_list_title">使用者忽略清單</string>
     <string name="preference_tts_user_ignore_list_summary">清單內的使用者或帳戶會被忽略</string>
     <string name="preference_tools_header">工具箱</string>
@@ -633,8 +664,8 @@
     <string name="preference_stream_live_messages_summary">當頻道開始或結束直播時，在聊天室新增一則訊息</string>
     <string name="preference_stream_extensions_title">顯示實況擴充功能</string>
     <string name="preference_stream_extensions_summary">在實況播放器上顯示擴充功能覆蓋層</string>
-    <string name="preference_retain_webview_title">防止實況重新載入</string>
-    <string name="preference_retain_webview_summary">使用實驗性的機制防止在旋轉或重新開啟LemChat時實況重新載入</string>
+    <string name="preference_keep_stream_while_typing_title">輸入時保持顯示實況</string>
+    <string name="preference_keep_stream_while_typing_summary">即使鍵盤或表情符號選單只留下很少的聊天室空間，仍在直向模式下顯示實況</string>
     <string name="preference_show_changelogs">更新後顯示變更紀錄</string>
     <string name="preference_whats_new_header">新功能</string>
     <string name="preference_custom_login_title">自訂登入</string>

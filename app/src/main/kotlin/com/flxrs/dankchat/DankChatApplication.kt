@@ -23,6 +23,8 @@ import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.appearance.ThemePreference.Dark
 import com.flxrs.dankchat.preferences.appearance.ThemePreference.System
 import com.flxrs.dankchat.preferences.language.AppLanguage
+import com.flxrs.dankchat.ui.chat.emote.BrokenDiskEntryInterceptor
+import com.flxrs.dankchat.ui.chat.emote.DiskCacheOnlyInterceptor
 import com.flxrs.dankchat.utils.tryClearEmptyFiles
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
@@ -32,10 +34,14 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import okhttp3.Dispatcher
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.annotation.KoinApplication
 import org.koin.plugin.module.dsl.startKoin
+
+// Emote CDNs serve multi-megabyte animations next to tiny emotes, a low limit queues the small ones behind them
+private const val IMAGE_MAX_REQUESTS_PER_HOST = 16
 
 @KoinApplication(modules = [DankChatModule::class])
 object DankChatKoinApp
@@ -85,29 +91,41 @@ class DankChatApplication :
     }
 
     @OptIn(ExperimentalCoilApi::class)
-    override fun newImageLoader(context: PlatformContext): ImageLoader = ImageLoader
-        .Builder(this)
-        .diskCache {
-            DiskCache
-                .Builder()
-                .directory(context.cacheDir.resolve("image_cache"))
-                .build()
-        }.components {
-            // minSdk 30 guarantees AnimatedImageDecoder support (API 28+)
-            add(AnimatedImageDecoder.Factory())
-            // BTTV badges only exist as SVG, without the scaling they would be drawn at a blurry 18 pixels
-            add(SvgDecoder.Factory(scaleToDensity = true))
-            val client =
-                HttpClient(OkHttp) {
-                    install(UserAgent) {
-                        agent = "lemchat/${BuildConfig.VERSION_NAME}"
+    override fun newImageLoader(context: PlatformContext): ImageLoader {
+        val diskCache =
+            lazy {
+                DiskCache
+                    .Builder()
+                    .directory(context.cacheDir.resolve("image_cache"))
+                    .build()
+            }
+        return ImageLoader
+            .Builder(this)
+            .diskCache { diskCache.value }
+            .components {
+                add(BrokenDiskEntryInterceptor(dispatchersProvider.io) { diskCache.value })
+                add(DiskCacheOnlyInterceptor(dispatchersProvider.io) { diskCache.value })
+                // minSdk 30 guarantees AnimatedImageDecoder support (API 28+)
+                add(AnimatedImageDecoder.Factory())
+                // BTTV badges only exist as SVG, without the scaling they would be drawn at a blurry 18 pixels
+                add(SvgDecoder.Factory(scaleToDensity = true))
+                val client =
+                    HttpClient(OkHttp) {
+                        engine {
+                            config {
+                                dispatcher(Dispatcher().apply { maxRequestsPerHost = IMAGE_MAX_REQUESTS_PER_HOST })
+                            }
+                        }
+                        install(UserAgent) {
+                            agent = "lemchat/${BuildConfig.VERSION_NAME}"
+                        }
                     }
-                }
-            val fetcher =
-                KtorNetworkFetcherFactory(
-                    httpClient = { client },
-                    cacheStrategy = { CacheControlCacheStrategy() },
-                )
-            add(fetcher)
-        }.build()
+                val fetcher =
+                    KtorNetworkFetcherFactory(
+                        httpClient = { client },
+                        cacheStrategy = { CacheControlCacheStrategy() },
+                    )
+                add(fetcher)
+            }.build()
+    }
 }

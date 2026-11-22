@@ -16,6 +16,7 @@ import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -23,7 +24,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import org.koin.core.annotation.Single
@@ -39,14 +39,16 @@ class ChatNotificationRepository(
 
     private val _mentions = MutableStateFlow<ImmutableList<ChatItem>>(persistentListOf())
     private val _whispers = MutableStateFlow<ImmutableList<ChatItem>>(persistentListOf())
-    private val _messageUpdates = MutableSharedFlow<List<ChatItem>>(replay = 0, extraBufferCapacity = 10)
+
+    // A collector that falls behind loses its own oldest batches, the others still get every batch
+    private val _messageUpdates = MutableSharedFlow<List<ChatItem>>(replay = 0, extraBufferCapacity = 10, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     private val _channelMentionCount = MutableStateFlow<PersistentMap<UserName, Int>>(persistentMapOf())
     private val _unreadMessagesMap = MutableStateFlow<PersistentMap<UserName, Boolean>>(persistentMapOf())
     private val _notificationClearRequests = MutableSharedFlow<NotificationClearScope>(extraBufferCapacity = 16)
 
     private val scrollBackLengthFlow =
         chatSettingsDataStore.debouncedScrollBack
-            .stateIn(scope, SharingStarted.Eagerly, 500)
+            .stateIn(scope, SharingStarted.Eagerly, chatSettingsDataStore.current().scrollbackLength)
     private val scrollBackLength get() = scrollBackLengthFlow.value
 
     val messageUpdates: SharedFlow<List<ChatItem>> = _messageUpdates.asSharedFlow()
@@ -57,30 +59,32 @@ class ChatNotificationRepository(
     val whispers: StateFlow<ImmutableList<ChatItem>> = _whispers
 
     suspend fun reparseAll() {
+        _mentions.update { items -> items.map { it.reparseEmotesAndBadges() }.toImmutableList() }
+        _whispers.update { items -> items.map { it.reparseEmotesAndBadges() }.toImmutableList() }
+    }
+
+    suspend fun reparseMentions(channel: UserName) {
         _mentions.update { items ->
             items
-                .map {
-                    it.copy(
-                        tag = it.tag + 1,
-                        message = messageProcessor.reparseEmotesAndBadges(it.message),
-                    )
+                .map { item ->
+                    when (item.message.emoteData?.channel) {
+                        channel -> item.reparseEmotesAndBadges()
+                        else -> item
+                    }
                 }.toImmutableList()
         }
-        _whispers.update { items ->
-            items
-                .map {
-                    it.copy(
-                        tag = it.tag + 1,
-                        message = messageProcessor.reparseEmotesAndBadges(it.message),
-                    )
-                }.toImmutableList()
-        }
+    }
+
+    // Unchanged messages keep their tag so mapping caches and compose keys survive
+    private suspend fun ChatItem.reparseEmotesAndBadges(): ChatItem = when (val reparsed = messageProcessor.reparseEmotesAndBadges(message)) {
+        message -> this
+        else -> copy(tag = tag + 1, message = reparsed)
     }
 
     fun addMentions(items: List<ChatItem>) {
         if (items.isEmpty()) return
         _mentions.update { current ->
-            current.addAndLimit(items, scrollBackLength, messageProcessor::onMessageRemoved).toImmutableList()
+            current.addAndLimit(items, scrollBackLength, onMessageRemoved = {}).toImmutableList()
         }
     }
 
@@ -100,7 +104,7 @@ class ChatNotificationRepository(
 
     fun addWhisper(item: ChatItem) {
         _whispers.update { current ->
-            current.addAndLimit(item, scrollBackLength, messageProcessor::onMessageRemoved).toImmutableList()
+            current.addAndLimit(item, scrollBackLength, onMessageRemoved = {}).toImmutableList()
         }
     }
 
@@ -154,8 +158,8 @@ class ChatNotificationRepository(
 
     // Mentions and whispers belong to the account that received them
     fun clearUserData() {
-        _mentions.getAndUpdate { persistentListOf() }.forEach(messageProcessor::onMessageRemoved)
-        _whispers.getAndUpdate { persistentListOf() }.forEach(messageProcessor::onMessageRemoved)
+        _mentions.value = persistentListOf()
+        _whispers.value = persistentListOf()
         _channelMentionCount.update { counts -> counts.mutate { builder -> builder.keys.forEach { builder[it] = 0 } } }
         markMentionsRead()
         markWhispersRead()

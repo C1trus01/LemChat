@@ -132,6 +132,7 @@
     <string name="system_message_connected">Падлучана</string>
     <string name="system_message_reconnected">Перападлучана</string>
     <string name="system_message_channel_non_existent">Гэты канал не існуе</string>
+    <string name="system_message_channel_join_failed">Не ўдалося далучыцца да гэтага канала</string>
     <string name="system_message_disconnected">Адключана</string>
     <string name="system_message_history_unavailable_detailed">Сэрвіс гісторыі паведамленняў недаступны (Памылка %1$s)</string>
     <string name="system_message_history_unavailable">Сэрвіс гісторыі паведамленняў недаступны</string>
@@ -267,6 +268,7 @@
     </plurals>
     <string name="timed_out_message">&lt; Паведамленне выдалена &gt;</string>
     <string name="multi_entry_header_regex">Regex</string>
+    <string name="multi_entry_invalid_regex">Некарэктны regex</string>
     <string name="multi_entry_add_entry">Дадаць запіс</string>
     <string name="login_expired">Сеанс увахода сышоў! Паспрабуйце ўвайсці ізноў.</string>
     <string name="message_history_disclaimer_title">Нататка пра гісторыю паведамленняў</string>
@@ -306,6 +308,7 @@
     <string name="restart">Перазагрузіць</string>
     <string name="uploader_reset">Скінуць па ўмаўчанні</string>
     <string name="uploader_url">Загрузіць URL</string>
+    <string name="uploader_url_unresolved">Не ўдалося знайсці гэты дамен</string>
     <string name="uploader_field">Форма поля</string>
     <string name="uploader_headers">Загаловак</string>
     <string name="uploader_image_link">Шаблон медыя спасылкі</string>
@@ -328,6 +331,8 @@
     <string name="menu_exit_fullscreen">Выйсці з поўнаэкраннага рэжыму</string>
     <string name="menu_hide_input">Схаваць увод</string>
     <string name="menu_show_input">Паказаць увод</string>
+    <string name="menu_enable_tts">Уключыць сінтэзатар гаворкі</string>
+    <string name="menu_disable_tts">Выключыць сінтэзатар гаворкі</string>
     <string name="preference_fullscreen_button_opacity_title">Празрыстасць кнопак поўнаэкраннага рэжыму</string>
     <string name="preference_fullscreen_button_opacity_summary">Кнопкі, якія паказваюцца ў поўнаэкранным рэжыме або калі ўвод схаваны: %d%%</string>
     <string name="preference_fullscreen_button_opacity_hint">Празрыстасць (1–100)</string>
@@ -352,6 +357,7 @@
     <string name="input_action_mod_actions">Мадэрацыя канала</string>
     <string name="input_action_fullscreen">На ўвесь экран</string>
     <string name="input_action_hide_input">Схаваць увод</string>
+    <string name="input_action_tts">Сінтэзатар гаворкі</string>
     <string name="input_action_debug">Адладка</string>
     <string name="input_action_configure">Наладзіць дзеянні</string>
     <string name="input_action_hide_all">Схаваць усе дзеянні</string>
@@ -428,6 +434,7 @@
     <string name="tts_ignore_list_add_user">Дадаць карыстальніка</string>
     <string name="tts_ignore_list_remove_user">Выдаліць карыстальніка</string>
     <string name="tts_ignore_list_user_hint">Карыстальнік</string>
+    <string name="tts_start_failed">Не ўдалося запусціць сінтэзатар гаворкі</string>
     <string name="recent_upload_deletion_link">Спасылка для выдалення:\n%1$s</string>
     <string name="recent_uploads_clear">Адчысціць загрузкі</string>
     <string name="host">Хост</string>
@@ -525,7 +532,7 @@
     <string name="preference_show_whispers_inline_title">Адлюстроўваць асабістыя паведамленні ў чаце</string>
     <string name="preference_show_whispers_inline_summary">Адлюстроўвае адпраўленыя і атрыманыя асабістыя паведамленні ва ўсіх адкрытых каналах</string>
     <string name="preference_show_twitch_gifs_title">Паказваць GIF з Twitch</string>
-    <string name="preference_animate_gifs_title">Анімаваць GIF</string>
+    <string name="preference_animations_title">Анімаваць эмоцыі, значкі і GIF</string>
     <string name="preference_line_separator_title">Падзяляць паведамлення лініямі</string>
     <string name="preference_keep_screen_on_title">Не зацямняць экрана</string>
     <string name="preference_font_size_title">Памер шрыфту</string>
@@ -570,6 +577,8 @@
     <string name="preference_tts_message_ignore_emote_title">Ігнараваць смайлы</string>
     <string name="preference_tts_message_ignore_command_message">Ігнараваць паведамленні, якія пачынаюцца з прэфікса каманды (!, $, %, +, -, ~)</string>
     <string name="preference_tts_message_ignore_command_title">Ігнараваць каманды</string>
+    <string name="preference_tts_ignore_user_name_numbers_title">Ігнараваць лічбы ў імёнах карыстальнікаў</string>
+    <string name="preference_tts_ignore_user_name_numbers_summary">Чытае імёны карыстальнікаў без лічбаў, напрыклад john1990 як john</string>
     <string name="preference_tts_volume_title">Гучнасць</string>
     <string name="preference_tts_audio_ducking_title">Прыглушэнне гуку</string>
     <string name="preference_tts_audio_ducking_summary">Змяншаць гучнасць іншых праграм падчас агучкі</string>
@@ -618,6 +627,34 @@
     <string name="preference_uploader_header">Загрузчык медыя</string>
     <string name="preference_uploader_configure_title">Наладзіць загрузчык</string>
     <string name="preference_uploader_recent_uploads_title">Нядаўнія загрузкі</string>
+    <string name="preference_export_header">Экспарт</string>
+    <string name="backup_channels_title">Каналы</string>
+    <string name="backup_export">Экспартаваць</string>
+    <string name="backup_import">Імпартаваць</string>
+    <string name="backup_copy">Скапіяваць у буфер абмену</string>
+    <string name="backup_paste">Уставіць з буфера абмену</string>
+    <string name="backup_channels_description">Экспартуе ўсе каналы разам з уласнымі назвамі. Пры імпарце дадаюцца толькі адсутныя каналы</string>
+    <string name="backup_settings_description">Экспартуе ўсе налады, акрамя даных уваходу</string>
+    <string name="backup_settings_uploader_note">Уключае тваю ўласную канфігурацыю загрузчыка</string>
+    <string name="import_data_confirmation">Замяніць твае налады, каналы, выдзяленні і ігнараванні імпартаванымі? Пасля гэтага праграма перазапусціцца.</string>
+    <string name="export_data_done">Налады экспартаваны</string>
+    <string name="export_data_failed">Не ўдалося захаваць файл</string>
+    <string name="import_data_failed">Не ўдалося прачытаць гэты файл</string>
+    <string name="import_data_newer_version">Гэтая рэзервовая копія створана навейшай версіяй LemChat</string>
+    <string name="clipboard_no_export">У буферы абмену няма экспарту</string>
+    <plurals name="channels_exported">
+        <item quantity="one">Экспартаваны %1$d канал</item>
+        <item quantity="few">Экспартавана %1$d каналы</item>
+        <item quantity="many">Экспартавана %1$d каналаў</item>
+        <item quantity="other">Экспартавана %1$d канала</item>
+    </plurals>
+    <plurals name="channels_imported">
+        <item quantity="one">Дададзены %1$d канал</item>
+        <item quantity="few">Дададзена %1$d каналы</item>
+        <item quantity="many">Дададзена %1$d каналаў</item>
+        <item quantity="other">Дададзена %1$d канала</item>
+    </plurals>
+    <string name="channels_import_none_new">Усе гэтыя каналы ўжо дададзены</string>
     <string name="preference_tts_user_ignore_list_title">Спіс ігнараваных карыстальнікаў</string>
     <string name="preference_tts_user_ignore_list_summary">Спіс карыстальнікаў/акаўнтаў, якія будуць ігнаравацца</string>
     <string name="preference_tools_header">Прылады</string>
@@ -650,8 +687,8 @@
     <string name="preference_stream_live_messages_summary">Дадае паведамленне ў чат, калі канал пачынае або заканчвае эфір</string>
     <string name="preference_stream_extensions_title">Паказваць пашырэнні трансляцыі</string>
     <string name="preference_stream_extensions_summary">Паказвае пашырэнні паверх прайгравальніка трансляцыі</string>
-    <string name="preference_retain_webview_title">Перапыніць перазагрузкі стрыма</string>
-    <string name="preference_retain_webview_summary">Уключае эксперыментальнае запабяганне перазагрузкі стрыма пасля змены арыентацыі ці перазапуску LemChat.</string>
+    <string name="preference_keep_stream_while_typing_title">Пакідаць трансляцыю бачнай падчас набору</string>
+    <string name="preference_keep_stream_while_typing_summary">Паказвае трансляцыю ў партрэтнай арыентацыі, нават калі клавіятура або меню смайлаў пакідаюць мала месца для чата</string>
     <string name="preference_show_changelogs">Паказаць змены пасля абнаўлення</string>
     <string name="preference_whats_new_header">Што змянілася</string>
     <string name="preference_custom_login_title">Індывідуальны лагін</string>

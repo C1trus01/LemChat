@@ -140,7 +140,7 @@ internal fun BoxScope.WideSplitLayout(
 
                 emoteMenuLayer(Modifier.align(Alignment.BottomCenter))
 
-                if (showInput && isKeyboardVisible) {
+                if (showInput) {
                     suggestionDropdown(
                         Modifier
                             .align(Alignment.BottomStart)

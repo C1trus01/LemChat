@@ -132,6 +132,7 @@
     <string name="system_message_connected">Połączono</string>
     <string name="system_message_reconnected">Ponowne połączenie </string>
     <string name="system_message_channel_non_existent">Ten kanał nie istnieje</string>
+    <string name="system_message_channel_join_failed">Nie udało się dołączyć do tego kanału</string>
     <string name="system_message_disconnected">Rozłączono</string>
     <string name="system_message_history_unavailable_detailed">Usługa historii wiadomości nie jest dostępna (Błąd: %1$s)</string>
     <string name="system_message_history_unavailable">Usługa historii wiadomości nie jest dostępna</string>
@@ -267,6 +268,7 @@
     </plurals>
     <string name="timed_out_message">&lt; Wiadomość usunięta &gt;</string>
     <string name="multi_entry_header_regex">Regex</string>
+    <string name="multi_entry_invalid_regex">Nieprawidłowy regex</string>
     <string name="multi_entry_add_entry">Dodaj wpis</string>
     <string name="login_expired">Logowanie wygasło! Spróbuj zalogować się ponownie.</string>
     <string name="message_history_disclaimer_title">Informacja o historii wiadomości</string>
@@ -311,6 +313,7 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="restart">Restartuj</string>
     <string name="uploader_reset">Przywróć domyślne ustawienia</string>
     <string name="uploader_url">Adres URL</string>
+    <string name="uploader_url_unresolved">Nie można znaleźć tej domeny</string>
     <string name="uploader_field">Pole Formularza</string>
     <string name="uploader_headers">Nagłówki</string>
     <string name="uploader_image_link">Szablon linku</string>
@@ -333,6 +336,8 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="menu_exit_fullscreen">Wyjdź z pełnego ekranu</string>
     <string name="menu_hide_input">Ukryj pole wpisywania</string>
     <string name="menu_show_input">Pokaż pole wpisywania</string>
+    <string name="menu_enable_tts">Włącz TTS</string>
+    <string name="menu_disable_tts">Wyłącz TTS</string>
     <string name="preference_fullscreen_button_opacity_title">Krycie przycisków w trybie pełnoekranowym</string>
     <string name="preference_fullscreen_button_opacity_summary">Przyciski wyświetlane w trybie pełnoekranowym lub gdy pole wprowadzania jest ukryte: %d%%</string>
     <string name="preference_fullscreen_button_opacity_hint">Krycie (1–100)</string>
@@ -357,6 +362,7 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="input_action_mod_actions">Moderacja kanału</string>
     <string name="input_action_fullscreen">Pełny ekran</string>
     <string name="input_action_hide_input">Ukryj pole wpisywania</string>
+    <string name="input_action_tts">Zamiana tekstu na mowę</string>
     <string name="input_action_debug">Debugowanie</string>
     <string name="input_action_configure">Konfiguruj akcje</string>
     <string name="input_action_hide_all">Ukryj wszystkie akcje</string>
@@ -433,6 +439,7 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="tts_ignore_list_add_user">Dodaj użytkownika</string>
     <string name="tts_ignore_list_remove_user">Usuń tego użytkownika</string>
     <string name="tts_ignore_list_user_hint">Użytkownik</string>
+    <string name="tts_start_failed">Nie udało się uruchomić TTS</string>
     <string name="recent_upload_deletion_link">Link do usunięcia:\n%1$s</string>
     <string name="recent_uploads_clear">Wyczyść przesłane</string>
     <string name="host">Host</string>
@@ -530,7 +537,7 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="preference_show_whispers_inline_title">Pokazuj szepty na czacie</string>
     <string name="preference_show_whispers_inline_summary">Pokazuje wysłane i odebrane szepty na wszystkich otwartych kanałach</string>
     <string name="preference_show_twitch_gifs_title">Pokazuj GIFy z Twitcha</string>
-    <string name="preference_animate_gifs_title">Animowane GIFy</string>
+    <string name="preference_animations_title">Animuj emotki, odznaki i GIFy</string>
     <string name="preference_line_separator_title">Oddziel wiadomości liniami</string>
     <string name="preference_keep_screen_on_title">Nie wygaszaj ekranu</string>
     <string name="preference_font_size_title">Rozmiar czcionki</string>
@@ -575,6 +582,8 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="preference_tts_message_ignore_emote_title">Ignoruj emotki</string>
     <string name="preference_tts_message_ignore_command_message">Ignoruje wiadomości zaczynające się od prefiksu komendy (!, $, %, +, -, ~)</string>
     <string name="preference_tts_message_ignore_command_title">Ignoruj komendy</string>
+    <string name="preference_tts_ignore_user_name_numbers_title">Ignoruj cyfry w nazwach użytkowników</string>
+    <string name="preference_tts_ignore_user_name_numbers_summary">Odczytuje nazwy użytkowników bez cyfr, np. john1990 jako john</string>
     <string name="preference_tts_volume_title">Głośność</string>
     <string name="preference_tts_audio_ducking_title">Wyciszanie dźwięku</string>
     <string name="preference_tts_audio_ducking_summary">Zmniejsz głośność innych aplikacji podczas odtwarzania TTS</string>
@@ -623,6 +632,34 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="preference_uploader_header">Przesyłanie mediów</string>
     <string name="preference_uploader_configure_title">Konfiguruj przesyłanie</string>
     <string name="preference_uploader_recent_uploads_title">Ostatnio udostępnione</string>
+    <string name="preference_export_header">Eksport</string>
+    <string name="backup_channels_title">Kanały</string>
+    <string name="backup_export">Eksportuj</string>
+    <string name="backup_import">Importuj</string>
+    <string name="backup_copy">Kopiuj do schowka</string>
+    <string name="backup_paste">Wklej ze schowka</string>
+    <string name="backup_channels_description">Eksportuje wszystkie kanały wraz z własnymi nazwami. Import dodaje tylko brakujące kanały</string>
+    <string name="backup_settings_description">Eksportuje wszystkie ustawienia z wyjątkiem twojego logowania</string>
+    <string name="backup_settings_uploader_note">Zawiera twoją własną konfigurację przesyłania</string>
+    <string name="import_data_confirmation">Zastąpić twoje ustawienia, kanały, wyróżnienia i ignorowane zaimportowanymi? Aplikacja uruchomi się potem ponownie.</string>
+    <string name="export_data_done">Wyeksportowano ustawienia</string>
+    <string name="export_data_failed">Nie udało się zapisać pliku</string>
+    <string name="import_data_failed">Nie udało się odczytać tego pliku</string>
+    <string name="import_data_newer_version">Ta kopia zapasowa została utworzona w nowszej wersji LemChat</string>
+    <string name="clipboard_no_export">Schowek nie zawiera eksportu</string>
+    <plurals name="channels_exported">
+        <item quantity="one">Wyeksportowano %1$d kanał</item>
+        <item quantity="few">Wyeksportowano %1$d kanały</item>
+        <item quantity="many">Wyeksportowano %1$d kanałów</item>
+        <item quantity="other">Wyeksportowano %1$d kanału</item>
+    </plurals>
+    <plurals name="channels_imported">
+        <item quantity="one">Dodano %1$d kanał</item>
+        <item quantity="few">Dodano %1$d kanały</item>
+        <item quantity="many">Dodano %1$d kanałów</item>
+        <item quantity="other">Dodano %1$d kanału</item>
+    </plurals>
+    <string name="channels_import_none_new">Wszystkie te kanały są już dodane</string>
     <string name="preference_tts_user_ignore_list_title">Lista ignorowanych użytkowników</string>
     <string name="preference_tts_user_ignore_list_summary">Konta tych użytkowników będą ignorowane</string>
     <string name="preference_tools_header">Narzędzia</string>
@@ -655,8 +692,8 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="preference_stream_live_messages_summary">Dodaje wiadomość na czacie, gdy kanał rozpoczyna lub kończy transmisję</string>
     <string name="preference_stream_extensions_title">Pokazuj rozszerzenia transmisji</string>
     <string name="preference_stream_extensions_summary">Pokazuje nakładki rozszerzeń na odtwarzaczu transmisji</string>
-    <string name="preference_retain_webview_title">Zapobiegaj przeładowaniu transmisji</string>
-    <string name="preference_retain_webview_summary">Umożliwia eksperymentalne zapobieganie przeładowaniu transmisji po zmianie ustawień lub ponownym otwarciu LemChat.</string>
+    <string name="preference_keep_stream_while_typing_title">Pokazuj transmisję podczas pisania</string>
+    <string name="preference_keep_stream_while_typing_summary">Pokazuje transmisję w pionie, nawet gdy klawiatura lub menu emotek zostawiają mało miejsca na czat</string>
     <string name="preference_show_changelogs">Pokaż dziennik zmian po aktualizacji</string>
     <string name="preference_whats_new_header">Co nowego</string>
     <string name="preference_custom_login_title">Niestandardowy login</string>

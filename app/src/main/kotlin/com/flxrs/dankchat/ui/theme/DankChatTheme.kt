@@ -14,6 +14,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
@@ -26,6 +27,7 @@ import com.flxrs.dankchat.preferences.appearance.AppearanceSettings
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.appearance.PaletteStylePreference
 import com.flxrs.dankchat.preferences.appearance.ThemePreference
+import com.flxrs.dankchat.preferences.appearance.ThemeSettings
 import com.materialkolor.PaletteStyle
 import com.materialkolor.rememberDynamicColorScheme
 import org.koin.compose.koinInject
@@ -46,10 +48,14 @@ val LocalAdaptiveColors =
 @Composable
 fun DankChatTheme(content: @Composable () -> Unit) {
     val inspectionMode = LocalInspectionMode.current
-    val appearanceSettings = if (!inspectionMode) koinInject<AppearanceSettingsDataStore>() else null
-    val settings by appearanceSettings?.settings?.collectAsStateWithLifecycle(
-        initialValue = remember { appearanceSettings.current() },
-    ) ?: remember { androidx.compose.runtime.mutableStateOf(AppearanceSettings()) }
+    val appearanceSettings = when {
+        inspectionMode -> null
+        else -> koinInject<AppearanceSettingsDataStore>()
+    }
+    // Other appearance settings change often and do not affect the colors
+    val settings by appearanceSettings?.themeSettings?.collectAsStateWithLifecycle(
+        initialValue = remember { appearanceSettings.current().themeSettings },
+    ) ?: remember { mutableStateOf(ThemeSettings()) }
 
     val systemDarkTheme = isSystemInDarkTheme()
     val darkTheme = when (settings.theme) {
@@ -63,8 +69,10 @@ fun DankChatTheme(content: @Composable () -> Unit) {
     val dynamicColor = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 
     val useSystemColors = accentColor == null && settings.paletteStyle == PaletteStylePreference.SystemDefault
-    val seedColor = accentColor?.seedColor
-        ?: if (dynamicColor) dynamicLightColorScheme(LocalContext.current).primary else null
+    val seedColor = accentColor?.seedColor ?: when {
+        dynamicColor -> dynamicLightColorScheme(LocalContext.current).primary
+        else -> null
+    }
 
     val lightColorScheme = when {
         seedColor != null && !useSystemColors -> rememberDynamicColorScheme(
@@ -120,7 +128,10 @@ fun DankChatTheme(content: @Composable () -> Unit) {
             onSurfaceLight = lightColorScheme.onSurface,
             onSurfaceDark = darkColorScheme.onSurface,
         )
-    val colors = if (darkTheme) darkColorScheme else lightColorScheme
+    val colors = when {
+        darkTheme -> darkColorScheme
+        else -> lightColorScheme
+    }
     MaterialExpressiveTheme(
         colorScheme = colors,
         shapes = AppShapes,

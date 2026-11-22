@@ -1,10 +1,6 @@
 package com.flxrs.dankchat.preferences.tools
 
 import android.content.ClipData
-import android.content.Intent
-import android.speech.tts.TextToSpeech
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -41,6 +38,8 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -58,7 +57,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
@@ -74,10 +72,12 @@ import com.flxrs.dankchat.preferences.components.PreferenceItem
 import com.flxrs.dankchat.preferences.components.PreferenceListDialog
 import com.flxrs.dankchat.preferences.components.SliderPreferenceItem
 import com.flxrs.dankchat.preferences.components.SwitchPreferenceItem
+import com.flxrs.dankchat.preferences.tools.export.DataExportCategory
 import com.flxrs.dankchat.preferences.tools.upload.RecentUpload
 import com.flxrs.dankchat.preferences.tools.upload.RecentUploadsViewModel
 import com.flxrs.dankchat.utils.compose.ConfirmationBottomSheet
 import com.flxrs.dankchat.utils.compose.buildLinkAnnotation
+import com.flxrs.dankchat.utils.compose.rememberTTSVoiceDataCheck
 import com.flxrs.dankchat.utils.compose.textLinkStyles
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
@@ -112,9 +112,11 @@ private fun ToolsSettingsScreen(
     onNavBack: () -> Unit,
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.navigationBars),
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        snackbarHost = { SnackbarHost(snackbarHostState, modifier = Modifier.navigationBarsPadding()) },
         topBar = {
             TopAppBar(
                 scrollBehavior = scrollBehavior,
@@ -136,6 +138,8 @@ private fun ToolsSettingsScreen(
                     .verticalScroll(rememberScrollState()),
         ) {
             ImageUploaderCategory(hasRecentUploads = settings.hasRecentUploads, onNavToImageUploader = onNavToImageUploader)
+            HorizontalDivider(thickness = Dp.Hairline)
+            DataExportCategory(snackbarHostState = snackbarHostState)
             HorizontalDivider(thickness = Dp.Hairline)
             TextToSpeechCategory(settings, onInteraction, onNavToTTSUserIgnoreList)
             NavigationBarSpacer()
@@ -292,21 +296,14 @@ fun TextToSpeechCategory(
     onNavToTTSUserIgnoreList: () -> Unit,
 ) {
     PreferenceCategory(title = stringResource(R.string.preference_tts_header)) {
-        val context = LocalContext.current
-        val checkTTSDataLauncher =
-            rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-                when {
-                    it.resultCode != TextToSpeech.Engine.CHECK_VOICE_DATA_PASS -> context.startActivity(Intent(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA))
-                    else -> onInteraction(ToolsSettingsInteraction.TTSEnabled(true))
-                }
-            }
+        val enableTTS = rememberTTSVoiceDataCheck { onInteraction(ToolsSettingsInteraction.TTSEnabled(true)) }
         SwitchPreferenceItem(
             title = stringResource(R.string.preference_tts_title),
             summary = stringResource(R.string.preference_tts_summary),
             isChecked = settings.ttsEnabled,
             onClick = {
                 when {
-                    it -> checkTTSDataLauncher.launch(Intent(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA))
+                    it -> enableTTS()
                     else -> onInteraction(ToolsSettingsInteraction.TTSEnabled(false))
                 }
             },
@@ -365,6 +362,13 @@ fun TextToSpeechCategory(
             isChecked = settings.ttsIgnoreCommands,
             isEnabled = settings.ttsEnabled,
             onClick = { onInteraction(ToolsSettingsInteraction.TTSIgnoreCommands(it)) },
+        )
+        SwitchPreferenceItem(
+            title = stringResource(R.string.preference_tts_ignore_user_name_numbers_title),
+            summary = stringResource(R.string.preference_tts_ignore_user_name_numbers_summary),
+            isChecked = settings.ttsIgnoreUserNameNumbers,
+            isEnabled = settings.ttsEnabled && settings.ttsMessageFormat == TTSMessageFormat.UserAndMessage,
+            onClick = { onInteraction(ToolsSettingsInteraction.TTSIgnoreUserNameNumbers(it)) },
         )
 
         var volume by remember(settings.ttsVolume) { mutableFloatStateOf(settings.ttsVolume) }

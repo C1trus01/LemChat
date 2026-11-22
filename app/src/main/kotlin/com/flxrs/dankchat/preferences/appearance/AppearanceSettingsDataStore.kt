@@ -118,6 +118,10 @@ class AppearanceSettingsDataStore(
         settings
             .map { it.showChips }
             .distinctUntilChanged()
+    val themeSettings =
+        settings
+            .map { it.themeSettings }
+            .distinctUntilChanged()
     val showInput =
         settings
             .map { it.showInput }
@@ -145,7 +149,5 @@ class AppearanceSettingsDataStore(
 
     fun current() = currentSettings.value
 
-    suspend fun update(transform: suspend (AppearanceSettings) -> AppearanceSettings) {
-        runCatching { dataStore.updateData(transform) }
-    }
+    suspend fun update(transform: suspend (AppearanceSettings) -> AppearanceSettings): Result<AppearanceSettings> = runCatching { dataStore.updateData(transform) }
 }

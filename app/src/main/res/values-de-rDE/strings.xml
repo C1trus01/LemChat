@@ -122,6 +122,7 @@
     <string name="system_message_connected">Verbunden</string>
     <string name="system_message_reconnected">Wiederverbunden</string>
     <string name="system_message_channel_non_existent">Dieser Kanal existiert nicht</string>
+    <string name="system_message_channel_join_failed">Beitritt zu diesem Kanal fehlgeschlagen</string>
     <string name="system_message_disconnected">Verbindung getrennt</string>
     <string name="system_message_history_unavailable_detailed">Nachrichtenhistorie nicht verfügbar (Fehler %1$s)</string>
     <string name="system_message_history_unavailable">Nachrichtenhistorie nicht verfügbar</string>
@@ -253,6 +254,7 @@
     </plurals>
     <string name="timed_out_message">&lt; Nachricht gelöscht &gt;</string>
     <string name="multi_entry_header_regex">Regex</string>
+    <string name="multi_entry_invalid_regex">Ungültiger Regex</string>
     <string name="multi_entry_add_entry">Eintrag hinzufügen</string>
     <string name="login_expired">Anmeldung abgelaufen! Melde dich erneut an.</string>
     <string name="message_history_disclaimer_title">Haftungsausschluss zum historischen Chatverlauf</string>
@@ -297,6 +299,7 @@
     <string name="restart">Neustarten</string>
     <string name="uploader_reset">Einstellungen zurücksetzen</string>
     <string name="uploader_url">Upload URL</string>
+    <string name="uploader_url_unresolved">Diese Domain wurde nicht gefunden</string>
     <string name="uploader_field">Formularfeld</string>
     <string name="uploader_headers">Headers</string>
     <string name="uploader_image_link">Medienlinkmuster</string>
@@ -320,6 +323,8 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="menu_exit_fullscreen">Vollbild beenden</string>
     <string name="menu_hide_input">Eingabe ausblenden</string>
     <string name="menu_show_input">Eingabe einblenden</string>
+    <string name="menu_enable_tts">TTS aktivieren</string>
+    <string name="menu_disable_tts">TTS deaktivieren</string>
     <string name="preference_fullscreen_button_opacity_title">Deckkraft der Vollbild-Schaltflächen</string>
     <string name="preference_fullscreen_button_opacity_summary">Schaltflächen im Vollbildmodus oder bei ausgeblendetem Eingabefeld: %d%%</string>
     <string name="preference_fullscreen_button_opacity_hint">Deckkraft (1–100)</string>
@@ -342,6 +347,7 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="input_action_mod_actions">Kanalmoderation</string>
     <string name="input_action_fullscreen">Vollbild</string>
     <string name="input_action_hide_input">Eingabe ausblenden</string>
+    <string name="input_action_tts">Sprachausgabe</string>
     <string name="input_action_debug">Debug</string>
     <string name="input_action_configure">Aktionen konfigurieren</string>
     <string name="input_action_hide_all">Alle Aktionen ausblenden</string>
@@ -418,6 +424,7 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="tts_ignore_list_add_user">Nutzer hinzufügen</string>
     <string name="tts_ignore_list_remove_user">Nutzer entfernen</string>
     <string name="tts_ignore_list_user_hint">Nutzer</string>
+    <string name="tts_start_failed">TTS konnte nicht gestartet werden</string>
     <string name="recent_upload_deletion_link">Löschlink:
 %1$s</string>
     <string name="recent_uploads_clear">Liste leeren</string>
@@ -516,7 +523,7 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="preference_show_whispers_inline_title">Private Nachrichten im Chat anzeigen</string>
     <string name="preference_show_whispers_inline_summary">Zeigt gesendete und empfangene private Nachrichten in allen geöffneten Kanälen an</string>
     <string name="preference_show_twitch_gifs_title">Twitch-GIFs anzeigen</string>
-    <string name="preference_animate_gifs_title">GIFs animieren</string>
+    <string name="preference_animations_title">Emotes, Abzeichen und GIFs animieren</string>
     <string name="preference_line_separator_title">Nachrichten durch Striche trennen</string>
     <string name="preference_keep_screen_on_title">Bildschirm eingeschaltet lassen</string>
     <string name="preference_font_size_title">Schriftgröße</string>
@@ -561,6 +568,8 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="preference_tts_message_ignore_emote_title">Emotes ignorieren</string>
     <string name="preference_tts_message_ignore_command_message">Ignoriert Nachrichten, die mit einem Befehlspräfix beginnen (!, $, %, +, -, ~)</string>
     <string name="preference_tts_message_ignore_command_title">Befehle ignorieren</string>
+    <string name="preference_tts_ignore_user_name_numbers_title">Zahlen in Nutzernamen ignorieren</string>
+    <string name="preference_tts_ignore_user_name_numbers_summary">Liest Nutzernamen ohne Zahlen vor, z. B. john1990 als john</string>
     <string name="preference_tts_volume_title">Lautstärke</string>
     <string name="preference_tts_audio_ducking_title">Audio-Ducking</string>
     <string name="preference_tts_audio_ducking_summary">Andere Audiolautstärke während TTS-Wiedergabe verringern</string>
@@ -609,6 +618,30 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="preference_uploader_header">Medienupload</string>
     <string name="preference_uploader_configure_title">Upload konfigurieren</string>
     <string name="preference_uploader_recent_uploads_title">Letzte Uploads</string>
+    <string name="preference_export_header">Export</string>
+    <string name="backup_channels_title">Kanäle</string>
+    <string name="backup_export">Exportieren</string>
+    <string name="backup_import">Importieren</string>
+    <string name="backup_copy">In Zwischenablage kopieren</string>
+    <string name="backup_paste">Aus Zwischenablage einfügen</string>
+    <string name="backup_channels_description">Exportiert alle Kanäle einschließlich eigener Namen. Beim Importieren werden nur fehlende Kanäle hinzugefügt</string>
+    <string name="backup_settings_description">Exportiert alle Einstellungen außer deinem Login</string>
+    <string name="backup_settings_uploader_note">Enthält deine benutzerdefinierte Upload-Konfiguration</string>
+    <string name="import_data_confirmation">Deine Einstellungen, Kanäle, Hervorhebungen und Ignorierungen durch die importierten ersetzen? Die App startet danach neu.</string>
+    <string name="export_data_done">Einstellungen exportiert</string>
+    <string name="export_data_failed">Die Datei konnte nicht gespeichert werden</string>
+    <string name="import_data_failed">Diese Datei konnte nicht gelesen werden</string>
+    <string name="import_data_newer_version">Dieses Backup wurde mit einer neueren Version von LemChat erstellt</string>
+    <string name="clipboard_no_export">Die Zwischenablage enthält keinen Export</string>
+    <plurals name="channels_exported">
+        <item quantity="one">%1$d Kanal exportiert</item>
+        <item quantity="other">%1$d Kanäle exportiert</item>
+    </plurals>
+    <plurals name="channels_imported">
+        <item quantity="one">%1$d Kanal hinzugefügt</item>
+        <item quantity="other">%1$d Kanäle hinzugefügt</item>
+    </plurals>
+    <string name="channels_import_none_new">Alle diese Kanäle sind bereits hinzugefügt</string>
     <string name="preference_tts_user_ignore_list_title">Ignorierte Nutzer</string>
     <string name="preference_tts_user_ignore_list_summary">Liste von Nutzern/Konten, die ignoriert werden</string>
     <string name="preference_tools_header">Werkzeuge</string>
@@ -641,8 +674,8 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="preference_stream_live_messages_summary">Fügt eine Chat-Nachricht hinzu, wenn ein Kanal live oder offline geht</string>
     <string name="preference_stream_extensions_title">Stream-Erweiterungen anzeigen</string>
     <string name="preference_stream_extensions_summary">Zeigt Erweiterungs-Overlays im Stream-Player an</string>
-    <string name="preference_retain_webview_title">Neuladen des Streams verhindern</string>
-    <string name="preference_retain_webview_summary">Aktiviert experimentelles Verhindern vom Neuladen des Streams, nachdem sich die Orientierung ändert oder LemChat neu geöffnet wird.</string>
+    <string name="preference_keep_stream_while_typing_title">Stream beim Tippen sichtbar lassen</string>
+    <string name="preference_keep_stream_while_typing_summary">Zeigt den Stream im Hochformat, auch wenn Tastatur oder Emotemenü wenig Platz für den Chat lassen</string>
     <string name="preference_show_changelogs">Changelogs nach Updates anzeigen</string>
     <string name="preference_whats_new_header">Was ist neu</string>
     <string name="preference_custom_login_title">Benutzerdefinierte Anmeldung</string>

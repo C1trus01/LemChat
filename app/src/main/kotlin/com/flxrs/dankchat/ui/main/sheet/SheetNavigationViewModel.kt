@@ -1,6 +1,9 @@
 package com.flxrs.dankchat.ui.main.sheet
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.repo.chat.ChatChannelProvider
@@ -20,13 +23,20 @@ import org.koin.core.annotation.KoinViewModel
 
 @KoinViewModel
 class SheetNavigationViewModel(
+    private val savedStateHandle: SavedStateHandle,
     chatChannelProvider: ChatChannelProvider,
     chatNotificationRepository: ChatNotificationRepository,
     appLifecycleListener: AppLifecycleListener,
 ) : ViewModel() {
     private val _fullScreenSheetState = MutableStateFlow<FullScreenSheetState>(FullScreenSheetState.Closed)
     val fullScreenSheetState: StateFlow<FullScreenSheetState> = _fullScreenSheetState.asStateFlow()
-    private var openCount = 0L
+
+    // Saved sheet UI states are matched by open id, so the ids continue after the process is recreated
+    private var openCount: Long
+        get() = savedStateHandle[OPEN_COUNT_KEY] ?: 0L
+        set(value) {
+            savedStateHandle[OPEN_COUNT_KEY] = value
+        }
 
     init {
         // The active channel is read while the app is in the foreground and no full screen sheet covers the chat
@@ -37,6 +47,12 @@ class SheetNavigationViewModel(
                 .collect(chatNotificationRepository::markChannelRead)
         }
     }
+
+    // Holds the view models of the replies sheet, opening another thread releases the previous one
+    val repliesViewModelStoreOwner: ViewModelStoreOwner =
+        object : ViewModelStoreOwner {
+            override val viewModelStore = ViewModelStore()
+        }
 
     private val _inputSheetState = MutableStateFlow<InputSheetState>(InputSheetState.Closed)
 
@@ -52,6 +68,7 @@ class SheetNavigationViewModel(
         rootMessageId: String,
         replyName: UserName,
     ) {
+        repliesViewModelStoreOwner.viewModelStore.clear()
         _fullScreenSheetState.value = FullScreenSheetState.Replies(rootMessageId, replyName, openId = ++openCount)
     }
 
@@ -80,5 +97,13 @@ class SheetNavigationViewModel(
 
     fun closeInputSheet() {
         _inputSheetState.value = InputSheetState.Closed
+    }
+
+    override fun onCleared() {
+        repliesViewModelStoreOwner.viewModelStore.clear()
+    }
+
+    companion object {
+        private const val OPEN_COUNT_KEY = "openCount"
     }
 }

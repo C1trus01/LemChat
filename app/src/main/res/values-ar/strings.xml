@@ -212,7 +212,6 @@ The service temporarily stores messages for channels you (and others) visit to p
     <string name="preference_display_group_title">العرض</string>
     <string name="preference_components_group_title">المكونات</string>
     <string name="preference_show_timed_out_messages_title">Show timed out messages</string>
-    <string name="preference_animate_gifs_title">صور متحركة</string>
     <string name="preference_line_separator_title">رسائل منفصلة مع خطوط</string>
     <string name="preference_keep_screen_on_title">حافظ على الشاشة قيد التشغيل </string>
     <string name="preference_font_size_title">حجم الخط</string>
@@ -284,8 +283,6 @@ The service temporarily stores messages for channels you (and others) visit to p
     <string name="oauth_expired_message">انتهت صلاحية رمز تسجيل الدخول الخاص بك! يرجى تسجيل الدخول مرة أخرى.</string>
     <string name="oauth_expired_login_again">تسجيل الدخول مرة أخرى</string>
     <string name="oauth_verify_failed">فشل التحقق من الرمز المميز لتسجيل الدخول، تحقق من الاتصال.</string>
-    <string name="preference_retain_webview_title">منع إعادة تحميل البث</string>
-    <string name="preference_retain_webview_summary">تمكين المنع التجريبي لإعادة تحميل الدفق بعد تغيير الاتجاه أو إعادة فتح LemChat.</string>
     <string name="preference_show_changelogs">إظهار سجلات التغيير بعد التحديث</string>
     <string name="preference_whats_new_header">ما الجديد</string>
     <string name="preference_custom_login_title">تسجيل الدخول المخصص</string>

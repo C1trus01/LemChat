@@ -94,6 +94,8 @@ class ChatEventProcessor(
     internal val lastReceivedWhisperUser: StateFlow<UserName?> = _lastReceivedWhisperUser.asStateFlow()
     private val rewardMatcher = RewardMatcher()
     private val knownAutomodHeldIds: MutableSet<String> = ConcurrentHashMap.newKeySet()
+    private val joinRetries = ConcurrentHashMap<UserName, Int>()
+    private val channelsAwaitingRejoinHistory: MutableSet<UserName> = ConcurrentHashMap.newKeySet()
 
     init {
         scope.launch { collectReadConnectionEvents() }
@@ -133,15 +135,23 @@ class ChatEventProcessor(
         }
     }
 
-    fun removeLastMessages(channel: UserName) {
+    fun removeChannel(channel: UserName) {
         _lastMessages.update { it.removing(channel) }
         lastSentMessages.remove(channel)
+        joinRetries.remove(channel)
+        channelsAwaitingRejoinHistory.remove(channel)
     }
 
     fun clearUserData() {
         _lastMessages.value = persistentMapOf()
         lastSentMessages.clear()
         _lastReceivedWhisperUser.value = null
+    }
+
+    // History is loaded once the join completes, loading it earlier misses the messages sent in between
+    fun rejoinChannelWithHistory(channel: UserName) {
+        channelsAwaitingRejoinHistory += channel
+        chatConnector.joinIrcChannel(channel)
     }
 
     suspend fun loadRecentMessages(
@@ -402,13 +412,22 @@ class ChatEventProcessor(
     private suspend fun onWriterMessage(message: IrcMessage) {
         when (message.command) {
             "USERSTATE" -> userStateRepository.handleUserState(message)
+
             "GLOBALUSERSTATE" -> userStateRepository.handleGlobalUserState(message)
-            "NOTICE" -> handleMessage(message)
+
+            "NOTICE" -> {
+                // Notices that target no single channel arrive on both connections, the read connection shows them
+                val isGlobal = message.channelParam()?.let { usersRepository.isGlobalChannel(it) } == true
+                if (!isGlobal) {
+                    handleMessage(message)
+                }
+            }
         }
     }
 
     private fun handleDisconnect() {
         val state = ConnectionState.DISCONNECTED
+        joinRetries.clear()
         chatConnector.setAllConnectionStates(state)
         postSystemMessageAndReconnect(state.toSystemMessageType())
     }
@@ -418,6 +437,7 @@ class ChatEventProcessor(
         channel: UserName,
         isAnonymous: Boolean,
     ) {
+        joinRetries.remove(channel)
         if (channel !in chatChannelProvider.channels.value.orEmpty()) {
             return
         }
@@ -427,9 +447,16 @@ class ChatEventProcessor(
                 isAnonymous -> ConnectionState.CONNECTED_NOT_LOGGED_IN
                 else -> ConnectionState.CONNECTED
             }
+        val awaitsRejoinHistory = channelsAwaitingRejoinHistory.remove(channel)
         val previous = chatConnector.setConnectionState(channel, state)
-        if (previous != state) {
-            postSystemMessageAndReconnect(state.toSystemMessageType(), setOf(channel))
+        val reconnectedChannels =
+            when {
+                previous != state -> postSystemMessageAndReconnect(state.toSystemMessageType(), setOf(channel))
+                else -> emptySet()
+            }
+        // A channel that also reconnected in the meantime gets its history from the reconnect
+        if (awaitsRejoinHistory && channel !in reconnectedChannels) {
+            scope.launch { loadRecentMessages(channel, isReconnect = true) }
         }
     }
 
@@ -474,10 +501,7 @@ class ChatEventProcessor(
 
         val userForSuggestion = message.name.valueOrDisplayName(message.displayName).toDisplayName()
         usersRepository.updateGlobalUser(message.name.lowercase(), userForSuggestion)
-        val color = message.color
-        if (color != null) {
-            usersRepository.cacheUserColor(message.name, color)
-        }
+        usersRepository.cacheUserColor(message.name, message.userId, message.color)
 
         val item = ChatItem(message, isMentionTab = true)
         _lastReceivedWhisperUser.value = message.name
@@ -626,10 +650,7 @@ class ChatEventProcessor(
             return
         }
 
-        val color = message.color
-        if (color != null) {
-            usersRepository.cacheUserColor(message.name, color)
-        }
+        usersRepository.cacheUserColor(message.name, message.userId, message.color)
 
         if (message.name == authDataStore.userName) {
             val userState = userStateRepository.userState.value
@@ -667,7 +688,18 @@ class ChatEventProcessor(
     private fun handleJoinTimedOut(event: ChatEvent.JoinTimedOut) = scope.launch {
         // Slow connections can exceed the join timeout, so logged in users confirm the channel is gone first
         if (!event.isAnonymous && !channelRepository.isChannelMissing(event.channel)) {
-            logger.info { "Join of #${event.channel} timed out, but the channel exists" }
+            val attempt = joinRetries.merge(event.channel, 1, Int::plus) ?: 1
+            when {
+                attempt <= MAX_JOIN_RETRIES -> {
+                    logger.info { "Join of #${event.channel} timed out, but the channel exists, retrying ($attempt/$MAX_JOIN_RETRIES)" }
+                    chatConnector.rejoinIrcChannel(event.channel)
+                }
+
+                else -> {
+                    logger.info { "Join of #${event.channel} timed out, but the channel exists, giving up after $MAX_JOIN_RETRIES retries" }
+                    chatMessageRepository.addSystemMessage(event.channel, SystemMessageType.ChannelJoinFailed)
+                }
+            }
             return@launch
         }
         postSystemMessageAndReconnect(SystemMessageType.ChannelNonExistent(event.channel), setOf(event.channel))
@@ -679,7 +711,7 @@ class ChatEventProcessor(
             chatChannelProvider.channels.value
                 .orEmpty()
                 .toSet(),
-    ) {
+    ): Set<UserName> {
         val reconnectedChannels = chatMessageRepository.addSystemMessageToChannels(type, channels)
         reconnectedChannels.forEach { channel ->
             scope.launch {
@@ -688,6 +720,7 @@ class ChatEventProcessor(
                 }
             }
         }
+        return reconnectedChannels
     }
 
     private fun ConnectionState.toSystemMessageType(): SystemMessageType = when (this) {
@@ -725,6 +758,7 @@ class ChatEventProcessor(
 
     companion object {
         private val PUBSUB_TIMEOUT = 3.seconds
+        private const val MAX_JOIN_RETRIES = 3
         private val AUTOMOD_NOTICE_MSG_IDS = setOf("msg_rejected", "msg_rejected_mandatory")
     }
 }

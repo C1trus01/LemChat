@@ -132,6 +132,7 @@
     <string name="system_message_connected">Připojeno</string>
     <string name="system_message_reconnected">Znovu připojeno</string>
     <string name="system_message_channel_non_existent">Tento kanál neexistuje</string>
+    <string name="system_message_channel_join_failed">Připojení k tomuto kanálu se nezdařilo</string>
     <string name="system_message_disconnected">Odpojeno</string>
     <string name="system_message_history_unavailable_detailed">Služba pro historii zpráv není dostupná (Chyba: %1$s)</string>
     <string name="system_message_history_unavailable">Služba pro historii zpráv není dostupná</string>
@@ -267,6 +268,7 @@
     </plurals>
     <string name="timed_out_message">&lt; Zpráva smazána &gt;</string>
     <string name="multi_entry_header_regex">Regex</string>
+    <string name="multi_entry_invalid_regex">Neplatný regex</string>
     <string name="multi_entry_add_entry">Přidat položku</string>
     <string name="login_expired">Přihlášení vypršelo! Zkuste se přihlásit znovu.</string>
     <string name="message_history_disclaimer_title">Vyloučení odpovědnosti o historii zpráv</string>
@@ -311,6 +313,7 @@ Služba dočasně ukládá zprávy pro kanály, které vy (a další) navštív�
     <string name="restart">Restartovat</string>
     <string name="uploader_reset">Obnovit nastavení</string>
     <string name="uploader_url">Nahrávací URL</string>
+    <string name="uploader_url_unresolved">Tuto doménu se nepodařilo najít</string>
     <string name="uploader_field">Pole formuláře</string>
     <string name="uploader_headers">Hlavičky</string>
     <string name="uploader_image_link">Vzor odkazu pro obrázek</string>
@@ -334,6 +337,8 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="menu_exit_fullscreen">Ukončit celou obrazovku</string>
     <string name="menu_hide_input">Skrýt vstup</string>
     <string name="menu_show_input">Zobrazit vstup</string>
+    <string name="menu_enable_tts">Zapnout TTS</string>
+    <string name="menu_disable_tts">Vypnout TTS</string>
     <string name="preference_fullscreen_button_opacity_title">Průhlednost tlačítek v režimu celé obrazovky</string>
     <string name="preference_fullscreen_button_opacity_summary">Tlačítka zobrazená v režimu celé obrazovky nebo při skrytém vstupu: %d%%</string>
     <string name="preference_fullscreen_button_opacity_hint">Průhlednost (1–100)</string>
@@ -358,6 +363,7 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="input_action_mod_actions">Moderování kanálu</string>
     <string name="input_action_fullscreen">Celá obrazovka</string>
     <string name="input_action_hide_input">Skrýt vstup</string>
+    <string name="input_action_tts">Převod textu na řeč</string>
     <string name="input_action_debug">Ladění</string>
     <string name="input_action_configure">Konfigurovat akce</string>
     <string name="input_action_hide_all">Skrýt všechny akce</string>
@@ -434,6 +440,7 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="tts_ignore_list_add_user">Přidat uživatele</string>
     <string name="tts_ignore_list_remove_user">Odebrat uživatele</string>
     <string name="tts_ignore_list_user_hint">Uživatel</string>
+    <string name="tts_start_failed">TTS se nepodařilo spustit</string>
     <string name="recent_upload_deletion_link">Odkaz pro smazání:
 %1$s</string>
     <string name="recent_uploads_clear">Vyčistit nahrání</string>
@@ -532,7 +539,7 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="preference_show_whispers_inline_title">Zobrazit šepoty v chatu</string>
     <string name="preference_show_whispers_inline_summary">Zobrazí odeslané a přijaté šepoty ve všech otevřených kanálech</string>
     <string name="preference_show_twitch_gifs_title">Zobrazit Twitch GIFy</string>
-    <string name="preference_animate_gifs_title">Animované gify</string>
+    <string name="preference_animations_title">Animovat emotikony, odznaky a GIFy</string>
     <string name="preference_line_separator_title">Oddělit zprávy řádky</string>
     <string name="preference_keep_screen_on_title">Udržovat obrazovku zapnutou</string>
     <string name="preference_font_size_title">Velikost písma</string>
@@ -577,6 +584,8 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="preference_tts_message_ignore_emote_title">Ignorovat emotikony</string>
     <string name="preference_tts_message_ignore_command_message">Ignoruje zprávy začínající předponou příkazu (!, $, %, +, -, ~)</string>
     <string name="preference_tts_message_ignore_command_title">Ignorovat příkazy</string>
+    <string name="preference_tts_ignore_user_name_numbers_title">Ignorovat čísla v uživatelských jménech</string>
+    <string name="preference_tts_ignore_user_name_numbers_summary">Čte uživatelská jména bez čísel, např. john1990 jako john</string>
     <string name="preference_tts_volume_title">Hlasitost</string>
     <string name="preference_tts_audio_ducking_title">Ztlumení zvuku</string>
     <string name="preference_tts_audio_ducking_summary">Snížit hlasitost ostatních aplikací při přehrávání TTS</string>
@@ -625,6 +634,34 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="preference_uploader_header">Nahrávač médií</string>
     <string name="preference_uploader_configure_title">Konfigurace nahrávače</string>
     <string name="preference_uploader_recent_uploads_title">Nedávná nahrání</string>
+    <string name="preference_export_header">Export</string>
+    <string name="backup_channels_title">Kanály</string>
+    <string name="backup_export">Exportovat</string>
+    <string name="backup_import">Importovat</string>
+    <string name="backup_copy">Kopírovat do schránky</string>
+    <string name="backup_paste">Vložit ze schránky</string>
+    <string name="backup_channels_description">Exportuje všechny kanály včetně vlastních názvů. Import přidá jen chybějící kanály</string>
+    <string name="backup_settings_description">Exportuje všechna nastavení kromě tvého přihlášení</string>
+    <string name="backup_settings_uploader_note">Zahrnuje tvou vlastní konfiguraci nahrávače</string>
+    <string name="import_data_confirmation">Nahradit tvé nastavení, kanály, zvýraznění a ignorování importovanými? Aplikace se poté restartuje.</string>
+    <string name="export_data_done">Nastavení exportováno</string>
+    <string name="export_data_failed">Soubor se nepodařilo uložit</string>
+    <string name="import_data_failed">Tento soubor se nepodařilo přečíst</string>
+    <string name="import_data_newer_version">Tato záloha byla vytvořena novější verzí aplikace LemChat</string>
+    <string name="clipboard_no_export">Schránka neobsahuje export</string>
+    <plurals name="channels_exported">
+        <item quantity="one">Exportován %1$d kanál</item>
+        <item quantity="few">Exportovány %1$d kanály</item>
+        <item quantity="many">Exportováno %1$d kanálu</item>
+        <item quantity="other">Exportováno %1$d kanálů</item>
+    </plurals>
+    <plurals name="channels_imported">
+        <item quantity="one">Přidán %1$d kanál</item>
+        <item quantity="few">Přidány %1$d kanály</item>
+        <item quantity="many">Přidáno %1$d kanálu</item>
+        <item quantity="other">Přidáno %1$d kanálů</item>
+    </plurals>
+    <string name="channels_import_none_new">Všechny tyto kanály už jsou přidané</string>
     <string name="preference_tts_user_ignore_list_title">Seznam ignorovaných uživatelů</string>
     <string name="preference_tts_user_ignore_list_summary">Seznam uživatelů/účtů, kteří budou ignorováni</string>
     <string name="preference_tools_header">Nástroje</string>
@@ -657,8 +694,8 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="preference_stream_live_messages_summary">Přidá zprávu do chatu, když kanál začne nebo ukončí vysílání</string>
     <string name="preference_stream_extensions_title">Zobrazovat rozšíření streamu</string>
     <string name="preference_stream_extensions_summary">Zobrazuje rozšíření přes přehrávač streamu</string>
-    <string name="preference_retain_webview_title">Zabránit opětovnému načítání streamu</string>
-    <string name="preference_retain_webview_summary">Zapne experimentální funkci zabránění opětovnému načtení streamu po změně orientace obrazovky nebo opětovném otevření LemChatu.</string>
+    <string name="preference_keep_stream_while_typing_title">Ponechat stream viditelný při psaní</string>
+    <string name="preference_keep_stream_while_typing_summary">Zobrazuje stream na výšku, i když klávesnice nebo nabídka emotikonů nechávají málo místa pro chat</string>
     <string name="preference_show_changelogs">Zobrazit po aktualizaci seznam změn</string>
     <string name="preference_whats_new_header">Co je nového</string>
     <string name="preference_custom_login_title">Vlastní přihlášení</string>

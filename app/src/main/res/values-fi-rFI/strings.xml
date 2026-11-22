@@ -122,6 +122,7 @@
     <string name="system_message_connected">Yhdistetty</string>
     <string name="system_message_reconnected">Yhdistetty uudelleen</string>
     <string name="system_message_channel_non_existent">Tätä kanavaa ei ole olemassa</string>
+    <string name="system_message_channel_join_failed">Kanavaan liittyminen epäonnistui</string>
     <string name="system_message_disconnected">Yhteys katkaistu</string>
     <string name="system_message_history_unavailable_detailed">Viestihistoriapalvelu ei ole käytettävissä (Virhe %1$s)</string>
     <string name="system_message_history_unavailable">Viestihistoriapalvelu ei ole käytettävissä</string>
@@ -253,6 +254,7 @@
     </plurals>
     <string name="timed_out_message">&lt; Viesti poistettu &gt;</string>
     <string name="multi_entry_header_regex">Regex</string>
+    <string name="multi_entry_invalid_regex">Virheellinen regex</string>
     <string name="multi_entry_add_entry">Lisää merkintä</string>
     <string name="login_expired">Sisäänkirjautuminen on vanhentunut! Yritä kirjautua uudelleen.</string>
     <string name="message_history_disclaimer_title">Viestihistoriaa koskeva vastuuvapauslauseke</string>
@@ -297,6 +299,7 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="restart">Käynnistä uudelleen</string>
     <string name="uploader_reset">Palauta oletukset</string>
     <string name="uploader_url">Lataus-URL</string>
+    <string name="uploader_url_unresolved">Tätä verkkotunnusta ei löytynyt</string>
     <string name="uploader_field">Lomakekenttä</string>
     <string name="uploader_headers">Otsaketiedot</string>
     <string name="uploader_image_link">Medialinkin malli</string>
@@ -319,6 +322,8 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="menu_exit_fullscreen">Poistu koko näytöstä</string>
     <string name="menu_hide_input">Piilota syöttö</string>
     <string name="menu_show_input">Näytä syöttö</string>
+    <string name="menu_enable_tts">Ota TTS käyttöön</string>
+    <string name="menu_disable_tts">Poista TTS käytöstä</string>
     <string name="preference_fullscreen_button_opacity_title">Koko näytön painikkeiden läpinäkyvyys</string>
     <string name="preference_fullscreen_button_opacity_summary">Painikkeet koko näytön tilassa tai kun syöttö on piilotettu: %d%%</string>
     <string name="preference_fullscreen_button_opacity_hint">Läpinäkyvyys (1–100)</string>
@@ -341,6 +346,7 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="input_action_mod_actions">Kanavan moderointi</string>
     <string name="input_action_fullscreen">Koko näyttö</string>
     <string name="input_action_hide_input">Piilota syöttö</string>
+    <string name="input_action_tts">Tekstistä puheeksi</string>
     <string name="input_action_debug">Virheenkorjaus</string>
     <string name="input_action_configure">Muokkaa toimintoja</string>
     <string name="input_action_hide_all">Piilota kaikki toiminnot</string>
@@ -416,6 +422,7 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="tts_ignore_list_add_user">Lisää käyttäjä</string>
     <string name="tts_ignore_list_remove_user">Poista käyttäjä</string>
     <string name="tts_ignore_list_user_hint">Käyttäjä</string>
+    <string name="tts_start_failed">TTS:n käynnistäminen epäonnistui</string>
     <string name="recent_upload_deletion_link">Poistolinkki:\n%1$s</string>
     <string name="recent_uploads_clear">Tyhjennä lataukset</string>
     <string name="host">Hosti</string>
@@ -512,7 +519,7 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="preference_show_whispers_inline_title">Näytä kuiskaukset chatissa</string>
     <string name="preference_show_whispers_inline_summary">Näyttää lähetetyt ja vastaanotetut kuiskaukset kaikilla avoimilla kanavilla</string>
     <string name="preference_show_twitch_gifs_title">Näytä Twitch-GIFit</string>
-    <string name="preference_animate_gifs_title">Animoi gifit</string>
+    <string name="preference_animations_title">Animoi emotet, merkit ja GIFit</string>
     <string name="preference_line_separator_title">Erota viestit riveillä</string>
     <string name="preference_keep_screen_on_title">Pidä näyttö päällä</string>
     <string name="preference_font_size_title">Fonttikoko</string>
@@ -554,6 +561,8 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="preference_tts_message_ignore_url_message">Ohittaa URL-osoitteet TTS:ssä</string>
     <string name="preference_tts_message_ignore_command_message">Ohittaa viestit, jotka alkavat komentoetuliitteellä (!, $, %, +, -, ~)</string>
     <string name="preference_tts_message_ignore_command_title">Ohita komennot</string>
+    <string name="preference_tts_ignore_user_name_numbers_title">Ohita numerot käyttäjänimissä</string>
+    <string name="preference_tts_ignore_user_name_numbers_summary">Lukee käyttäjänimet ilman numeroita, esim. john1990 luetaan muodossa john</string>
     <string name="preference_tts_volume_title">Äänenvoimakkuus</string>
     <string name="preference_tts_audio_ducking_title">Äänen vaimennus</string>
     <string name="preference_tts_audio_ducking_summary">Hiljennä muiden sovellusten ääntä TTS:n puhuessa</string>
@@ -596,6 +605,30 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="preference_show_send_button_title">Näytä lähetyspainike</string>
     <string name="preference_input_group_title">Syöte</string>
     <string name="preference_uploader_header">Median lähettäjä</string>
+    <string name="preference_export_header">Vienti</string>
+    <string name="backup_channels_title">Kanavat</string>
+    <string name="backup_export">Vie</string>
+    <string name="backup_import">Tuo</string>
+    <string name="backup_copy">Kopioi leikepöydälle</string>
+    <string name="backup_paste">Liitä leikepöydältä</string>
+    <string name="backup_channels_description">Vie kaikki kanavat omine nimineen. Tuonti lisää vain puuttuvat kanavat</string>
+    <string name="backup_settings_description">Vie kaikki asetukset kirjautumistietojasi lukuun ottamatta</string>
+    <string name="backup_settings_uploader_note">Sisältää mukautetut median lähettäjän asetuksesi</string>
+    <string name="import_data_confirmation">Korvataanko asetuksesi, kanavasi, kohokohdat ja ohitukset tuoduilla? Sovellus käynnistyy sen jälkeen uudelleen.</string>
+    <string name="export_data_done">Asetukset viety</string>
+    <string name="export_data_failed">Tiedostoa ei voitu tallentaa</string>
+    <string name="import_data_failed">Tätä tiedostoa ei voitu lukea</string>
+    <string name="import_data_newer_version">Tämä varmuuskopio on luotu LemChatin uudemmalla versiolla</string>
+    <string name="clipboard_no_export">Leikepöydällä ei ole vientiä</string>
+    <plurals name="channels_exported">
+        <item quantity="one">%1$d kanava viety</item>
+        <item quantity="other">%1$d kanavaa viety</item>
+    </plurals>
+    <plurals name="channels_imported">
+        <item quantity="one">%1$d kanava lisätty</item>
+        <item quantity="other">%1$d kanavaa lisätty</item>
+    </plurals>
+    <string name="channels_import_none_new">Kaikki nämä kanavat on jo lisätty</string>
     <string name="preference_tools_header">Työkalut</string>
     <string name="preference_theme_title">Teema</string>
     <string name="preference_dark_theme_entry_title">Tumma teema</string>
@@ -615,6 +648,8 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="preference_stream_live_messages_summary">Lisää chattiin viestin, kun kanava aloittaa tai lopettaa lähetyksen</string>
     <string name="preference_stream_extensions_title">Näytä suoratoiston laajennukset</string>
     <string name="preference_stream_extensions_summary">Näyttää laajennukset suoratoistosoittimen päällä</string>
+    <string name="preference_keep_stream_while_typing_title">Pidä suoratoisto näkyvissä kirjoittaessa</string>
+    <string name="preference_keep_stream_while_typing_summary">Näyttää suoratoiston pystytilassa, vaikka näppäimistö tai hymiö-valikko jättäisi chatille vähän tilaa</string>
     <string name="preference_show_changelogs">Näytä muutosloki päivityksen jälkeen</string>
     <string name="preference_whats_new_header">Uutta</string>
     <string name="preference_custom_login_title">Mukautettu kirjautuminen</string>

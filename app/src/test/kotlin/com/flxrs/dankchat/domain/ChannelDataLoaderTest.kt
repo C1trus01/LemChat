@@ -20,8 +20,10 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
@@ -80,9 +82,9 @@ internal class ChannelDataLoaderTest {
 
     private fun stubAllEmotesAndBadgesSuccess() {
         coEvery { dataRepository.loadChannelBadges(testChannel, testChannelId) } returns Result.success(Unit)
-        coEvery { dataRepository.loadChannelBTTVEmotes(testChannel, any(), testChannelId) } returns Result.success(EmoteLoadResult.Loaded)
-        coEvery { dataRepository.loadChannelFFZEmotes(testChannel, testChannelId) } returns Result.success(EmoteLoadResult.Loaded)
-        coEvery { dataRepository.loadChannelSevenTVEmotes(testChannel, testChannelId) } returns Result.success(EmoteLoadResult.Loaded)
+        coEvery { dataRepository.loadChannelBTTVEmotes(testChannel, any(), testChannelId, any(), any()) } returns Result.success(EmoteLoadResult.Loaded)
+        coEvery { dataRepository.loadChannelFFZEmotes(testChannel, testChannelId, any(), any()) } returns Result.success(EmoteLoadResult.Loaded)
+        coEvery { dataRepository.loadChannelSevenTVEmotes(testChannel, testChannelId, any(), any()) } returns Result.success(EmoteLoadResult.Loaded)
         coEvery { dataRepository.loadChannelCheermotes(testChannel, testChannelId) } returns Result.success(Unit)
         coEvery { dataRepository.loadChannelFollowerEmotes(testChannel, testChannelId) } returns Result.success(Unit)
     }
@@ -121,12 +123,27 @@ internal class ChannelDataLoaderTest {
     }
 
     @Test
+    fun `channel is read after a shared lookup has finished`() = runTest(testDispatcher) {
+        val channelLookup = CompletableDeferred<Unit>()
+        coEvery { channelRepository.getChannel(testChannel) } returns testChannelInfo
+        stubAllEmotesAndBadgesSuccess()
+
+        val result = async { loader.loadChannelData(testChannel, channelLookup = channelLookup) }
+        coVerify(exactly = 0) { channelRepository.getChannel(testChannel) }
+
+        channelLookup.complete(Unit)
+
+        assertIs<ChannelLoadingState.Loaded>(result.await())
+        coVerify(exactly = 1) { channelRepository.getChannel(testChannel) }
+    }
+
+    @Test
     fun `loadChannelData returns Failed with BTTV failure`() = runTest(testDispatcher) {
         coEvery { channelRepository.getChannel(testChannel) } returns testChannelInfo
         coEvery { dataRepository.loadChannelBadges(testChannel, testChannelId) } returns Result.success(Unit)
-        coEvery { dataRepository.loadChannelBTTVEmotes(testChannel, any(), testChannelId) } returns Result.failure(RuntimeException("bttv down"))
-        coEvery { dataRepository.loadChannelFFZEmotes(testChannel, testChannelId) } returns Result.success(EmoteLoadResult.Loaded)
-        coEvery { dataRepository.loadChannelSevenTVEmotes(testChannel, testChannelId) } returns Result.success(EmoteLoadResult.Loaded)
+        coEvery { dataRepository.loadChannelBTTVEmotes(testChannel, any(), testChannelId, any(), any()) } returns Result.failure(RuntimeException("bttv down"))
+        coEvery { dataRepository.loadChannelFFZEmotes(testChannel, testChannelId, any(), any()) } returns Result.success(EmoteLoadResult.Loaded)
+        coEvery { dataRepository.loadChannelSevenTVEmotes(testChannel, testChannelId, any(), any()) } returns Result.success(EmoteLoadResult.Loaded)
         coEvery { dataRepository.loadChannelCheermotes(testChannel, testChannelId) } returns Result.success(Unit)
         coEvery { dataRepository.loadChannelFollowerEmotes(testChannel, testChannelId) } returns Result.success(Unit)
 
@@ -141,9 +158,9 @@ internal class ChannelDataLoaderTest {
     fun `loadChannelData collects multiple failures`() = runTest(testDispatcher) {
         coEvery { channelRepository.getChannel(testChannel) } returns testChannelInfo
         coEvery { dataRepository.loadChannelBadges(testChannel, testChannelId) } returns Result.failure(RuntimeException("badges down"))
-        coEvery { dataRepository.loadChannelBTTVEmotes(testChannel, any(), testChannelId) } returns Result.failure(RuntimeException("bttv down"))
-        coEvery { dataRepository.loadChannelFFZEmotes(testChannel, testChannelId) } returns Result.failure(RuntimeException("ffz down"))
-        coEvery { dataRepository.loadChannelSevenTVEmotes(testChannel, testChannelId) } returns Result.success(EmoteLoadResult.Loaded)
+        coEvery { dataRepository.loadChannelBTTVEmotes(testChannel, any(), testChannelId, any(), any()) } returns Result.failure(RuntimeException("bttv down"))
+        coEvery { dataRepository.loadChannelFFZEmotes(testChannel, testChannelId, any(), any()) } returns Result.failure(RuntimeException("ffz down"))
+        coEvery { dataRepository.loadChannelSevenTVEmotes(testChannel, testChannelId, any(), any()) } returns Result.success(EmoteLoadResult.Loaded)
         coEvery { dataRepository.loadChannelCheermotes(testChannel, testChannelId) } returns Result.success(Unit)
         coEvery { dataRepository.loadChannelFollowerEmotes(testChannel, testChannelId) } returns Result.success(Unit)
 
@@ -160,9 +177,9 @@ internal class ChannelDataLoaderTest {
     fun `loadChannelData posts system messages for emote failures`() = runTest(testDispatcher) {
         coEvery { channelRepository.getChannel(testChannel) } returns testChannelInfo
         coEvery { dataRepository.loadChannelBadges(testChannel, testChannelId) } returns Result.success(Unit)
-        coEvery { dataRepository.loadChannelBTTVEmotes(testChannel, any(), testChannelId) } returns Result.failure(RuntimeException("bttv"))
-        coEvery { dataRepository.loadChannelFFZEmotes(testChannel, testChannelId) } returns Result.success(EmoteLoadResult.Loaded)
-        coEvery { dataRepository.loadChannelSevenTVEmotes(testChannel, testChannelId) } returns Result.failure(RuntimeException("7tv"))
+        coEvery { dataRepository.loadChannelBTTVEmotes(testChannel, any(), testChannelId, any(), any()) } returns Result.failure(RuntimeException("bttv"))
+        coEvery { dataRepository.loadChannelFFZEmotes(testChannel, testChannelId, any(), any()) } returns Result.success(EmoteLoadResult.Loaded)
+        coEvery { dataRepository.loadChannelSevenTVEmotes(testChannel, testChannelId, any(), any()) } returns Result.failure(RuntimeException("7tv"))
         coEvery { dataRepository.loadChannelCheermotes(testChannel, testChannelId) } returns Result.success(Unit)
         coEvery { dataRepository.loadChannelFollowerEmotes(testChannel, testChannelId) } returns Result.success(Unit)
 
@@ -170,6 +187,22 @@ internal class ChannelDataLoaderTest {
 
         coVerify { chatMessageRepository.addSystemMessage(testChannel, match { it is SystemMessageType.ChannelBTTVEmotesFailed }) }
         coVerify { chatMessageRepository.addSystemMessage(testChannel, match { it is SystemMessageType.ChannelSevenTVEmotesFailed }) }
+    }
+
+    @Test
+    fun `slow emote provider does not hold back reparsing of finished steps`() = runTest(testDispatcher) {
+        val ffzResult = CompletableDeferred<Result<EmoteLoadResult>>()
+        coEvery { channelRepository.getChannel(testChannel) } returns testChannelInfo
+        stubAllEmotesAndBadgesSuccess()
+        coEvery { dataRepository.loadChannelFFZEmotes(testChannel, testChannelId, any(), any()) } coAnswers { ffzResult.await() }
+
+        val result = async { loader.loadChannelData(testChannel) }
+
+        coVerify { chatMessageRepository.reparseEmotesAndBadges(testChannel) }
+        assertTrue(result.isActive)
+
+        ffzResult.complete(Result.success(EmoteLoadResult.Loaded))
+        assertEquals(ChannelLoadingState.Loaded, result.await())
     }
 
     @Test

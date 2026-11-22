@@ -24,11 +24,12 @@ data class ChatInputUiState(
     val isEmoteMenuOpen: Boolean = false,
     val helperText: HelperText = HelperText(),
     val isWhisperTabActive: Boolean = false,
-    val showClearInputButton: Boolean = true,
+    val showClearInputButton: Boolean = false,
     val showSendButton: Boolean = true,
     val showSendWaitTimer: Boolean = false,
     val isCompactMode: Boolean = false,
     val userLongClickBehavior: UserLongClickBehavior = UserLongClickBehavior.MentionsUser,
+    val animateEmotes: Boolean = true,
 ) {
     val hasLastMessage: Boolean get() = recentMessages.isNotEmpty()
 }
@@ -63,8 +64,14 @@ sealed interface CharacterCounterState {
 @Immutable
 data class HelperText(
     val roomStateParts: ImmutableList<TextResource> = persistentListOf(),
-    val streamInfo: String? = null,
+    val streamInfo: StreamInfoText? = null,
     val isCompact: Boolean = false,
 ) {
     val isEmpty: Boolean get() = roomStateParts.isEmpty() && streamInfo == null
 }
+
+@Immutable
+data class StreamInfoText(
+    val full: String,
+    val compact: String,
+)

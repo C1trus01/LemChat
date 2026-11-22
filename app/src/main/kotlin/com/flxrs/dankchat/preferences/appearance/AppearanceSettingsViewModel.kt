@@ -77,6 +77,8 @@ class AppearanceSettingsViewModel(
                 is AppearanceSettingsInteraction.RequireFullscreenExitConfirmation -> dataStore.update { it.copy(requireFullscreenExitConfirmation = interaction.value) }
 
                 is AppearanceSettingsInteraction.CompactChannelInfo -> dataStore.update { it.copy(compactChannelInfo = interaction.value) }
+
+                is AppearanceSettingsInteraction.SetChannelBarLayout -> dataStore.update { it.copy(channelBarLayout = interaction.layout) }
             }
         }
     }

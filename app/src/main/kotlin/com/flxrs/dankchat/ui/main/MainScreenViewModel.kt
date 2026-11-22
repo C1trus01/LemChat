@@ -11,16 +11,19 @@ import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.appearance.HubAction
 import com.flxrs.dankchat.preferences.appearance.InputAction
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
+import com.flxrs.dankchat.preferences.stream.StreamsSettingsDataStore
+import com.flxrs.dankchat.preferences.tools.ToolsSettingsDataStore
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -28,7 +31,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
 
-@OptIn(FlowPreview::class)
 @KoinViewModel
 class MainScreenViewModel(
     private val channelDataCoordinator: ChannelDataCoordinator,
@@ -36,32 +38,40 @@ class MainScreenViewModel(
     private val preferenceStore: DankChatPreferenceStore,
     private val developerSettingsDataStore: DeveloperSettingsDataStore,
     private val userStateRepository: UserStateRepository,
+    private val toolsSettingsDataStore: ToolsSettingsDataStore,
+    streamsSettingsDataStore: StreamsSettingsDataStore,
 ) : ViewModel() {
     private val _loadingFailureState = MutableStateFlow(LoadingFailureState())
     val loadingFailureState: StateFlow<LoadingFailureState> = _loadingFailureState.asStateFlow()
 
     private val _isFullscreen = MutableStateFlow(false)
     private val _gestureToolbarHidden = MutableStateFlow(false)
-    private val _keyboardHeightUpdates = MutableSharedFlow<KeyboardHeightUpdate>(extraBufferCapacity = 1)
+    private val _keyboardHeightUpdates = MutableSharedFlow<KeyboardHeightUpdate>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     private val _keyboardHeightPx = MutableStateFlow(0)
     val keyboardHeightPx: StateFlow<Int> = _keyboardHeightPx.asStateFlow()
+
+    private val screenModes = combine(_isFullscreen, _gestureToolbarHidden, ::Pair)
 
     val uiState: StateFlow<MainScreenUiState> =
         combine(
             appearanceSettingsDataStore.settings,
             developerSettingsDataStore.settings,
-            _isFullscreen,
-            _gestureToolbarHidden,
-        ) { appearance, developerSettings, isFullscreen, gestureToolbarHidden ->
+            streamsSettingsDataStore.keepStreamWhileTyping,
+            toolsSettingsDataStore.ttsEnabled,
+            screenModes,
+        ) { appearance, developerSettings, keepStreamWhileTyping, ttsEnabled, (isFullscreen, gestureToolbarHidden) ->
             MainScreenUiState(
                 isFullscreen = isFullscreen,
+                isTTSEnabled = ttsEnabled,
                 showInput = appearance.showInput,
                 inputActions = appearance.inputActions.toImmutableList(),
                 pinnedHubAction = appearance.pinnedHubAction,
+                channelBarLayout = appearance.channelBarLayout,
                 showCharacterCounter = appearance.showCharacterCounter,
                 isRepeatedSendEnabled = developerSettings.repeatedSending,
                 debugMode = developerSettings.debugMode,
                 fontSize = appearance.fontSize,
+                keepStreamWhileTyping = keepStreamWhileTyping,
                 swipeNavigation = appearance.swipeNavigation,
                 gestureToolbarHidden = gestureToolbarHidden,
             )
@@ -112,15 +122,29 @@ class MainScreenViewModel(
                 }
         }
 
+        // The emote menu matches the keyboard without its panels (emoji, clipboard), which only make it taller.
+        // So the height it opens with is kept, and while it stays open only a lower height replaces it.
+        // Every height has to hold for the settle time, heights in passing are skipped
         viewModelScope.launch {
+            var settled: KeyboardHeightUpdate? = null
             _keyboardHeightUpdates
-                .debounce(300)
-                .collect { (heightPx, isLandscape) ->
-                    _keyboardHeightPx.value = heightPx
-                    if (isLandscape) {
-                        preferenceStore.keyboardHeightLandscape = heightPx
-                    } else {
-                        preferenceStore.keyboardHeightPortrait = heightPx
+                .distinctUntilChanged()
+                .collectLatest { update ->
+                    val current = settled
+                    when {
+                        update.heightPx == 0 -> {
+                            settled = null
+                        }
+
+                        current == null || current.isLandscape != update.isLandscape || update.heightPx < current.heightPx -> {
+                            delay(KEYBOARD_SETTLE_MS)
+                            settled = update
+                            _keyboardHeightPx.value = update.heightPx
+                            when {
+                                update.isLandscape -> preferenceStore.keyboardHeightLandscape = update.heightPx
+                                else -> preferenceStore.keyboardHeightPortrait = update.heightPx
+                            }
+                        }
                     }
                 }
         }
@@ -148,9 +172,13 @@ class MainScreenViewModel(
         isLandscape: Boolean,
         minHeightPx: Float,
     ) {
-        if (heightPx > minHeightPx) {
-            _keyboardHeightUpdates.tryEmit(KeyboardHeightUpdate(heightPx, isLandscape))
-        }
+        // Anything below the minimum counts as a closed keyboard
+        val openHeightPx =
+            when {
+                heightPx > minHeightPx -> heightPx
+                else -> 0
+            }
+        _keyboardHeightUpdates.tryEmit(KeyboardHeightUpdate(openHeightPx, isLandscape))
     }
 
     fun toggleInput() {
@@ -165,6 +193,18 @@ class MainScreenViewModel(
         viewModelScope.launch {
             appearanceSettingsDataStore.update { it.copy(showInput = true) }
         }
+    }
+
+    fun showInput() {
+        _gestureToolbarHidden.value = false
+        viewModelScope.launch {
+            appearanceSettingsDataStore.update { it.copy(showInput = true) }
+        }
+    }
+
+    fun exitFullscreen() {
+        _gestureToolbarHidden.value = false
+        _isFullscreen.value = false
     }
 
     fun updateInputActions(actions: ImmutableList<InputAction>) {
@@ -183,6 +223,12 @@ class MainScreenViewModel(
         _isFullscreen.update { !it }
     }
 
+    fun setTTSEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            toolsSettingsDataStore.update { it.copy(ttsEnabled = enabled) }
+        }
+    }
+
     fun acknowledgeFailure(failure: GlobalLoadingState.Failed) {
         _loadingFailureState.update { current ->
             if (current.failure == failure) current.copy(acknowledged = true) else current
@@ -195,6 +241,7 @@ class MainScreenViewModel(
 
     companion object {
         private const val MAX_INPUT_ACTIONS = 4
+        private const val KEYBOARD_SETTLE_MS = 300L
     }
 }
 

@@ -74,6 +74,10 @@ sealed interface AppearanceSettingsInteraction {
     data class CompactChannelInfo(
         val value: Boolean,
     ) : AppearanceSettingsInteraction
+
+    data class SetChannelBarLayout(
+        val layout: ChannelBarLayout,
+    ) : AppearanceSettingsInteraction
 }
 
 @Immutable

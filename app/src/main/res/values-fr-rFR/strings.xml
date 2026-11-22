@@ -127,6 +127,7 @@
     <string name="system_message_connected">Connecté</string>
     <string name="system_message_reconnected">Reconnecté</string>
     <string name="system_message_channel_non_existent">Cette chaîne n\'existe pas</string>
+    <string name="system_message_channel_join_failed">Impossible de rejoindre cette chaîne</string>
     <string name="system_message_disconnected">Déconnecté</string>
     <string name="system_message_history_unavailable_detailed">Service d\'historique des messages indisponible (Erreur %1$s)</string>
     <string name="system_message_history_unavailable">Service d\'historique des messages indisponible</string>
@@ -260,6 +261,7 @@
     </plurals>
     <string name="timed_out_message">&lt; Message supprimé &gt;</string>
     <string name="multi_entry_header_regex">Regex</string>
+    <string name="multi_entry_invalid_regex">Regex invalide</string>
     <string name="multi_entry_add_entry">Ajouter une entrée</string>
     <string name="login_expired">Authentification expirée! Essayez de vous reconnecter.</string>
     <string name="message_history_disclaimer_title">Notice pour les anciens messages</string>
@@ -304,6 +306,7 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="restart">Redémarrer</string>
     <string name="uploader_reset">Rétablir les valeurs par défaut</string>
     <string name="uploader_url">Url d\'upload</string>
+    <string name="uploader_url_unresolved">Impossible de trouver ce domaine</string>
     <string name="uploader_field">Champ de formulaire</string>
     <string name="uploader_headers">Entêtes</string>
     <string name="uploader_image_link">Modèle de lien vers les médias</string>
@@ -326,6 +329,8 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="menu_exit_fullscreen">Quitter le plein écran</string>
     <string name="menu_hide_input">Masquer la saisie</string>
     <string name="menu_show_input">Afficher la saisie</string>
+    <string name="menu_enable_tts">Activer le TTS</string>
+    <string name="menu_disable_tts">Désactiver le TTS</string>
     <string name="preference_fullscreen_button_opacity_title">Opacité des boutons en plein écran</string>
     <string name="preference_fullscreen_button_opacity_summary">Boutons affichés en plein écran ou lorsque la saisie est masquée : %d%%</string>
     <string name="preference_fullscreen_button_opacity_hint">Opacité (1–100)</string>
@@ -349,6 +354,7 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="input_action_mod_actions">Modération du canal</string>
     <string name="input_action_fullscreen">Plein écran</string>
     <string name="input_action_hide_input">Masquer la saisie</string>
+    <string name="input_action_tts">Synthèse vocale</string>
     <string name="input_action_debug">Débogage</string>
     <string name="input_action_configure">Configurer les actions</string>
     <string name="input_action_hide_all">Masquer toutes les actions</string>
@@ -425,6 +431,7 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="tts_ignore_list_add_user">Ajouter un utilisateur</string>
     <string name="tts_ignore_list_remove_user">Supprimer un utilisateur</string>
     <string name="tts_ignore_list_user_hint">Utilisateur</string>
+    <string name="tts_start_failed">Impossible de démarrer le TTS</string>
     <string name="recent_upload_deletion_link">Lien de suppression :\n%1$s</string>
     <string name="recent_uploads_clear">Supprimer vos fichiers mis en ligne</string>
     <string name="host">Hôte</string>
@@ -522,7 +529,7 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="preference_show_whispers_inline_title">Afficher les messages privés dans le chat</string>
     <string name="preference_show_whispers_inline_summary">Affiche les messages privés envoyés et reçus dans toutes les chaînes ouvertes</string>
     <string name="preference_show_twitch_gifs_title">Afficher les GIF Twitch</string>
-    <string name="preference_animate_gifs_title">Animer les gifs</string>
+    <string name="preference_animations_title">Animer les emotes, badges et GIF</string>
     <string name="preference_line_separator_title">Séparer les messages par des lignes</string>
     <string name="preference_keep_screen_on_title">Forcer l\'écran allumé</string>
     <string name="preference_font_size_title">Taille du texte</string>
@@ -567,6 +574,8 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="preference_tts_message_ignore_emote_title">Ignorer les emotes</string>
     <string name="preference_tts_message_ignore_command_message">Ignorer les messages commençant par un préfixe de commande (!, $, %, +, -, ~)</string>
     <string name="preference_tts_message_ignore_command_title">Ignorer les commandes</string>
+    <string name="preference_tts_ignore_user_name_numbers_title">Ignorer les chiffres des noms d\'utilisateur</string>
+    <string name="preference_tts_ignore_user_name_numbers_summary">Lit les noms d\'utilisateur sans les chiffres, par ex. john1990 devient john</string>
     <string name="preference_tts_volume_title">Volume</string>
     <string name="preference_tts_audio_ducking_title">Atténuation audio</string>
     <string name="preference_tts_audio_ducking_summary">Réduire le volume des autres applications pendant la lecture TTS</string>
@@ -615,6 +624,32 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="preference_uploader_header">Mise en ligne de fichiers</string>
     <string name="preference_uploader_configure_title">Configurer la mise en ligne de fichiers personnalisée</string>
     <string name="preference_uploader_recent_uploads_title">Fichiers récents</string>
+    <string name="preference_export_header">Exporter</string>
+    <string name="backup_channels_title">Chaînes</string>
+    <string name="backup_export">Exporter</string>
+    <string name="backup_import">Importer</string>
+    <string name="backup_copy">Copier dans le presse-papiers</string>
+    <string name="backup_paste">Coller depuis le presse-papiers</string>
+    <string name="backup_channels_description">Exporte toutes les chaînes avec leurs noms personnalisés. L\'importation ajoute uniquement les chaînes manquantes</string>
+    <string name="backup_settings_description">Exporte tous les réglages sauf votre connexion</string>
+    <string name="backup_settings_uploader_note">Inclut votre configuration personnalisée de mise en ligne de fichiers</string>
+    <string name="import_data_confirmation">Remplacer vos réglages, chaînes, surbrillances et éléments ignorés par ceux importés ? L\'application redémarre ensuite.</string>
+    <string name="export_data_done">Réglages exportés</string>
+    <string name="export_data_failed">Impossible d\'enregistrer le fichier</string>
+    <string name="import_data_failed">Impossible de lire ce fichier</string>
+    <string name="import_data_newer_version">Cette sauvegarde a été créée avec une version plus récente de LemChat</string>
+    <string name="clipboard_no_export">Le presse-papiers ne contient pas d\'export</string>
+    <plurals name="channels_exported">
+        <item quantity="one">%1$d chaîne exportée</item>
+        <item quantity="many">%1$d chaînes exportées</item>
+        <item quantity="other">%1$d chaînes exportées</item>
+    </plurals>
+    <plurals name="channels_imported">
+        <item quantity="one">%1$d chaîne ajoutée</item>
+        <item quantity="many">%1$d chaînes ajoutées</item>
+        <item quantity="other">%1$d chaînes ajoutées</item>
+    </plurals>
+    <string name="channels_import_none_new">Toutes ces chaînes sont déjà ajoutées</string>
     <string name="preference_tts_user_ignore_list_title">Liste des utilisateurs ignorés</string>
     <string name="preference_tts_user_ignore_list_summary">Liste des utilisateurs/comptes qui seront ignorés</string>
     <string name="preference_tools_header">Outils</string>
@@ -647,8 +682,8 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="preference_stream_live_messages_summary">Ajoute un message dans le chat lorsqu\'une chaîne commence ou termine son direct</string>
     <string name="preference_stream_extensions_title">Afficher les extensions du live</string>
     <string name="preference_stream_extensions_summary">Affiche les superpositions d\'extensions sur le lecteur du live</string>
-    <string name="preference_retain_webview_title">Empêcher les rechargements du live</string>
-    <string name="preference_retain_webview_summary">Active la prévention expérimentale des recharges du live après changement d\'orientation ou réouverture de LemChat.</string>
+    <string name="preference_keep_stream_while_typing_title">Garder le live visible pendant la saisie</string>
+    <string name="preference_keep_stream_while_typing_summary">Affiche le live en mode portrait même si le clavier ou le menu des émotes laisse peu de place au chat</string>
     <string name="preference_show_changelogs">Afficher l\'historique des modifications après la mise à jour</string>
     <string name="preference_whats_new_header">Quoi de neuf</string>
     <string name="preference_custom_login_title">Connexion personnalisée</string>

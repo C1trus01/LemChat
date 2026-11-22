@@ -75,7 +75,7 @@ class AuthStateCoordinator(
         // React to login state changes — handles both login and logout.
         // distinctUntilChangedBy on isLoggedIn+oAuthKey solves re-login (new token = new oAuthKey).
         // The initial emission is skipped (startup connection handled by ConnectionCoordinator).
-        // Observes currentSettings since the reconnect reads the credentials from it, they must not be stale.
+        // Collects the state the connections read their credentials from, so a reconnect never sees the previous login.
         scope.launch {
             var previousUserId: String? = null
             authDataStore.currentSettings
@@ -91,19 +91,20 @@ class AuthStateCoordinator(
                         settings.isLoggedIn -> {
                             if (accountChanged) {
                                 emoteRepository.clearTwitchEmotes()
-                                ignoresRepository.clearIgnores()
                                 clearUserData()
                             }
                             startupValidationHolder.update(StartupValidation.Validated)
                             chatConnector.closeAndReconnect(chatChannelProvider.channels.value.orEmpty())
                             channelDataCoordinator.reloadGlobalData()
+                            // Channel badges, cheermotes and follower emotes are only loaded with a valid login
+                            channelDataCoordinator.reloadAllChannels()
                             settings.userName?.let { name ->
                                 _events.send(AuthEvent.LoggedIn(UserName(name)))
                             }
                         }
 
                         else -> {
-                            channelDataCoordinator.cancelGlobalLoading()
+                            channelDataCoordinator.restartGlobalLoadingIfActive()
                             emoteRepository.clearTwitchEmotes()
                             clearUserData()
                             chatConnector.closeAndReconnect(chatChannelProvider.channels.value.orEmpty())
@@ -116,6 +117,7 @@ class AuthStateCoordinator(
     // Chat state tied to the previous account must not carry over to the next one
     private fun clearUserData() {
         userStateRepository.clear()
+        ignoresRepository.clearIgnores()
         chatEventProcessor.clearUserData()
         chatNotificationRepository.clearUserData()
         sendWaitRepository.clearAll()
@@ -223,7 +225,6 @@ class AuthStateCoordinator(
             WebStorage.getInstance().deleteAllData()
 
             userStateRepository.clear()
-            ignoresRepository.clearIgnores()
             emoteUsageRepository.clearUsages()
 
             // Setting isLoggedIn = false triggers the settings observer which handles

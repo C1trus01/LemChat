@@ -2,6 +2,8 @@ package com.flxrs.dankchat.data.repo.stream
 
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.auth.AuthDataStore
+import com.flxrs.dankchat.data.auth.StartupValidation
+import com.flxrs.dankchat.data.auth.StartupValidationHolder
 import com.flxrs.dankchat.data.repo.chat.ChatMessageRepository
 import com.flxrs.dankchat.data.repo.data.DataRepository
 import com.flxrs.dankchat.data.twitch.message.SystemMessageType
@@ -11,6 +13,7 @@ import com.flxrs.dankchat.preferences.stream.StreamsSettingsDataStore
 import com.flxrs.dankchat.utils.AppLifecycleListener
 import com.flxrs.dankchat.utils.AppLifecycleListener.AppLifecycle
 import com.flxrs.dankchat.utils.DateTimeUtils
+import com.flxrs.dankchat.utils.extensions.runCatchingCancellable
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -38,11 +41,12 @@ import kotlin.time.TimeSource
 @Single
 class StreamDataRepository(
     private val dataRepository: DataRepository,
-    private val authDataStore: AuthDataStore,
     private val dankChatPreferenceStore: DankChatPreferenceStore,
     private val streamsSettingsDataStore: StreamsSettingsDataStore,
     private val chatMessageRepository: ChatMessageRepository,
     private val appLifecycleListener: AppLifecycleListener,
+    authDataStore: AuthDataStore,
+    startupValidationHolder: StartupValidationHolder,
     dispatchersProvider: DispatchersProvider,
 ) {
     private val scope = CoroutineScope(dispatchersProvider.io + SupervisorJob())
@@ -54,6 +58,15 @@ class StreamDataRepository(
     val fetchCount: Int get() = _fetchCount.load()
 
     init {
+        // Helix rejects requests until the startup validation resolved, a later login restarts the polling
+        val authState =
+            combine(startupValidationHolder.state, authDataStore.settings.map { it.isLoggedIn }) { validation, isLoggedIn ->
+                when {
+                    validation is StartupValidation.Pending -> AuthState.Pending
+                    validation is StartupValidation.TokenInvalid || !isLoggedIn -> AuthState.Unavailable
+                    else -> AuthState.Available
+                }
+            }.distinctUntilChanged()
         scope.launch {
             var pausedAt: TimeSource.Monotonic.ValueTimeMark? = null
             combine(
@@ -61,10 +74,14 @@ class StreamDataRepository(
                 streamsSettingsDataStore.settings
                     .map { FetchConfig(fetchStreams = it.fetchStreams, showStreamCategory = it.showStreamCategory) }
                     .distinctUntilChanged(),
+                authState,
                 appLifecycleListener.appState,
-            ) { channels, config, lifecycle -> Triple(channels, config, lifecycle) }
-                .collectLatest { (channels, config, lifecycle) ->
-                    if (channels.isEmpty() || !config.fetchStreams || !authDataStore.isLoggedIn) {
+            ) { channels, config, auth, lifecycle -> PollingState(channels, config, auth, lifecycle) }
+                .collectLatest { (channels, config, auth, lifecycle) ->
+                    if (auth == AuthState.Pending) {
+                        return@collectLatest
+                    }
+                    if (channels.isEmpty() || !config.fetchStreams || auth == AuthState.Unavailable) {
                         liveStates.clear()
                         _streamData.value = persistentListOf()
                         return@collectLatest
@@ -81,7 +98,7 @@ class StreamDataRepository(
                     pausedAt = null
                     coroutineScope {
                         while (isActive) {
-                            runCatching { fetchOnce(channels) }
+                            runCatchingCancellable { fetchOnce(channels) }
                             delay(STREAM_REFRESH_RATE)
                         }
                     }
@@ -93,13 +110,14 @@ class StreamDataRepository(
         activeChannels.value = channels
     }
 
-    suspend fun fetchOnce(channels: List<UserName>) {
+    private suspend fun fetchOnce(channels: List<UserName>) {
         val currentSettings = streamsSettingsDataStore.settings.first()
         _fetchCount += 1
-        val streams = dataRepository.getStreams(channels)
+        // A failed request keeps the last known data
+        val streams = dataRepository.getStreams(channels) ?: return
         val data =
             streams
-                ?.map {
+                .map {
                     val uptime = DateTimeUtils.calculateUptime(it.startedAt)
                     val category =
                         it.category
@@ -117,13 +135,10 @@ class StreamDataRepository(
                         category = it.category,
                         title = it.title?.ifBlank { null },
                     )
-                }.orEmpty()
+                }
 
-        // A failed refresh says nothing about who is live, so the last known state stays
-        if (streams != null) {
-            postLiveStatusMessages(channels, data, currentSettings.showLiveMessages)
-            _streamData.value = data.toImmutableList()
-        }
+        postLiveStatusMessages(channels, data, currentSettings.showLiveMessages)
+        _streamData.value = data.toImmutableList()
     }
 
     fun cancelStreamData() {
@@ -154,6 +169,19 @@ class StreamDataRepository(
     private data class FetchConfig(
         val fetchStreams: Boolean,
         val showStreamCategory: Boolean,
+    )
+
+    private enum class AuthState {
+        Pending,
+        Available,
+        Unavailable,
+    }
+
+    private data class PollingState(
+        val channels: List<UserName>,
+        val config: FetchConfig,
+        val auth: AuthState,
+        val lifecycle: AppLifecycle,
     )
 
     companion object {

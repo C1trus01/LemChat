@@ -23,16 +23,20 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.time.LocalDateTime
-import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.TimeSource
 
-private val CHECK_INTERVAL = 3.seconds
+// Two readings in a row must disagree, which is longer than any inset animation
+private val CHECK_INTERVAL = 500.milliseconds
+private val RESUME_REFRESH_DELAY = 500.milliseconds
 private const val LOG_FILE_NAME = "navbar_insets.log"
 private const val LOG_MAX_BYTES = 64 * 1024L
 
 /**
- * The input sometimes ends up behind the navigation buttons, seen after the app sat in the background for hours.
- * The trigger is still unknown, so this notices the state, tries to leave it and records what it saw.
- * Remove it once the cause is found and fixed.
+ * The input sometimes ended up behind the navigation buttons. The log showed the window always had the right
+ * navigation bar inset while Compose kept a stale 0, and asking for the insets again fixed it every time.
+ * So the insets are asked for again whenever the app comes back, and a stale value is caught within a second.
+ * The log stays to show whether the state still happens, remove the checks once it stays quiet.
  */
 @Composable
 internal fun NavBarInsetWatchdog(expectBarsVisible: Boolean) {
@@ -45,6 +49,11 @@ internal fun NavBarInsetWatchdog(expectBarsVisible: Boolean) {
 
     LaunchedEffect(view, lifecycleOwner) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            // Insets dispatched while the app was away can be missed, the second request covers a window still settling
+            val resumedAt = TimeSource.Monotonic.markNow()
+            ViewCompat.requestApplyInsets(view)
+            delay(RESUME_REFRESH_DELAY)
+            ViewCompat.requestApplyInsets(view)
             var wasWrong = false
             var isReported = false
             while (isActive) {
@@ -62,7 +71,7 @@ internal fun NavBarInsetWatchdog(expectBarsVisible: Boolean) {
                     isWrong && wasWrong -> {
                         if (!isReported) {
                             isReported = true
-                            appendLog(context, "wrong applied=$applied window=$window full=$full expectVisible=$expectVisible")
+                            appendLog(context, "wrong applied=$applied window=$window full=$full expectVisible=$expectVisible sinceResume=${resumedAt.elapsedNow().inWholeSeconds}s")
                         }
                         ViewCompat.requestApplyInsets(view)
                         if (isHidden) {

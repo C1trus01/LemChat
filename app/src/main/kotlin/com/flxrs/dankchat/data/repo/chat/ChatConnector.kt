@@ -99,6 +99,10 @@ class ChatConnector(
         readConnection.joinChannel(channel)
     }
 
+    fun rejoinIrcChannel(channel: UserName) {
+        readConnection.rejoinChannel(channel)
+    }
+
     // IRC-only part that keeps all channel state, PubSub and EventSub topics intact,
     // used for temporarily leaving busy channels while the app is backgrounded
     fun partIrcChannel(channel: UserName) {
@@ -107,7 +111,6 @@ class ChatConnector(
 
     fun partChannel(channel: UserName) {
         scope.launch { readConnection.partChannel(channel) }
-        pubSubManager.removeChannel(channel)
         eventSubManager.removeChannel(channel)
     }
 

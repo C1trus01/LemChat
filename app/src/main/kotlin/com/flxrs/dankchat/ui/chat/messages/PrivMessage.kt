@@ -27,6 +27,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -35,7 +36,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
-import coil3.compose.LocalPlatformContext
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.ui.chat.BadgeUi
@@ -50,7 +50,6 @@ import com.flxrs.dankchat.ui.chat.messages.common.ResolvedUsernameMention
 import com.flxrs.dankchat.ui.chat.messages.common.appendInlineSpacer
 import com.flxrs.dankchat.ui.chat.messages.common.appendWithLinks
 import com.flxrs.dankchat.ui.chat.messages.common.effectiveBackgroundArgb
-import com.flxrs.dankchat.ui.chat.messages.common.launchCustomTab
 import com.flxrs.dankchat.ui.chat.messages.common.parseUserAnnotation
 import com.flxrs.dankchat.ui.chat.messages.common.rememberAdaptiveLinkColor
 import com.flxrs.dankchat.ui.chat.messages.common.rememberAdaptiveTextColor
@@ -251,7 +250,7 @@ private fun PrivMessageWithTwitchGifs(
     onEmoteClick: (emotes: List<EmoteSheetData>) -> Unit,
     onTap: (() -> Unit)?,
 ) {
-    val context = LocalPlatformContext.current
+    val uriHandler = LocalUriHandler.current
     val parts = message.gifContentParts
     val firstText = parts.firstOrNull() as? TwitchGifContentPartUi.Text
     val hasPrefix = showChannelPrefix || message.timestamp.isNotEmpty() || message.badges.isNotEmpty() || message.nameText.isNotEmpty()
@@ -292,7 +291,7 @@ private fun PrivMessageWithTwitchGifs(
                     fontSize = fontSize,
                     fallbackColor = gifFallbackColor,
                     animateGifs = animateGifs,
-                    onClick = { launchCustomTab(context, part.gif.url) },
+                    onClick = { uriHandler.openUri(part.gif.url) },
                     onLongClick = { onMessageLongClick(message.id, message.channel.value, message.fullMessage) },
                 )
             }
@@ -334,7 +333,7 @@ private fun PrivMessageText(
     contentEnd: Int = message.message.length,
     includePrefix: Boolean = true,
 ) {
-    val context = LocalPlatformContext.current
+    val uriHandler = LocalUriHandler.current
     val defaultTextColor = rememberAdaptiveTextColor(backgroundColor)
     val nameColor = rememberNormalizedColor(message.rawNameColor, backgroundColor)
     val linkColor = rememberAdaptiveLinkColor(backgroundColor)
@@ -536,7 +535,7 @@ private fun PrivMessageText(
                     onUserClick(it.userId, it.userName, it.displayName, it.channel.orEmpty(), badges, false)
                 }
 
-                url != null -> launchCustomTab(context, url.item)
+                url != null -> uriHandler.openUri(url.item)
 
                 else -> onTap?.invoke()
             }

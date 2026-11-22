@@ -1,5 +1,6 @@
 package com.flxrs.dankchat.data.repo.emote
 
+import com.flxrs.dankchat.data.api.bttv.dto.BTTVGlobalEmoteDto
 import com.flxrs.dankchat.data.api.helix.HelixApiClient
 import com.flxrs.dankchat.data.irc.IrcMessage
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
@@ -15,9 +16,11 @@ import com.flxrs.dankchat.data.twitch.message.PrivMessage
 import com.flxrs.dankchat.data.twitch.message.TwitchGif
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
+import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Test
@@ -262,6 +265,52 @@ internal class EmoteRepositoryTest {
         parsed.emotes.forEach { emote ->
             assertEquals(expected = "forsenE", actual = parsed.message.substring(emote.position.first, emote.position.last))
         }
+    }
+
+    @Test
+    fun `twitch emote urls are built from the emote id for every position`() {
+        val emotes = listOf(EmoteWithPositions(id = "25", positions = listOf(0..4, 6..10)), EmoteWithPositions(id = "emotesv2_abc", positions = listOf(12..16)))
+        val result = emoteRepository.parseTwitchEmotes(
+            emotesWithPositions = emotes,
+            message = "Kappa Kappa Keepo",
+            supplementaryCodePointPositions = emptyList(),
+            appendedSpaces = emptyList(),
+            removedSpaces = emptyList(),
+            replyMentionOffset = 0,
+        )
+
+        assertEquals(
+            expected = listOf(
+                "https://static-cdn.jtvnw.net/emoticons/v2/25/default/dark/3.0",
+                "https://static-cdn.jtvnw.net/emoticons/v2/25/default/dark/3.0",
+                "https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_abc/default/dark/3.0",
+            ),
+            actual = result.map { it.url },
+        )
+        assertEquals(
+            expected = listOf(
+                "https://static-cdn.jtvnw.net/emoticons/v2/25/default/dark/2.0",
+                "https://static-cdn.jtvnw.net/emoticons/v2/25/default/dark/2.0",
+                "https://static-cdn.jtvnw.net/emoticons/v2/emotesv2_abc/default/dark/2.0",
+            ),
+            actual = result.map { it.lowResUrl },
+        )
+    }
+
+    @Test
+    fun `third-party emotes follow their own lists and not the twitch emotes`() = runBlocking {
+        every { dispatchersProvider.default } returns Dispatchers.Unconfined
+        val channel = "forsen".toUserName()
+        val text = "FeelsDankMan monkaS"
+
+        emoteRepository.setBTTVGlobalEmotes(listOf(BTTVGlobalEmoteDto(id = "1", code = "FeelsDankMan")))
+        assertEquals(expected = listOf("FeelsDankMan"), actual = emoteRepository.parse3rdPartyEmotes(text, channel).map { it.code })
+
+        emoteRepository.clearTwitchEmotes()
+        assertEquals(expected = listOf("FeelsDankMan"), actual = emoteRepository.parse3rdPartyEmotes(text, channel).map { it.code })
+
+        emoteRepository.setBTTVGlobalEmotes(listOf(BTTVGlobalEmoteDto(id = "2", code = "monkaS")))
+        assertEquals(expected = listOf("monkaS"), actual = emoteRepository.parse3rdPartyEmotes(text, channel).map { it.code })
     }
 
     @Test

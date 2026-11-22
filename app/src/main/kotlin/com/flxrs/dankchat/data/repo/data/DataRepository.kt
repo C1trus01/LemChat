@@ -13,6 +13,7 @@ import com.flxrs.dankchat.data.api.helix.HelixApiClient
 import com.flxrs.dankchat.data.api.helix.dto.StreamDto
 import com.flxrs.dankchat.data.api.helix.dto.UserFollowsDto
 import com.flxrs.dankchat.data.api.seventv.SevenTVApiClient
+import com.flxrs.dankchat.data.api.seventv.dto.SevenTVUserDto
 import com.flxrs.dankchat.data.api.seventv.eventapi.SevenTVEventApiClient
 import com.flxrs.dankchat.data.api.seventv.eventapi.SevenTVEventMessage
 import com.flxrs.dankchat.data.api.upload.UploadClient
@@ -40,6 +41,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Single
 import java.io.File
@@ -69,6 +72,9 @@ class DataRepository(
     private val _dataLoadingFailures = MutableStateFlow(emptySet<DataLoadingFailure>())
     private val _dataUpdateEvents = MutableSharedFlow<DataUpdateEventMessage>()
     private val serviceEventChannel = Channel<ServiceEvent>(Channel.BUFFERED)
+
+    // Keeps a channel removal and a load of the same channel from interleaving their 7TV subscription changes
+    private val sevenTVSubscriptionMutex = Mutex()
 
     init {
         scope.launch {
@@ -128,12 +134,17 @@ class DataRepository(
         sevenTVEventApiClient.reconnectIfNecessary()
     }
 
-    suspend fun removeChannels(removed: List<UserName>) {
+    suspend fun removeChannels(removed: List<UserName>) = sevenTVSubscriptionMutex.withLock {
         removed.forEach { channel ->
+            // Added again in the meantime, its subscriptions are in use
+            if (emoteRepository.hasChannel(channel)) {
+                return@forEach
+            }
             sevenTVCosmeticsRepository.unsubscribeChannel(channel)
             val details = emoteRepository.getSevenTVUserDetails(channel) ?: return@forEach
             sevenTVEventApiClient.unsubscribeUser(details.id)
             sevenTVEventApiClient.unsubscribeEmoteSet(details.activeEmoteSetId)
+            emoteRepository.clearSevenTVEmotes(channel)
         }
     }
 
@@ -208,6 +219,7 @@ class DataRepository(
         channel: UserName,
         channelId: UserId,
         forceNetwork: Boolean = false,
+        onEmotesChanged: () -> Unit,
     ): Result<EmoteLoadResult> = withContext(dispatchersProvider.io) {
         if (VisibleThirdPartyEmotes.FFZ !in chatSettingsDataStore.settings.first().visibleEmotes) {
             return@withContext Result.success(EmoteLoadResult.Loaded)
@@ -218,6 +230,7 @@ class DataRepository(
                 flow = cachedEmoteProvider.getFFZChannelEmotes(channelId, forceNetwork),
                 onData = { emoteRepository.setFFZEmotes(channel, it) },
                 onFailure = { getOrEmitFailure { DataLoadingStep.ChannelFFZEmotes(channel, channelId) } },
+                onEmotesChanged = onEmotesChanged,
                 onMissing = { emoteRepository.clearFFZEmotes(channel) },
             )
         }
@@ -228,6 +241,7 @@ class DataRepository(
         channelDisplayName: DisplayName,
         channelId: UserId,
         forceNetwork: Boolean = false,
+        onEmotesChanged: () -> Unit,
     ): Result<EmoteLoadResult> = withContext(dispatchersProvider.io) {
         if (VisibleThirdPartyEmotes.BTTV !in chatSettingsDataStore.settings.first().visibleEmotes) {
             return@withContext Result.success(EmoteLoadResult.Loaded)
@@ -238,6 +252,7 @@ class DataRepository(
                 flow = cachedEmoteProvider.getBTTVChannelEmotes(channelId, forceNetwork),
                 onData = { emoteRepository.setBTTVEmotes(channel, channelDisplayName, it) },
                 onFailure = { getOrEmitFailure { DataLoadingStep.ChannelBTTVEmotes(channel, channelDisplayName, channelId) } },
+                onEmotesChanged = onEmotesChanged,
                 onMissing = { emoteRepository.clearBTTVEmotes(channel) },
             )
         }
@@ -247,6 +262,7 @@ class DataRepository(
         channel: UserName,
         channelId: UserId,
         forceNetwork: Boolean = false,
+        onEmotesChanged: () -> Unit,
     ): Result<EmoteLoadResult> = withContext(dispatchersProvider.io) {
         if (VisibleThirdPartyEmotes.SevenTV !in chatSettingsDataStore.settings.first().visibleEmotes) {
             return@withContext Result.success(EmoteLoadResult.Loaded)
@@ -258,16 +274,33 @@ class DataRepository(
         measureTimeAndLog(logger, "7TV emotes for #$channel") {
             collectCachedEmotes(
                 flow = cachedEmoteProvider.getSevenTVChannelEmotes(channelId, forceNetwork),
-                onData = { result ->
-                    if (result.emoteSet?.id != null) {
-                        sevenTVEventApiClient.subscribeEmoteSet(result.emoteSet.id)
-                    }
-                    sevenTVEventApiClient.subscribeUser(result.user.id)
-                    emoteRepository.setSevenTVEmotes(channel, result)
-                },
+                onData = { result -> applySevenTVEmotes(channel, result) },
                 onFailure = { getOrEmitFailure { DataLoadingStep.ChannelSevenTVEmotes(channel, channelId) } },
+                onEmotesChanged = onEmotesChanged,
                 onMissing = { emoteRepository.clearSevenTVEmotes(channel) },
             )
+        }
+    }
+
+    private suspend fun applySevenTVEmotes(
+        channel: UserName,
+        result: SevenTVUserDto,
+    ) = sevenTVSubscriptionMutex.withLock {
+        // A load can finish after its channel was removed, it must not subscribe again
+        if (!emoteRepository.hasChannel(channel)) {
+            return@withLock
+        }
+
+        val previousEmoteSetId = emoteRepository.getSevenTVUserDetails(channel)?.activeEmoteSetId
+        if (result.emoteSet?.id != null) {
+            sevenTVEventApiClient.subscribeEmoteSet(result.emoteSet.id)
+        }
+        sevenTVEventApiClient.subscribeUser(result.user.id)
+        emoteRepository.setSevenTVEmotes(channel, result)
+
+        // The cached emote set can differ from the current one, its subscription would stay behind
+        if (previousEmoteSetId != null && emoteRepository.getChannelForSevenTVEmoteSet(previousEmoteSetId) == null) {
+            sevenTVEventApiClient.unsubscribeEmoteSet(previousEmoteSetId)
         }
     }
 
@@ -316,7 +349,10 @@ class DataRepository(
         }
     }
 
-    suspend fun loadGlobalFFZEmotes(forceNetwork: Boolean = false): Result<Unit> = withContext(dispatchersProvider.io) {
+    suspend fun loadGlobalFFZEmotes(
+        forceNetwork: Boolean = false,
+        onEmotesChanged: () -> Unit = {},
+    ): Result<Unit> = withContext(dispatchersProvider.io) {
         if (VisibleThirdPartyEmotes.FFZ !in chatSettingsDataStore.settings.first().visibleEmotes) {
             return@withContext Result.success(Unit)
         }
@@ -326,11 +362,15 @@ class DataRepository(
                 flow = cachedEmoteProvider.getFFZGlobalEmotes(forceNetwork),
                 onData = { emoteRepository.setFFZGlobalEmotes(it) },
                 onFailure = { getOrEmitFailure { DataLoadingStep.GlobalFFZEmotes } },
+                onEmotesChanged = onEmotesChanged,
             ).map { }
         }
     }
 
-    suspend fun loadGlobalBTTVEmotes(forceNetwork: Boolean = false): Result<Unit> = withContext(dispatchersProvider.io) {
+    suspend fun loadGlobalBTTVEmotes(
+        forceNetwork: Boolean = false,
+        onEmotesChanged: () -> Unit = {},
+    ): Result<Unit> = withContext(dispatchersProvider.io) {
         if (VisibleThirdPartyEmotes.BTTV !in chatSettingsDataStore.settings.first().visibleEmotes) {
             return@withContext Result.success(Unit)
         }
@@ -340,11 +380,15 @@ class DataRepository(
                 flow = cachedEmoteProvider.getBTTVGlobalEmotes(forceNetwork),
                 onData = { emoteRepository.setBTTVGlobalEmotes(it) },
                 onFailure = { getOrEmitFailure { DataLoadingStep.GlobalBTTVEmotes } },
+                onEmotesChanged = onEmotesChanged,
             ).map { }
         }
     }
 
-    suspend fun loadGlobalSevenTVEmotes(forceNetwork: Boolean = false): Result<Unit> = withContext(dispatchersProvider.io) {
+    suspend fun loadGlobalSevenTVEmotes(
+        forceNetwork: Boolean = false,
+        onEmotesChanged: () -> Unit = {},
+    ): Result<Unit> = withContext(dispatchersProvider.io) {
         if (VisibleThirdPartyEmotes.SevenTV !in chatSettingsDataStore.settings.first().visibleEmotes) {
             return@withContext Result.success(Unit)
         }
@@ -354,6 +398,7 @@ class DataRepository(
                 flow = cachedEmoteProvider.getSevenTVGlobalEmotes(forceNetwork),
                 onData = { emoteRepository.setSevenTVGlobalEmotes(it) },
                 onFailure = { getOrEmitFailure { DataLoadingStep.GlobalSevenTVEmotes } },
+                onEmotesChanged = onEmotesChanged,
             ).map { }
         }
     }
@@ -362,6 +407,7 @@ class DataRepository(
         flow: Flow<CachedResult<T?>>,
         onData: suspend (T) -> Unit,
         onFailure: Result<EmoteLoadResult>.() -> Unit,
+        onEmotesChanged: () -> Unit,
         onMissing: suspend () -> Unit = {},
     ): Result<EmoteLoadResult> {
         var loadResult: Result<EmoteLoadResult> = Result.success(EmoteLoadResult.Loaded)
@@ -372,6 +418,7 @@ class DataRepository(
                         null -> onMissing()
                         else -> onData(data)
                     }
+                    onEmotesChanged()
                 }
 
                 is CachedResult.CachedFallback -> {

@@ -1,5 +1,6 @@
 package com.flxrs.dankchat.ui.main
 
+import com.flxrs.dankchat.preferences.appearance.ChannelBarLayout
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -103,7 +104,8 @@ private fun rememberIsPageCollectionActive(
 @Stable
 internal class ChatPagerCallbacks(
     val onOpenReplies: (String, UserName) -> Unit,
-    val onRecover: () -> Unit,
+    val onShowInput: () -> Unit,
+    val onExitFullscreen: () -> Unit,
     val onScrollToBottom: () -> Unit,
     val onTourAdvance: () -> Unit,
     val onTourSkip: () -> Unit,
@@ -122,6 +124,7 @@ internal fun MainScreenPagerContent(
     isLoggedIn: Boolean,
     showInput: Boolean,
     isFullscreen: Boolean,
+    channelBarLayout: ChannelBarLayout,
     swipeNavigation: Boolean,
     isSheetOpen: Boolean,
     inputHeightDp: Dp,
@@ -198,12 +201,13 @@ internal fun MainScreenPagerContent(
                                     showInput = showInput,
                                     isFullscreen = isFullscreen,
                                     showFabs = !isSheetOpen,
-                                    onRecover = callbacks.onRecover,
+                                    onShowInput = callbacks.onShowInput,
+                                    onExitFullscreen = callbacks.onExitFullscreen,
                                     fabMenuCallbacks = fabMenuCallbacks,
                                     showPinnedMessage = showPinnedMessage,
                                     contentPadding =
                                         PaddingValues(
-                                            top = chatTopPadding + if (isFullscreen) 0.dp else topBarHeight(),
+                                            top = chatTopPadding + if (isFullscreen) 0.dp else topBarHeight(channelBarLayout),
                                             bottom =
                                                 paddingValues.calculateBottomPadding() +
                                                     when {
@@ -231,7 +235,11 @@ internal fun MainScreenPagerContent(
                                     onScrollDirectionChange = { },
                                     scrollToMessageId = scrollTargets[channel],
                                     onScrollToMessageHandle = { onClearScrollTarget(channel) },
-                                    recoveryFabTooltipState = if (currentTourStep == TourStep.RecoveryFab) recoveryFabTooltipState else null,
+                                    // The neighbour page stays composed, its tooltip popup would clamp into view as a duplicate
+                                    recoveryFabTooltipState = when {
+                                        currentTourStep == TourStep.RecoveryFab && page == composePagerState.currentPage -> recoveryFabTooltipState
+                                        else -> null
+                                    },
                                     onTourAdvance = callbacks.onTourAdvance,
                                     onTourSkip = callbacks.onTourSkip,
                                 )
