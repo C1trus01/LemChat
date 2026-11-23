@@ -9,6 +9,8 @@ import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.auth.AuthDataStore
+import com.flxrs.dankchat.data.toDisplayName
+import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.data.toUserNames
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.model.ChannelWithRename
@@ -101,7 +103,7 @@ class DankChatPreferenceStore(
 
     val currentUserAndDisplayFlow: Flow<Pair<UserName?, DisplayName?>> =
         authDataStore.settings
-            .map { authDataStore.userName to authDataStore.displayName }
+            .map { it.userName?.toUserName() to it.displayName?.toDisplayName() }
             .distinctUntilChanged()
 
     fun formatViewersString(

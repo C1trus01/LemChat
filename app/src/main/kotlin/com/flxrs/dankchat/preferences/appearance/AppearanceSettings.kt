@@ -79,7 +79,7 @@ data class AppearanceSettings(
     val showChangelogs: Boolean = true,
     val showCharacterCounter: Boolean = false,
     val showSendWaitTimer: Boolean = false,
-    val showClearInputButton: Boolean = false,
+    val showClearInputButton: Boolean = true,
     val showSendButton: Boolean = true,
     val swipeNavigation: Boolean = true,
     val compactChannelInfo: Boolean = false,
